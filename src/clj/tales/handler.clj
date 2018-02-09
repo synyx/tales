@@ -1,36 +1,31 @@
 (ns tales.handler
-  (:require [compojure.core :refer [GET defroutes]]
+  (:require [compojure.core :refer [context defroutes routes GET POST PUT DELETE]]
             [compojure.route :refer [not-found resources]]
-            [hiccup.page :refer [include-js include-css html5]]
-            [tales.middleware :refer [wrap-middleware]]
-            [config.core :refer [env]]))
+            [config.core :refer [env]]
+            [tales.middleware :refer [wrap-api-middleware wrap-web-middleware]]
+            [tales.api :as api]
+            [tales.web :as web]))
 
-(defn head []
-  [:head
-   [:meta {:charset "utf-8"}]
-   [:meta {:name    "viewport"
-           :content "width=device-width, initial-scale=1"}]
-   (include-css (if (env :dev) "/css/site.css" "/css/site.min.css"))])
+(defroutes api-routes
+    (wrap-api-middleware
+      (routes
+        (GET "/" [] (api/find-all))
+        (POST "/" {body :body} (api/create body))
+        (context "/:slug" [slug]
+          (GET "/" [] (api/find-by-slug slug))
+          (PUT "/" {body :body} (api/update slug body))
+          (DELETE "/" [] (api/delete slug))))))
 
-(defn loading-page []
-  (html5
-    (head)
-    [:body {:class "body-container"}
-     [:div#app
-      [:p "Please wait..."]]
-     (include-js "/js/app.js")]))
+(defroutes web-routes
+  (wrap-web-middleware
+    (routes
+      (GET "/" [] (web/loading-page))
+      (if (env :dev) (GET "/cards" [] (web/cards-page)))
+      (resources "/")
+      (not-found "Not Found"))))
 
-(defn cards-page []
-  (html5
-    (head)
-    [:body
-     [:div#app]
-     (include-js "/js/app_devcards.js")]))
+(defroutes app-routes
+           (context "/api/tales" [] api-routes)
+           web-routes)
 
-(defroutes routes
-           (GET "/" [] (loading-page))
-           (if (env :dev) (GET "/cards" [] (cards-page)))
-           (resources "/")
-           (not-found "Not Found"))
-
-(def app (wrap-middleware #'routes))
+(def app #'app-routes)
