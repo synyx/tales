@@ -73,6 +73,7 @@
   :doo {:build "test"}
 
   :figwheel {:http-server-root "public"
+             :server-logfile   false
              :server-port      3449
              :nrepl-port       7002
              :nrepl-middleware ["cemerick.piggieback/wrap-cljs-repl"]
