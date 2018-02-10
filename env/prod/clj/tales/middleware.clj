@@ -12,7 +12,7 @@
   (-> handler
       wrap-json-response
       (wrap-defaults api-defaults)
-      wrap-json-body))
+      (wrap-json-body {:keywords? true})))
 
 (defn wrap-multipart-params-middleware [handler]
   (-> handler
