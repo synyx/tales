@@ -34,6 +34,10 @@
                   (mapv #(.getName %)
                         (filter #(.isDirectory %) (.listFiles (io/file *project-dir*))))))))
 
+(defn find-by-slug [slug]
+  (if (project? slug)
+    (load-project! slug)))
+
 (defn create
   ([name] (create name (slugify name)))
   ([name slug]

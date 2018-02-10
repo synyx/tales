@@ -1,7 +1,7 @@
 (ns tales.api
   (:require [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
-            [ring.util.response :refer [created response]]
+            [ring.util.response :refer [created response not-found]]
             [tales.project :as project :refer [*project-dir*]]
             [clojure.string :as str])
   (:import (java.io File)))
@@ -16,8 +16,10 @@
   (response (project/find-all)))
 
 (defn find-by-slug [slug]
-  (response {:action "find-by-slug"
-             :slug   slug}))
+  (let [project (project/find-by-slug slug)]
+    (if project
+      (response project)
+      (not-found {}))))
 
 (defn create [body]
   (if (s/valid? :tales.project/new-project body)

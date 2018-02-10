@@ -82,10 +82,23 @@
                           (should= "My Tale" (:name body))
                           (should= "my-tale" (:slug body)))))
 
-          (it "GET /api/tales/tale returns json"
-              (let [response (app (-> (mock/request :get "/api/tales/tale")))]
-                (should= 200 (:status response))
-                (should= "application/json; charset=utf-8" (get-header response "Content-Type"))))
+          (describe "get tale"
+                    (it "sets json content-type"
+                        (let [_ (project/create "Test")
+                              response (app (-> (mock/request :get "/api/tales/test")))]
+                          (should= 200 (:status response))
+                          (should= "application/json; charset=utf-8" (get-header response "Content-Type"))))
+
+                    (it "returns not-found for non-existing project"
+                        (let [response (app (-> (mock/request :get "/api/tales/test")))]
+                          (should= 404 (:status response))))
+
+                    (it "returns project"
+                        (let [project (project/create "Project 1")
+                              response (app (-> (mock/request :get "/api/tales/project-1")))
+                              body (json/read-str (:body response) :key-fn keyword)]
+                          (should= 200 (:status response))
+                          (should= project body))))
 
           (it "PUT /api/tales/tale returns json"
               (let [response (app (-> (mock/request :put "/api/tales/tale")))]

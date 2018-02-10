@@ -31,6 +31,18 @@
                 (should= project2 (nth projects 1))
                 (should= project3 (nth projects 2)))))
 
+(describe "get project"
+          (around [f] (cleanup-projects f))
+
+          (it "returns nil for non-existing project"
+              (let [project (project/find-by-slug "test")]
+                (should-be-nil project)))
+
+          (it "returns project"
+              (let [project (project/create "Test")
+                    found-project (project/find-by-slug "test")]
+                (should= project found-project))))
+
 (describe "create project"
           (around [f] (cleanup-projects f))
 
