@@ -13,7 +13,7 @@
    :body    body})
 
 (defn find-all []
-  (response {:action "find-all"}))
+  (response (project/find-all)))
 
 (defn find-by-slug [slug]
   (response {:action "find-by-slug"

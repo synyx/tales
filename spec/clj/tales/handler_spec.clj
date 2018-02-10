@@ -7,7 +7,8 @@
             [ring.util.response :refer [get-header]]
             [speclj.core :refer :all]
             [tales.project :refer [*project-dir*]]
-            [tales.handler :refer [app]])
+            [tales.handler :refer [app]]
+            [tales.project :as project])
   (:import (java.io File)))
 
 (defn cleanup-projects [f]
@@ -26,10 +27,29 @@
 (describe "api endpoint"
           (around [f] (cleanup-projects f))
 
-          (it "GET /api/tales returns json"
-              (let [response (app (-> (mock/request :get "/api/tales")))]
-                (should= 200 (:status response))
-                (should= "application/json; charset=utf-8" (get-header response "Content-Type"))))
+          (describe "get tales"
+                    (it "sets json content-type"
+                        (let [response (app (-> (mock/request :get "/api/tales")))]
+                          (should= 200 (:status response))
+                          (should= "application/json; charset=utf-8" (get-header response "Content-Type"))))
+
+                    (it "returns empty list for empty projects"
+                        (let [response (app (-> (mock/request :get "/api/tales")))
+                              body (json/read-str (:body response) :key-fn keyword)]
+                          (should= 200 (:status response))
+                          (should (empty? body))))
+
+                    (it "returns existing projects"
+                        (let [project1 (project/create "Project 1")
+                              project2 (project/create "Project 2")
+                              project3 (project/create "Project 3")
+                              response (app (-> (mock/request :get "/api/tales")))
+                              body (json/read-str (:body response) :key-fn keyword)]
+                          (should= 200 (:status response))
+                          (should= 3 (count body))
+                          (should= project1 (nth body 0))
+                          (should= project2 (nth body 1))
+                          (should= project3 (nth body 2)))))
 
           (describe "create tale"
                     (it "fails for invalid params"

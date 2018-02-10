@@ -15,6 +15,22 @@
       (f)
       (tales.utility/delete-recursively *project-dir*))))
 
+(describe "get projects"
+          (around [f] (cleanup-projects f))
+
+          (it "returns empty list for empty projects"
+              (let [projects (project/find-all)]
+                (should (empty? projects))))
+          (it "returns list of projects"
+              (let [project1 (project/create "Project 1")
+                    project2 (project/create "Project 2")
+                    project3 (project/create "Project 3")
+                    projects (project/find-all)]
+                (should= 3 (count projects))
+                (should= project1 (nth projects 0))
+                (should= project2 (nth projects 1))
+                (should= project3 (nth projects 2)))))
+
 (describe "create project"
           (around [f] (cleanup-projects f))
 

@@ -15,13 +15,24 @@
   (str/join (File/separator) [*project-dir* slug "config.edn"]))
 
 (defn- load-project! [slug]
-  (let [filename (config-file slug)]
-    (edn/read-string (slurp filename))))
+  (let [filename (config-file slug)
+        project (edn/read-string (slurp filename))]
+    (assoc project :slug slug)))
 
 (defn- save-project! [slug project]
   (let [filename (config-file slug)]
     (io/make-parents filename)
     (spit filename (pr-str project))))
+
+(defn- project? [slug]
+  (.exists (io/file (str/join (File/separator) [*project-dir* slug "config.edn"]))))
+
+(defn find-all []
+  (mapv load-project!
+        (reverse
+          (filter project?
+                  (mapv #(.getName %)
+                        (filter #(.isDirectory %) (.listFiles (io/file *project-dir*))))))))
 
 (defn create
   ([name] (create name (slugify name)))
