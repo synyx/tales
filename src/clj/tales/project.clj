@@ -1,18 +1,17 @@
 (ns tales.project
   (:require [clojure.edn :as edn]
-            [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [config.core :refer [env]]
-            [tales.utility :refer [slugify]])
-  (:import (java.io File)))
+            [me.raynes.fs :as fs]
+            [tales.utility :refer [slugify]]))
 
 (def ^:dynamic *project-dir* (or
-                               (env :project-dir)
-                               (str/join (File/separator) [(System/getProperty "user.home") "Tales"])))
+                               (fs/file (env :project-dir))
+                               (fs/file (fs/home) "Tales")))
 
 (defn- config-file [slug]
-  (str/join (File/separator) [*project-dir* slug "config.edn"]))
+  (fs/file *project-dir* slug "config.edn"))
 
 (defn- load-project! [slug]
   (let [filename (config-file slug)
@@ -21,18 +20,18 @@
 
 (defn- save-project! [slug project]
   (let [filename (config-file slug)]
-    (io/make-parents filename)
+    (fs/mkdirs (fs/parent filename))
     (spit filename (pr-str project))))
 
 (defn- project? [slug]
-  (.exists (io/file (str/join (File/separator) [*project-dir* slug "config.edn"]))))
+  (fs/exists? (fs/file *project-dir* slug "config.edn")))
 
 (defn find-all []
   (mapv load-project!
         (reverse
           (filter project?
-                  (mapv #(.getName %)
-                        (filter #(.isDirectory %) (.listFiles (io/file *project-dir*))))))))
+                  (mapv fs/name
+                        (filter fs/directory? (fs/list-dir *project-dir*)))))))
 
 (defn find-by-slug [slug]
   (if (project? slug)

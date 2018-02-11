@@ -1,10 +1,9 @@
 (ns tales.api
-  (:require [clojure.java.io :as io]
-            [clojure.spec.alpha :as s]
+  (:require [clojure.spec.alpha :as s]
+            [me.raynes.fs :as fs]
             [ring.util.response :refer [created response not-found]]
             [tales.project :as project :refer [*project-dir*]]
-            [clojure.string :as str])
-  (:import (java.io File)))
+            [clojure.string :as str]))
 
 (defn bad-request
   [body]
@@ -41,8 +40,7 @@
   (let [file-name (file :filename)
         file-size (file :size)
         temp-file (file :tempfile)
-        target-file (io/as-file (str/join (File/separator) [*project-dir* slug file-name]))]
+        target-file (fs/file *project-dir* slug file-name)]
     (do
-      (io/make-parents target-file)
-      (io/copy temp-file target-file)
+      (fs/copy+ temp-file target-file)
       {:status 200})))

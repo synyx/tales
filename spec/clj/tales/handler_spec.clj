@@ -1,22 +1,19 @@
 (ns tales.handler-spec
   (:require [clojure.data.json :as json]
-            [clojure.java.io :as io]
             [clojure.string :as str]
+            [me.raynes.fs :as fs]
             [ring.mock.request :as mock]
             [ring.util.io :refer [string-input-stream]]
             [ring.util.response :refer [get-header]]
             [speclj.core :refer :all]
             [tales.project :refer [*project-dir*]]
             [tales.handler :refer [app]]
-            [tales.project :as project])
-  (:import (java.io File)))
+            [tales.project :as project]))
 
-(defn cleanup-projects [f]
-  (let [tmp-dir (System/getProperty "java.io.tmpdir")
-        project-dir (str/join (File/separator) [tmp-dir "tales"])]
-    (binding [*project-dir* project-dir]
-      (f)
-      (tales.utility/delete-recursively *project-dir*))))
+(defn tmp-projects [f]
+  (binding [*project-dir* (fs/temp-dir "tales-")]
+    (f)
+    (fs/delete-dir *project-dir*)))
 
 (describe "web endpoint"
           (it "GET / returns html"
@@ -25,7 +22,7 @@
                 (should= "text/html; charset=utf-8" (get-header response "Content-Type")))))
 
 (describe "api endpoint"
-          (around [f] (cleanup-projects f))
+          (around [f] (tmp-projects f))
 
           (describe "get tales"
                     (it "sets json content-type"
@@ -122,7 +119,7 @@
                                       (mock/content-type "multipart/form-data; boundary=XXXX")
                                       (mock/content-length (count form-body))
                                       (mock/body form-body)))
-                    target-file (str/join (File/separator) [*project-dir* "test" "test.txt"])]
+                    target-file (fs/file *project-dir* "test" "test.txt")]
                 (should= 200 (:status response))
                 (should= "application/octet-stream" (get-header response "Content-Type"))
-                (should (.exists (io/as-file target-file))))))
+                (should (fs/exists? target-file)))))

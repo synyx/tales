@@ -1,6 +1,5 @@
 (ns tales.utility
-  (:require [clojure.java.io :as io]
-            [clojure.string :as s])
+  (:require [clojure.string :as s])
   (:import [java.text Normalizer Normalizer$Form]))
 
 (defn- truncate [value max-length]
@@ -17,9 +16,3 @@
    (let [normalized (normalize value)
          slugified (s/replace normalized #"[\p{Space}\p{P}]+" "-")]
      (truncate slugified max-length))))
-
-(defn delete-recursively [f]
-  (let [file (io/file f)]
-    (if (.exists file)
-      (doseq [f (reverse (file-seq (io/file f)))]
-        (io/delete-file f)))))

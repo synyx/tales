@@ -11,6 +11,7 @@
                  [ring/ring-json "0.4.0"]
                  [compojure "1.6.0"]
                  [hiccup "1.0.5"]
+                 [me.raynes/fs "1.4.6"]
                  [yogthos/config "1.1"]
                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
                  [reagent "0.7.0"]
