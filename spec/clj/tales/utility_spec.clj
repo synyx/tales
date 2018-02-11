@@ -13,8 +13,10 @@
               (should= "multiple-words" (slugify "\tMultiple\tWords\t")))
 
           (it "handles long sentences"
-              (should= "i-m-a-snaillike-terrestrial-gastropod-having-no-shell" (slugify "I'm a snaillike terrestrial gastropod having no shell"))
-              (should= "i-m-a-snaillike-terrestrial-ga" (slugify "I'm a snaillike terrestrial gastropod having no shell" 30)))
+              (should= "i-m-a-snaillike-terrestrial-gastropod-having-no-shell"
+                       (slugify "I'm a snaillike terrestrial gastropod having no shell"))
+              (should= "i-m-a-snaillike-terrestrial-ga"
+                       (slugify "I'm a snaillike terrestrial gastropod having no shell" 30)))
 
           (it "removes non-ascii characters"
               (should (= "aaaaaaaaaa" (slugify "áÁàÀãÃâÂäÄ")))

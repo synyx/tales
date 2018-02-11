@@ -15,7 +15,7 @@
                  [yogthos/config "1.1"]
                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
                  [reagent "0.7.0"]
-                 [reagent-utils "0.2.1"]
+                 [reagent-utils "0.3.0"]
                  [secretary "1.2.3"]]
 
   :plugins [[lein-environ "1.1.0"]
@@ -85,15 +85,15 @@
 
   :profiles {:dev     {:repl-options {:init-ns          tales.repl
                                       :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
-                       :dependencies [[binaryage/devtools "0.9.8"]
+                       :dependencies [[binaryage/devtools "0.9.9"]
                                       [ring/ring-mock "0.3.2"]
                                       [ring/ring-devel "1.6.3"]
-                                      [prone "1.1.4"]
+                                      [prone "1.5.0"]
                                       [figwheel-sidecar "0.5.14"]
                                       [org.clojure/tools.nrepl "0.2.13"]
                                       [com.cemerick/piggieback "0.2.2"]
                                       [speclj "3.3.2"]
-                                      [devcards "0.2.3" :exclusions [cljsjs/react]]
+                                      [devcards "0.2.4" :exclusions [cljsjs/react]]
                                       [pjstadig/humane-test-output "0.8.3"]]
                        :source-paths ["env/dev/clj"]
                        :plugins      [[lein-figwheel "0.5.14"]

@@ -41,6 +41,5 @@
         file-size (file :size)
         temp-file (file :tempfile)
         target-file (fs/file *project-dir* slug file-name)]
-    (do
-      (fs/copy+ temp-file target-file)
-      {:status 200})))
+    (fs/copy+ temp-file target-file)
+    {:status 200}))

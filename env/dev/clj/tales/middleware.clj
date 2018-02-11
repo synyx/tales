@@ -1,6 +1,7 @@
 (ns tales.middleware
   (:require [prone.middleware :refer [wrap-exceptions]]
-            [ring.middleware.defaults :refer [api-defaults site-defaults wrap-defaults]]
+            [ring.middleware.defaults :refer
+             [api-defaults site-defaults wrap-defaults]]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [ring.middleware.multipart-params :refer [wrap-multipart-params]]
             [ring.middleware.params :refer [wrap-params]]

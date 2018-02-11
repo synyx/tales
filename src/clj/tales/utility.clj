@@ -3,7 +3,7 @@
   (:import [java.text Normalizer Normalizer$Form]))
 
 (defn- truncate [value max-length]
-  (apply str (take max-length value)))
+  (s/join (take max-length value)))
 
 (defn- normalize [value]
   (let [normalized (Normalizer/normalize value Normalizer$Form/NFD)
