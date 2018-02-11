@@ -36,7 +36,7 @@
                                     [:cljsbuild :builds :app :compiler :output-to]]
 
   :source-paths ["src/clj" "src/cljc"]
-  :test-paths ["spec/clj"]
+  :test-paths ["spec/clj" "test/clj"]
   :resource-paths ["resources" "target/cljsbuild"]
 
   :minify-assets {:assets {"resources/public/css/site.min.css" "resources/public/css/site.css"}}
@@ -56,8 +56,11 @@
                                                         :source-map    true
                                                         :optimizations :none
                                                         :pretty-print  true}}
-                              :test     {:source-paths ["src/cljs" "src/cljc" "spec/cljs"]
-                                         :compiler     {:output-to     "target/test.js"
+                              :test     {:source-paths ["src/cljs" "src/cljc" "test/cljs"]
+                                         :compiler     {:main tales.doo-runner
+                                                        :asset-path "/js/out"
+                                                        :output-to     "target/test.js"
+                                                        :output-dir "target/cljstest/public/js/out"
                                                         :optimizations :whitespace
                                                         :pretty-print  true}}
                               :devcards {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
@@ -68,8 +71,7 @@
                                                         :output-dir           "target/cljsbuild/public/js/devcards_out"
                                                         :source-map-timestamp true
                                                         :optimizations        :none
-                                                        :pretty-print         true}}}
-              :test-commands {"unit" ["phantomjs" "runners/speclj" "target/test.js"]}}
+                                                        :pretty-print         true}}}}
 
   :doo {:build "test"}
 
@@ -97,7 +99,7 @@
                                       [pjstadig/humane-test-output "0.8.3"]]
                        :source-paths ["env/dev/clj"]
                        :plugins      [[lein-figwheel "0.5.14"]
-                                      [speclj "3.3.2"]]
+                                      [lein-doo "0.1.8"]]
                        :injections   [(require 'pjstadig.humane-test-output)
                                       (pjstadig.humane-test-output/activate!)]
                        :env          {:dev true}}
