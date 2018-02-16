@@ -28,6 +28,25 @@
                     (dissoc :errors)
                     (assoc :projects (js->clj response)))))
 
+(reg-event-fx :add-project
+              (fn [{db :db} [_ project]]
+                {:db         (assoc-in db [:loading :project] true)
+                 :http-xhrio {:method          :post
+                              :uri             "/api/tales/"
+                              :params          project
+                              :format          (ajax/json-request-format)
+                              :response-format (ajax/json-response-format {:keywords? true})
+                              :on-success      [:add-project-success]
+                              :on-failure      [:api-request-error :project]}}))
+
+(reg-event-db :add-project-success
+              (fn [db [_ response]]
+                (-> db
+                    (assoc-in [:loading? :project] false)
+                    (dissoc :errors)
+                    (assoc :projects (conj (:projects db) (js->clj response))))))
+
+
 (reg-event-fx :api-request-error
               (fn [{:keys [db]} [_ request-type response]]
                 {:db       (assoc-in db [:errors request-type] (get-in response [:response :errors]))
