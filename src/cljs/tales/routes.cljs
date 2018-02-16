@@ -17,10 +17,10 @@
   (secretary/set-config! :prefix "#")
 
   (defroute "/" []
-            (dispatch [:set-active-page :editor-page]))
+            (dispatch [:set-active-page :project-page]))
 
-  (defroute "/tell" []
-            (dispatch [:set-active-page :tell-page])))
+  (defroute "/editor" []
+            (dispatch [:set-active-page :editor-page])))
 
 (defn init! []
   (app-routes)
