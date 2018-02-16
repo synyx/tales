@@ -1,76 +1,68 @@
 (ns tales.project_test
-  (:require [clojure.edn :as edn]
-            [clojure.spec.alpha :as s]
+  (:require [clojure.spec.alpha :as s]
             [clojure.test :refer :all]
-            [me.raynes.fs :as fs]
-            [tales.project :as project :refer [*project-dir*]]))
+            [tales.project :as project]
+            [tales.test-utility :refer [temporary-projects]]))
 
-(defn tmp-projects [f]
-  (binding [*project-dir* (fs/temp-dir "tales-")]
-    (f)
-    (fs/delete-dir *project-dir*)))
+(use-fixtures :each temporary-projects)
 
-(use-fixtures :each tmp-projects)
-
-(deftest test-get-projects
+(deftest test-load-projects
   (testing "returns empty list for empty projects"
-    (let [projects (project/find-all)]
+    (let [projects (project/load-projects!)]
       (is (empty? projects))))
 
   (testing "returns list of projects"
-    (let [project1 (project/create "Project 1")
-          project2 (project/create "Project 2")
-          project3 (project/create "Project 3")
-          projects (project/find-all)]
+    (let [project1 (project/save-project! "project-1" {:name "Project 1"})
+          project2 (project/save-project! "project-2" {:name "Project 2"})
+          project3 (project/save-project! "project-3" {:name "Project 3"})
+          projects (project/load-projects!)]
       (is (= 3 (count projects)))
       (is (= project1 (nth projects 0)))
       (is (= project2 (nth projects 1)))
       (is (= project3 (nth projects 2))))))
 
-(deftest test-get-project
+(deftest test-load-project
+  (testing "returns nil for nil"
+    (is (nil? (project/load-project! nil))))
+
   (testing "returns nil for non-existing project"
-    (let [project (project/find-by-slug "test")]
-      (is (nil? project))))
+    (is (nil? (project/load-project! "test"))))
 
   (testing "returns project"
-    (let [project       (project/create "Test")
-          found-project (project/find-by-slug "test")]
+    (let [project       (project/save-project! "test" {:name "Test"})
+          found-project (project/load-project! "test")]
       (is (= project found-project))))
 
   (testing "returned project conforms to spec"
-    (let [_             (project/create "Test")
-          found-project (project/find-by-slug "test")]
+    (let [_             (project/save-project! "test" {:name "Test"})
+          found-project (project/load-project! "test")]
       (is (s/valid? :tales.project/project found-project)))))
 
-(deftest test-create-project
-  (testing "returns the created project"
-    (let [project (project/create "Test")]
+(deftest test-save-project
+  (testing "returns nil for empty slug"
+    (is (not (project/save-project! nil {:name "Test"}))))
+
+  (testing "returns nil for non-conforming project"
+    (is (not (project/save-project! "test" nil))))
+
+  (testing "returns the saved project"
+    (let [project (project/save-project! "test" {:name "Test"})]
       (is (= "test" (:slug project)))
       (is (= "Test" (:name project)))))
 
-  (testing "saves project on disk"
-    (let [project      (project/create "Test")
-          project-file (fs/file *project-dir* (:slug project) "config.edn")]
-      (is (fs/exists? project-file)))))
-
-(deftest test-update-project
-  (testing "does nothing for non-existing project"
-    (let [project (project/update "test" {:name "Test"})]
-      (is (nil? project))
-      (is (not (project/project? "test")))))
-
   (testing "returns the updated project"
-    (let [project (project/create "Test")
-          updated-project (project/update (:slug project) (assoc project :name "Update"))]
+    (let [project         (project/save-project! "test" {:name "Test"})
+          updated-project (project/save-project! "test" (assoc project :name "Updated Test"))]
       (is (= "test" (:slug updated-project)))
-      (is (= "Update" (:name updated-project))))))
+      (is (= "Updated Test" (:name updated-project))))))
 
 (deftest test-delete-project
+  (testing "returns false for nil"
+    (is (not (project/delete-project! nil))))
+
   (testing "returns false for non-existing project"
-    (is (not (project/project? "xyz")))
-    (is (not (project/delete "xyz"))))
+    (is (not (project/delete-project! "xyz"))))
 
   (testing "returns true for existing project"
-    (let [project (project/create "Test")]
-      (is (project/project? (:slug project)))
-      (is (project/delete (:slug project))))))
+    (let [_ (project/save-project! "test" {:name "Test"})]
+      (is (project/delete-project! "test")))))

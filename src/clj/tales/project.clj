@@ -12,50 +12,39 @@
 (defn- config-file [slug]
   (fs/file *project-dir* slug "config.edn"))
 
-(defn- load-project! [slug]
-  (let [filename (config-file slug)
-        project  (edn/read-string (slurp filename))]
-    (assoc project :slug slug)))
+(defn project? [slug]
+  (and (not-empty slug)
+       (fs/exists? (config-file slug))))
 
-(defn- save-project! [slug project]
-  (let [filename (config-file slug)]
-    (do
+(defn project-names []
+  (reverse
+    (filter project?
+            (mapv fs/name
+                  (filter fs/directory? (fs/list-dir *project-dir*))))))
+
+(defn load-project! [slug]
+  (if (project? slug)
+    (let [project (edn/read-string (slurp (config-file slug)))]
+      (assoc project :slug slug))))
+
+(defn load-projects! []
+  (mapv load-project! (project-names)))
+
+(defn save-project! [slug project]
+  (if (and (not-empty slug)
+           (s/valid? ::project project))
+    (let [loaded-project (load-project! slug)
+          project        (merge loaded-project project)
+          filename       (config-file slug)]
       (fs/mkdirs (fs/parent filename))
       (spit filename (pr-str (dissoc project :slug)))
-      project)))
+      (assoc project :slug slug))))
 
-(defn project? [slug]
-  (fs/exists? (fs/file *project-dir* slug "config.edn")))
-
-(defn find-all []
-  (mapv load-project!
-        (reverse
-          (filter project?
-                  (mapv fs/name
-                        (filter fs/directory? (fs/list-dir *project-dir*)))))))
-
-(defn find-by-slug [slug]
+(defn delete-project! [slug]
   (if (project? slug)
-    (load-project! slug)))
-
-(defn create
-  ([name] (create name (slugify name)))
-  ([name slug]
-   (let [tale {:name name}]
-     (save-project! slug tale)
-     (assoc tale :slug slug))))
-
-(defn update [slug new-project]
-  (if (project? slug)
-    (let [project         (load-project! slug)
-          updated-project (merge project new-project)]
-      (save-project! slug updated-project))))
-
-(defn delete [slug]
-  (fs/delete-dir (fs/file *project-dir* slug)))
+    (fs/delete-dir (fs/file *project-dir* slug))
+    false))
 
 (s/def ::name string?)
-
-(s/def ::new-project (s/keys :req-un [::name]))
 
 (s/def ::project (s/keys :req-un [::name]))
