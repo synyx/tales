@@ -53,6 +53,18 @@
           project-file (fs/file *project-dir* (:slug project) "config.edn")]
       (is (fs/exists? project-file)))))
 
+(deftest test-update-project
+  (testing "does nothing for non-existing project"
+    (let [project (project/update "test" {:name "Test"})]
+      (is (nil? project))
+      (is (not (project/project? "test")))))
+
+  (testing "returns the updated project"
+    (let [project (project/create "Test")
+          updated-project (project/update (:slug project) (assoc project :name "Update"))]
+      (is (= "test" (:slug updated-project)))
+      (is (= "Update" (:name updated-project))))))
+
 (deftest test-delete-project
   (testing "returns false for non-existing project"
     (is (not (project/project? "xyz")))

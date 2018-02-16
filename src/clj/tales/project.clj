@@ -1,7 +1,6 @@
 (ns tales.project
   (:require [clojure.edn :as edn]
             [clojure.spec.alpha :as s]
-            [clojure.string :as str]
             [config.core :refer [env]]
             [me.raynes.fs :as fs]
             [tales.utility :refer [slugify]]))
@@ -20,8 +19,10 @@
 
 (defn- save-project! [slug project]
   (let [filename (config-file slug)]
-    (fs/mkdirs (fs/parent filename))
-    (spit filename (pr-str project))))
+    (do
+      (fs/mkdirs (fs/parent filename))
+      (spit filename (pr-str (dissoc project :slug)))
+      project)))
 
 (defn project? [slug]
   (fs/exists? (fs/file *project-dir* slug "config.edn")))
@@ -43,6 +44,12 @@
    (let [tale {:name name}]
      (save-project! slug tale)
      (assoc tale :slug slug))))
+
+(defn update [slug new-project]
+  (if (project? slug)
+    (let [project         (load-project! slug)
+          updated-project (merge project new-project)]
+      (save-project! slug updated-project))))
 
 (defn delete [slug]
   (fs/delete-dir (fs/file *project-dir* slug)))

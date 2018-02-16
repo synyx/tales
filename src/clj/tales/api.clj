@@ -28,9 +28,11 @@
     (bad-request {:error (s/explain-str :tales.project/new-project body)})))
 
 (defn update [slug body]
-  (response {:action "update"
-             :slug   slug
-             :body   body}))
+  (if (s/valid? :tales.project/project body)
+    (if (project/project? slug)
+        (response (project/update slug body))
+        (not-found {}))
+    (bad-request {:error (s/explain-str :tales.project/new-project body)})))
 
 (defn delete [slug]
   (if (project/project? slug)
