@@ -33,9 +33,14 @@
       (is (nil? project))))
 
   (testing "returns project"
-    (let [project (project/create "Test")
+    (let [project       (project/create "Test")
           found-project (project/find-by-slug "test")]
-      (is (= project found-project)))))
+      (is (= project found-project))))
+
+  (testing "returned project conforms to spec"
+    (let [_             (project/create "Test")
+          found-project (project/find-by-slug "test")]
+      (is (s/valid? :tales.project/project found-project)))))
 
 (deftest test-create-project
   (testing "returns the created project"
@@ -44,13 +49,16 @@
       (is (= "Test" (:name project)))))
 
   (testing "saves project on disk"
-    (let [project (project/create "Test")
+    (let [project      (project/create "Test")
           project-file (fs/file *project-dir* (:slug project) "config.edn")]
-      (is (fs/exists? project-file))))
+      (is (fs/exists? project-file)))))
 
-  (testing "content of project file conforms to spec"
-    (let [project (project/create "Test")
-          project-file (fs/file *project-dir* (:slug project) "config.edn")
-          loaded-project (edn/read-string (slurp project-file))]
-      (is (s/valid? :tales.project/project loaded-project))
-      (is (= (dissoc project :slug) loaded-project)))))
+(deftest test-delete-project
+  (testing "returns false for non-existing project"
+    (is (not (project/project? "xyz")))
+    (is (not (project/delete "xyz"))))
+
+  (testing "returns true for existing project"
+    (let [project (project/create "Test")]
+      (is (project/project? (:slug project)))
+      (is (project/delete (:slug project))))))

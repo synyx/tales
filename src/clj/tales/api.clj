@@ -22,7 +22,7 @@
 
 (defn create [body]
   (if (s/valid? :tales.project/new-project body)
-    (let [project (project/create (:name body))
+    (let [project  (project/create (:name body))
           resource (format "/api/tales/%s" (:slug project))]
       (created resource project))
     (bad-request {:error (s/explain-str :tales.project/new-project body)})))
@@ -33,13 +33,15 @@
              :body   body}))
 
 (defn delete [slug]
-  (response {:action "delete"
-             :slug   slug}))
+  (if (project/project? slug)
+    (do (project/delete slug)
+        (response {}))
+    (not-found {})))
 
 (defn upload-image [slug file]
-  (let [file-name (file :filename)
-        file-size (file :size)
-        temp-file (file :tempfile)
+  (let [file-name   (file :filename)
+        file-size   (file :size)
+        temp-file   (file :tempfile)
         target-file (fs/file *project-dir* slug file-name)]
     (fs/copy+ temp-file target-file)
     {:status 200}))

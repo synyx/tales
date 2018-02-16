@@ -106,11 +106,22 @@
              (get-header response "Content-Type"))))))
 
 (deftest test-api-delete-tale
+  (testing "returns not-found for non-existing project"
+    (let [response (app (mock/request :delete "/api/tales/test"))]
+      (is (= 404 (:status response)))))
+
   (testing "returns json"
-    (let [response (app (mock/request :delete "/api/tales/tale"))]
+    (let [_ (project/create "Test")
+          response (app (mock/request :delete "/api/tales/test"))]
       (is (= 200 (:status response)))
       (is (= "application/json; charset=utf-8"
-             (get-header response "Content-Type"))))))
+             (get-header response "Content-Type")))))
+
+  (testing "deletes resource"
+    (let [project (project/create "Test")
+          response (app (mock/request :delete "/api/tales/test"))]
+      (is (= 200 (:status response)))
+      (is (not (project/project? (:slug project)))))))
 
 (deftest test-api-image-upload
   (testing "copies uploaded file to project directory"

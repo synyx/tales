@@ -15,7 +15,7 @@
 
 (defn- load-project! [slug]
   (let [filename (config-file slug)
-        project (edn/read-string (slurp filename))]
+        project  (edn/read-string (slurp filename))]
     (assoc project :slug slug)))
 
 (defn- save-project! [slug project]
@@ -23,7 +23,7 @@
     (fs/mkdirs (fs/parent filename))
     (spit filename (pr-str project))))
 
-(defn- project? [slug]
+(defn project? [slug]
   (fs/exists? (fs/file *project-dir* slug "config.edn")))
 
 (defn find-all []
@@ -43,6 +43,9 @@
    (let [tale {:name name}]
      (save-project! slug tale)
      (assoc tale :slug slug))))
+
+(defn delete [slug]
+  (fs/delete-dir (fs/file *project-dir* slug)))
 
 (s/def ::name string?)
 
