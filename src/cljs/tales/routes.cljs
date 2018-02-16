@@ -19,8 +19,9 @@
   (defroute "/" []
             (dispatch [:set-active-page :project-page]))
 
-  (defroute "/editor" []
-            (dispatch [:set-active-page :editor-page])))
+  (defroute "/editor/:slug" [slug]
+            (do (dispatch [:set-active-page :editor-page])
+                (dispatch [:set-active-project slug]))))
 
 (defn init! []
   (app-routes)

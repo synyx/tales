@@ -21,24 +21,28 @@
                                 27 (stop)
                                 nil)}]
        [:input {:type     "button"
-                :value    "Create"
+                :value    "go tell your tale..."
                 :on-click save}]])))
 
-(defn projects-list []
+(defn project-list []
   (let [projects (subscribe [:projects])]
     [:ul
      (for [project @projects]
-       ^{:key (:slug project)} [:li (:name project) [:small " - " (:slug project)]])]))
+       ^{:key (:slug project)}
+       [:li
+        [:a {:href (str "#editor/" (:slug project))}
+         (:name project) [:small " - " (:slug project)]]])]))
 
 (defn project-page []
   [:div [:h2 "Welcome to tales"]
    [project-input]
-   [projects-list]
-   [:div [:a {:href "#editor"} "go tell your tale..."]]])
+   [project-list]])
 
 (defn editor-page []
-  [:div [:h2 "Now tell your tale..."]
-   [:div [:a {:href "#"} "or start a new one..."]]])
+  (let [project (subscribe [:active-project])]
+    [:div [:h2 "Now tell your tale..."]
+     [:h1 (:name @project)]
+     [:div [:a {:href "#"} "or start a new one..."]]]))
 
 (defn- pages [page-name]
   (case page-name

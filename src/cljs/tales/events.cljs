@@ -11,6 +11,10 @@
               (fn [db [_ active-page]]
                 (assoc db :active-page active-page)))
 
+(reg-event-db :set-active-project
+              (fn [db [_ active-project]]
+                (assoc db :active-project active-project)))
+
 (reg-event-fx :get-projects
               (fn [{db :db} _]
                 {:db         (assoc-in db [:loading :projects] true)
