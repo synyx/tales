@@ -29,10 +29,12 @@
 
 (reg-event-db :get-projects-success
               (fn [db [_ response]]
-                (-> db
-                    (assoc-in [:loading? :projects] false)
-                    (dissoc :errors)
-                    (assoc :projects (js->clj response)))))
+                (let [projects (js->clj response)
+                      slugs    (map #(:slug %) projects)]
+                  (-> db
+                      (assoc-in [:loading? :projects] false)
+                      (dissoc :errors)
+                      (assoc :projects (zipmap slugs projects))))))
 
 (reg-event-fx :add-project
               (fn [{db :db} [_ project]]
@@ -51,7 +53,7 @@
                   {:db       (-> db
                                  (assoc-in [:loading? :project] false)
                                  (dissoc :errors)
-                                 (assoc :projects (conj (:projects db) project)))
+                                 (assoc-in [:projects (:slug project)] project))
                    :navigate (editor-path {:slug (:slug project)})})))
 
 (reg-event-fx :api-request-error

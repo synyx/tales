@@ -9,7 +9,7 @@
          :<- [:projects]
          :<- [:active-project-slug]
          (fn [[projects slug] _]
-           (first (filter #(= (:slug %) slug) projects))))
+           (get projects slug)))
 
 (reg-sub-raw :projects
              (fn [db _]

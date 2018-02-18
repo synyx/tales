@@ -25,7 +25,7 @@
 
 (defn project-list [projects]
   [:ul {:id "project-list"}
-   (for [project projects]
+   (for [[_ project] projects]
      ^{:key (:slug project)}
      [:li
       [:a {:href (editor-path {:slug (:slug project)})}
