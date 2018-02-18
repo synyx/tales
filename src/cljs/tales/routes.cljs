@@ -4,11 +4,9 @@
             [accountant.core :as accountant]))
 
 (defroute home-path "/" []
-          (dispatch [:set-active-page :project-page])
           (dispatch [:set-active-project nil]))
 
 (defroute editor-path "/editor/:slug" [slug]
-          (dispatch [:set-active-page :editor-page])
           (dispatch [:set-active-project slug]))
 
 (defn init! []

@@ -7,10 +7,6 @@
 (reg-event-db :initialise-db
               (fn [_ _] db/default-db))
 
-(reg-event-db :set-active-page
-              (fn [db [_ active-page]]
-                (assoc db :active-page active-page)))
-
 (reg-event-db :set-active-project
               (fn [db [_ active-project]]
                 (assoc db :active-project active-project)))

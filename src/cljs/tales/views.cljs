@@ -45,12 +45,8 @@
      [:h1 (:name @project)]
      [:div [:a {:href (home-path)} "or start a new one..."]]]))
 
-(defn- pages [page-name]
-  (case page-name
-    :project-page [project-page]
-    :editor-page [editor-page]
-    [:div]))
-
 (defn main-page []
-  (let [active-page (subscribe [:active-page])]
-    [:div [pages @active-page]]))
+  (let [project (subscribe [:active-project])]
+    (if-not (nil? @project)
+      [editor-page]
+      [project-page])))

@@ -1,15 +1,15 @@
 (ns tales.subs
   (:require [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]))
 
-(reg-sub :active-page
+(reg-sub :active-project-slug
          (fn [db _]
-           (:active-page db)))
+           (:active-project db)))
 
 (reg-sub :active-project
-         (fn [db _]
-           (first
-             (filter
-               #(= (:slug %) (:active-project db)) (:projects db)))))
+         :<- [:projects]
+         :<- [:active-project-slug]
+         (fn [[projects slug] _]
+           (first (filter #(= (:slug %) slug) projects))))
 
 (reg-sub-raw :projects
              (fn [db _]
