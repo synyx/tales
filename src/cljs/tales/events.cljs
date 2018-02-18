@@ -1,15 +1,21 @@
 (ns tales.events
-  (:require [ajax.core :as ajax]
+  (:require [accountant.core :as accountant]
+            [ajax.core :as ajax]
             [day8.re-frame.http-fx]
-            [re-frame.core :refer [reg-event-db reg-event-fx]]
-            [tales.db :as db]))
+            [re-frame.core :refer [reg-fx reg-event-db reg-event-fx]]
+            [tales.db :as db]
+            [tales.routes :refer [editor-path]]))
+
+(reg-fx :navigate
+        (fn [url]
+          (accountant/navigate! url)))
 
 (reg-event-db :initialise-db
               (fn [_ _] db/default-db))
 
 (reg-event-db :set-active-project
-              (fn [db [_ active-project]]
-                (assoc db :active-project active-project)))
+              (fn [db [_ project-slug]]
+                (assoc db :active-project project-slug)))
 
 (reg-event-fx :get-projects
               (fn [{db :db} _]
@@ -39,13 +45,14 @@
                               :on-success      [:add-project-success]
                               :on-failure      [:api-request-error :project]}}))
 
-(reg-event-db :add-project-success
-              (fn [db [_ response]]
-                (-> db
-                    (assoc-in [:loading? :project] false)
-                    (dissoc :errors)
-                    (assoc :projects (conj (:projects db) (js->clj response))))))
-
+(reg-event-fx :add-project-success
+              (fn [{:keys [db]} [_ response]]
+                (let [project (js->clj response)]
+                  {:db       (-> db
+                                 (assoc-in [:loading? :project] false)
+                                 (dissoc :errors)
+                                 (assoc :projects (conj (:projects db) project)))
+                   :navigate (editor-path {:slug (:slug project)})})))
 
 (reg-event-fx :api-request-error
               (fn [{:keys [db]} [_ request-type response]]
