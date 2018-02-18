@@ -13,37 +13,38 @@
                 (if-not (empty? v) (add-project v))
                 (stop))]
     (fn []
-      [:div
-       [:input {:type        "text"
-                :value       @val
-                :on-change   #(reset! val (-> % .-target .-value))
-                :on-key-down #(case (.-which %)
-                                13 (save)
-                                27 (stop)
-                                nil)}]
-       [:input {:type     "button"
-                :value    "go tell your tale..."
-                :on-click save}]])))
+      [:input {:type        "text"
+               :id          "new-project"
+               :placeholder "Enter the name of your tale and press enter"
+               :value       @val
+               :on-change   #(reset! val (-> % .-target .-value))
+               :on-key-down #(case (.-which %)
+                               13 (save)
+                               27 (stop)
+                               nil)}])))
 
 (defn project-list []
   (let [projects (subscribe [:projects])]
-    [:ul
+    [:ul {:id "project-list"}
      (for [project @projects]
        ^{:key (:slug project)}
        [:li
         [:a {:href (editor-path {:slug (:slug project)})}
-         (:name project) [:small " - " (:slug project)]]])]))
+         (:name project)]])]))
 
 (defn project-page []
-  [:div [:h2 "Welcome to tales"]
-   [project-input]
-   [project-list]])
+  [:div {:id "projects"}
+   [:header [:h1 "tales"]]
+   [:main
+    [:section [project-input]]
+    [:section [:h3 "or choose an existing tale:"] [project-list]]]])
 
 (defn editor-page []
   (let [project (subscribe [:active-project])]
-    [:div [:h2 "Now tell your tale..."]
-     [:h1 (:name @project)]
-     [:div [:a {:href (home-path)} "or start a new one..."]]]))
+    [:div {:id "editor"}
+     [:header [:h1 (:name @project)]]
+     [:main
+      [:a {:href (home-path)} "or start a new one..."]]]))
 
 (defn main-page []
   (let [project (subscribe [:active-project])]

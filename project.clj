@@ -42,7 +42,8 @@
   :test-paths ["spec/clj" "test/clj"]
   :resource-paths ["resources" "target/cljsbuild"]
 
-  :minify-assets {:assets {"resources/public/css/site.min.css" "resources/public/css/site.css"}}
+  :minify-assets {:assets {"resources/public/css/normalize.min.css" "resources/public/css/normalize.css"
+                           "resources/public/css/site.min.css" "resources/public/css/site.css"}}
 
   :cljsbuild {:builds        {:min      {:source-paths ["src/cljs" "src/cljc" "env/prod/cljs"]
                                          :compiler     {:output-to     "target/cljsbuild/public/js/app.js"
