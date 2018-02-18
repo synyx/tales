@@ -23,21 +23,22 @@
                                27 (stop)
                                nil)}])))
 
-(defn project-list []
-  (let [projects (subscribe [:projects])]
-    [:ul {:id "project-list"}
-     (for [project @projects]
-       ^{:key (:slug project)}
-       [:li
-        [:a {:href (editor-path {:slug (:slug project)})}
-         (:name project)]])]))
+(defn project-list [projects]
+  [:ul {:id "project-list"}
+   (for [project projects]
+     ^{:key (:slug project)}
+     [:li
+      [:a {:href (editor-path {:slug (:slug project)})}
+       (:name project)]])])
 
 (defn project-page []
-  [:div {:id "projects"}
-   [:header [:h1 "tales"]]
-   [:main
-    [:section [project-input]]
-    [:section [:h3 "or choose an existing tale:"] [project-list]]]])
+  (let [projects (subscribe [:projects])]
+    [:div {:id "projects"}
+     [:header [:h1 "tales"]]
+     [:main
+      [:section [project-input]]
+      (if-not (empty? @projects)
+        [:section [:h3 "or choose an existing tale:"] [project-list @projects]])]]))
 
 (defn editor-page []
   (let [project (subscribe [:active-project])]
