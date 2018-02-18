@@ -1,6 +1,7 @@
 (ns tales.views
   (:require [reagent.core :as r]
-            [re-frame.core :refer [dispatch subscribe]]))
+            [re-frame.core :refer [dispatch subscribe]]
+            [tales.routes :refer [home-path editor-path]]))
 
 (defn add-project [name]
   (dispatch [:add-project {:name name}]))
@@ -30,7 +31,7 @@
      (for [project @projects]
        ^{:key (:slug project)}
        [:li
-        [:a {:href (str "#editor/" (:slug project))}
+        [:a {:href (editor-path {:slug (:slug project)})}
          (:name project) [:small " - " (:slug project)]]])]))
 
 (defn project-page []
@@ -42,7 +43,7 @@
   (let [project (subscribe [:active-project])]
     [:div [:h2 "Now tell your tale..."]
      [:h1 (:name @project)]
-     [:div [:a {:href "#"} "or start a new one..."]]]))
+     [:div [:a {:href (home-path)} "or start a new one..."]]]))
 
 (defn- pages [page-name]
   (case page-name

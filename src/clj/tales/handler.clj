@@ -27,6 +27,7 @@
            (wrap-web-middleware
              (routes
                (GET "/" [] (web/loading-page))
+               (GET "/editor/*" [] (web/loading-page))
                (if (env :dev) (GET "/cards" [] (web/cards-page)))
                (resources "/")
                (not-found "Not Found"))))

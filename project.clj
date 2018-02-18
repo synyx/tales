@@ -18,7 +18,8 @@
                  [reagent-utils "0.3.0"]
                  [re-frame "0.10.5"]
                  [day8.re-frame/http-fx "0.1.5"]
-                 [secretary "1.2.3"]]
+                 [secretary "1.2.3"]
+                 [venantius/accountant "0.2.3"]]
 
   :plugins [[lein-environ "1.1.0"]
             [lein-cljsbuild "1.1.7"]
