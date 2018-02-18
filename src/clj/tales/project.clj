@@ -31,7 +31,7 @@
   (mapv load-project! (project-names)))
 
 (defn save-project! [slug project]
-  (if (and (not-empty slug)
+  (if (and (not (empty? slug))
            (s/valid? ::project project))
     (let [loaded-project (load-project! slug)
           project        (merge loaded-project project)
@@ -47,4 +47,7 @@
 
 (s/def ::name string?)
 
-(s/def ::project (s/keys :req-un [::name]))
+(s/def ::file-path string?)
+
+(s/def ::project (s/keys :req-un [::name]
+                         :opt-un [::file-path]))

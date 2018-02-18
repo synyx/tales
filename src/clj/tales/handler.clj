@@ -4,9 +4,7 @@
             [compojure.route :refer [not-found resources files]]
             [config.core :refer [env]]
             [me.raynes.fs :as fs]
-            [tales.middleware :refer [wrap-multipart-params-middleware
-                                      wrap-api-middleware
-                                      wrap-web-middleware]]
+            [tales.middleware :refer [wrap-api-middleware wrap-web-middleware]]
             [tales.api :as api]
             [tales.project :refer [*project-dir*]]
             [tales.web :as web]))
@@ -19,11 +17,8 @@
                (context "/:slug" [slug]
                  (GET "/" [] (api/find-by-slug slug))
                  (PUT "/" {body :body} (api/update slug body))
-                 (DELETE "/" [] (api/delete slug)))))
-           (wrap-multipart-params-middleware
-             (routes
-               (context "/:slug" [slug]
-                 (PUT "/image" [file] (api/upload-image slug file))))))
+                 (DELETE "/" [] (api/delete slug))
+                 (PUT "/image" request (api/upload-image slug request))))))
 
 (defroutes web-routes
            (wrap-web-middleware

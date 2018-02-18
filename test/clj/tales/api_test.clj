@@ -1,5 +1,6 @@
 (ns tales.api_test
   (:require [clojure.data.json :as json]
+            [clojure.string :as str]
             [clojure.test :refer :all]
             [me.raynes.fs :as fs]
             [ring.mock.request :as mock]
@@ -122,44 +123,53 @@
       (is (= 404 (:status second-try)))
       (is (content-type-json? second-try)))))
 
-(def test-form (clojure.string/join "\r\n" ["--XXXX"
-                                            "Content-Disposition: form-data;name=\"file\"; filename=\"test.txt\""
-                                            "Content-Type: text/plain"
-                                            ""
-                                            "foo"
-                                            "--XXXX--"]))
+(def example-file (str/join "\n" ["<svg version=\"1.1\""
+                                  "  baseProfile=\"full\""
+                                  "  width=\"300\" height=\"200\""
+                                  "  xmlns=\"http://www.w3.org/2000/svg\">"
+                                  "    <circle cx=\"150\" cy=\"100\" r=\"80\""
+                                  "      fill=\"green\" />"
+                                  "</svg>"]))
 
 (deftest test-api-image-upload
   (testing "returns not-found for non-existing project"
-    (let [form-body test-form
-          response  (app (-> (mock/request :put "/api/tales/unknown/image")
-                             (mock/content-type "multipart/form-data; boundary=XXXX")
-                             (mock/content-length (count form-body))
-                             (mock/body form-body)))]
+    (let [response (app (-> (mock/request :put "/api/tales/unknown/image")
+                            (mock/content-type "image/svg+xml")
+                            (mock/content-length (count example-file))
+                            (mock/body example-file)))]
       (is (= 404 (:status response)))
       (is (content-type-json? response))))
 
+  (testing "returns bad-request for unsupported content-type"
+    (let [_        (api/create {:name "Test"})
+          response (app (-> (mock/request :put "/api/tales/test/image")
+                            (mock/content-type "text/plain")
+                            (mock/content-length (count example-file))
+                            (mock/body example-file)))
+          body     (json/read-str (:body response) :key-fn keyword)]
+      (is (= 400 (:status response)))
+      (is (content-type-json? response))
+      (is (= "Invalid content-type: text/plain" (:error body)))))
+
   (testing "copies uploaded file to project directory"
     (let [_           (api/create {:name "Test"})
-          form-body   test-form
           response    (app (-> (mock/request :put "/api/tales/test/image")
-                               (mock/content-type "multipart/form-data; boundary=XXXX")
-                               (mock/content-length (count form-body))
-                               (mock/body form-body)))
-          target-file (fs/file tales.project/*project-dir* "test" "test.txt")]
+                               (mock/content-type "image/svg+xml")
+                               (mock/content-length (count example-file))
+                               (mock/body example-file)))
+          target-file (fs/file tales.project/*project-dir* "test" "test.svg")]
       (is (= 200 (:status response)))
       (is (content-type-json? response))
       (is (fs/exists? target-file))))
 
   (testing "returns the updated project"
-    (let [_         (api/create {:name "Test"})
-          form-body test-form
-          response  (app (-> (mock/request :put "/api/tales/test/image")
-                             (mock/content-type "multipart/form-data; boundary=XXXX")
-                             (mock/content-length (count form-body))
-                             (mock/body form-body)))
-          body      (json/read-str (:body response) :key-fn keyword)]
+    (let [_        (api/create {:name "Test"})
+          response (app (-> (mock/request :put "/api/tales/test/image")
+                            (mock/content-type "image/svg+xml")
+                            (mock/content-length (count example-file))
+                            (mock/body example-file)))
+          body     (json/read-str (:body response) :key-fn keyword)]
       (is (= 200 (:status response)))
       (is (content-type-json? response))
       (is (= "test" (:slug body)))
-      (is (= "test.txt" (:file-path body))))))
+      (is (= "test.svg" (:file-path body))))))

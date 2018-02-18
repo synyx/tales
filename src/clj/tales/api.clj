@@ -1,7 +1,9 @@
 (ns tales.api
-  (:require [clojure.spec.alpha :as s]
+  (:require [clojure.java.io :as io]
+            [clojure.spec.alpha :as s]
+            [clojure.string :as str]
             [me.raynes.fs :as fs]
-            [ring.util.response :refer [created response not-found]]
+            [ring.util.response :refer [created response not-found get-header]]
             [tales.project :as project :refer [*project-dir*]]))
 
 (defn bad-request [body] {:status 400 :headers {} :body body})
@@ -38,15 +40,24 @@
         (response {}))
     (not-found {})))
 
-(defn upload-image [slug file]
-  (let [file-name   (file :filename)
-        temp-file   (file :tempfile)
-        target-file (fs/file *project-dir* slug file-name)]
+(defn upload-image [slug request]
+  (let [content-type (get-header request "Content-Type")
+        extension    (case content-type
+                       "image/gif" "gif"
+                       "image/png" "png"
+                       "image/jpeg" "jpg"
+                       "image/bmp" "bmp"
+                       "image/svg+xml" "svg"
+                       false)
+        file-name    (str/join "." [slug extension])
+        target-file  (fs/file *project-dir* slug file-name)]
     (if (project/project? slug)
-      (do
-        (fs/copy+ temp-file target-file)
-        (response
-          (project/save-project! slug
-                                 (assoc (project/load-project! slug)
-                                   :file-path file-name))))
+      (if extension
+        (with-open [out (io/output-stream target-file)]
+          (io/copy (:body request) out)
+          (response
+            (project/save-project! slug (assoc
+                                          (project/load-project! slug)
+                                          :file-path file-name))))
+        (bad-request {:error (str "Invalid content-type: " content-type)}))
       (not-found {}))))

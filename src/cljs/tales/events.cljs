@@ -44,10 +44,10 @@
                               :params          project
                               :format          (ajax/json-request-format)
                               :response-format (ajax/json-response-format {:keywords? true})
-                              :on-success      [:add-project-success]
+                              :on-success      [:change-project-success]
                               :on-failure      [:api-request-error :project]}}))
 
-(reg-event-fx :add-project-success
+(reg-event-fx :change-project-success
               (fn [{:keys [db]} [_ response]]
                 (let [project (js->clj response)]
                   {:db       (-> db
@@ -55,6 +55,17 @@
                                  (dissoc :errors)
                                  (assoc-in [:projects (:slug project)] project))
                    :navigate (editor-path {:slug (:slug project)})})))
+
+(reg-event-fx :update-project-image
+              (fn [{db :db} [_ {slug :slug file :file}]]
+                {:db         (assoc-in db [:loading :project] true)
+                 :http-xhrio {:method          :put
+                              :uri             (str "/api/tales/" slug "/image")
+                              :body            file
+                              :headers         {:content-type (.-type file)}
+                              :response-format (ajax/json-response-format {:keywords? true})
+                              :on-success      [:change-project-success]
+                              :on-failure      [:api-request-error :project]}}))
 
 (reg-event-fx :api-request-error
               (fn [{:keys [db]} [_ request-type response]]

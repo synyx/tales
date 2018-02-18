@@ -1,3 +1,7 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
 html {
   height: 100%;
 }
@@ -24,6 +28,7 @@ a:hover {
 }
 
 #app {
+  border-top: 1px solid transparent;
   height: 100%;
 }
 
@@ -93,9 +98,7 @@ input#new-project::placeholder {
   flex: 1;
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
-  align-items: stretch;
-  align-content: stretch;
+  justify-content: center;
 }
 
 #editor > main > img {
@@ -105,4 +108,9 @@ input#new-project::placeholder {
 #editor > footer {
   padding: 16px;
   text-align: center;
+}
+
+#editor #editor-upload {
+  text-align: center;
+  align-self: center;
 }
