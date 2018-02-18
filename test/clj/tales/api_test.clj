@@ -122,19 +122,44 @@
       (is (= 404 (:status second-try)))
       (is (content-type-json? second-try)))))
 
+(def test-form (clojure.string/join "\r\n" ["--XXXX"
+                                            "Content-Disposition: form-data;name=\"file\"; filename=\"test.txt\""
+                                            "Content-Type: text/plain"
+                                            ""
+                                            "foo"
+                                            "--XXXX--"]))
+
 (deftest test-api-image-upload
+  (testing "returns not-found for non-existing project"
+    (let [form-body test-form
+          response  (app (-> (mock/request :put "/api/tales/unknown/image")
+                             (mock/content-type "multipart/form-data; boundary=XXXX")
+                             (mock/content-length (count form-body))
+                             (mock/body form-body)))]
+      (is (= 404 (:status response)))
+      (is (content-type-json? response))))
+
   (testing "copies uploaded file to project directory"
-    (let [form-body   (clojure.string/join "\r\n" ["--XXXX"
-                                                   "Content-Disposition: form-data;name=\"file\"; filename=\"test.txt\""
-                                                   "Content-Type: text/plain"
-                                                   ""
-                                                   "foo"
-                                                   "--XXXX--"])
+    (let [_           (api/create {:name "Test"})
+          form-body   test-form
           response    (app (-> (mock/request :put "/api/tales/test/image")
                                (mock/content-type "multipart/form-data; boundary=XXXX")
                                (mock/content-length (count form-body))
                                (mock/body form-body)))
           target-file (fs/file tales.project/*project-dir* "test" "test.txt")]
       (is (= 200 (:status response)))
-      (is (content-type? "application/octet-stream" response))
-      (is (fs/exists? target-file)))))
+      (is (content-type-json? response))
+      (is (fs/exists? target-file))))
+
+  (testing "returns the updated project"
+    (let [_         (api/create {:name "Test"})
+          form-body test-form
+          response  (app (-> (mock/request :put "/api/tales/test/image")
+                             (mock/content-type "multipart/form-data; boundary=XXXX")
+                             (mock/content-length (count form-body))
+                             (mock/body form-body)))
+          body      (json/read-str (:body response) :key-fn keyword)]
+      (is (= 200 (:status response)))
+      (is (content-type-json? response))
+      (is (= "test" (:slug body)))
+      (is (= "test.txt" (:file-path body))))))

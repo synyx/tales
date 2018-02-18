@@ -42,5 +42,11 @@
   (let [file-name   (file :filename)
         temp-file   (file :tempfile)
         target-file (fs/file *project-dir* slug file-name)]
-    (fs/copy+ temp-file target-file)
-    {:status 200}))
+    (if (project/project? slug)
+      (do
+        (fs/copy+ temp-file target-file)
+        (response
+          (project/save-project! slug
+                                 (assoc (project/load-project! slug)
+                                   :file-path file-name))))
+      (not-found {}))))

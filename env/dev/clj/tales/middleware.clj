@@ -23,6 +23,7 @@
 
 (defn wrap-multipart-params-middleware [handler]
   (-> handler
+      wrap-json-response
       wrap-params
       wrap-multipart-params
       (wrap-defaults api-defaults)
