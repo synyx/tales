@@ -6,7 +6,7 @@
 (defroute home-path "/" []
           (dispatch [:set-active-project nil]))
 
-(defroute editor-path "/editor/:slug" [slug]
+(defroute editor-path "/editor/:slug/" [slug]
           (dispatch [:set-active-project slug]))
 
 (defn init! []

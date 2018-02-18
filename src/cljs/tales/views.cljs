@@ -45,6 +45,8 @@
     [:div {:id "editor"}
      [:header [:h1 (:name @project)]]
      [:main
+      [:img {:src (:file-path @project)}]]
+     [:footer
       [:a {:href (home-path)} "or start a new one..."]]]))
 
 (defn main-page []
