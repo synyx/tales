@@ -1,14 +1,15 @@
 (ns tales.cards
   (:require [reagent.core :as reagent :refer [atom]]
-            [tales.views :as views]
+            [tales.views.editor :refer [editor-page]]
+            [tales.views.project :refer [project-page]]
             [devcards.core :as dc])
   (:require-macros [devcards.core :as dc :refer [defcard defcard-doc defcard-rg deftest]]))
 
 (defcard-rg project-page-card
-            [views/project-page])
+            [project-page])
 
 (defcard-rg editor-page-card
-            [views/editor-page])
+            [editor-page])
 
 (reagent/render [:div] (.getElementById js/document "app"))
 

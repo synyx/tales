@@ -1,7 +1,9 @@
 (ns tales.views-test
   (:require [cljs.test :refer-macros [is are deftest testing use-fixtures]]
             [reagent.core :as reagent :refer [atom]]
-            [tales.views :as views]))
+            [tales.views.editor :refer [editor-page]]
+            [tales.views.project :refer [project-page]]
+            [tales.subs]))
 
 
 (def isClient (not (nil? (try (.-document js/window)
@@ -24,7 +26,6 @@
         (reagent/flush)
         (.removeChild (.-body js/document) div)))))
 
-
 (defn found-in [re div]
   (let [res (.-innerHTML div)]
     (if (re-find re res)
@@ -32,15 +33,15 @@
       (do (println "Not found: " res)
           false))))
 
+(deftest test-project-page
+  (testing "contains heading in tell page"
+    (with-mounted-component (project-page)
+      (fn [c div]
+        (.log js/console div)
+        (is (found-in #"Enter the name of your tale and press enter" div))))))
 
 (deftest test-editor-page
   (testing "contains heading in editor page"
-    (with-mounted-component (views/editor-page)
-                            (fn [c div]
-                              (is (found-in #"Welcome to tales" div))))))
-
-(deftest test-tell-page
-  (testing "contains heading in tell page"
-    (with-mounted-component (views/tell-page)
-                            (fn [c div]
-                              (is (found-in #"Now tell your tale..." div))))))
+    (with-mounted-component (editor-page)
+      (fn [c div]
+        (is (found-in #"You haven't uploaded a poster yet." div))))))
