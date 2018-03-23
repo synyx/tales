@@ -19,7 +19,7 @@
 
 (reg-event-fx :get-projects
               (fn [{db :db} _]
-                {:db         (assoc-in db [:loading :projects] true)
+                {:db         (assoc-in db [:loading? :projects] true)
                  :http-xhrio {:method          :get
                               :uri             "/api/tales/"
                               :format          (ajax/json-request-format)
@@ -38,7 +38,7 @@
 
 (reg-event-fx :add-project
               (fn [{db :db} [_ project]]
-                {:db         (assoc-in db [:loading :project] true)
+                {:db         (assoc-in db [:loading? :project] true)
                  :http-xhrio {:method          :post
                               :uri             "/api/tales/"
                               :params          project
@@ -58,7 +58,7 @@
 
 (reg-event-fx :update-project-image
               (fn [{db :db} [_ {slug :slug file :file}]]
-                {:db         (assoc-in db [:loading :project] true)
+                {:db         (assoc-in db [:loading? :project] true)
                  :http-xhrio {:method          :put
                               :uri             (str "/api/tales/" slug "/image")
                               :body            file
