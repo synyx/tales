@@ -47,6 +47,18 @@
                               :on-success      [:change-project-success]
                               :on-failure      [:api-request-error :project]}}))
 
+(reg-event-fx :update-project
+              (fn [{db :db} [_ project]]
+                {:db         (assoc-in db [:loading? :project] true)
+                 :http-xhrio {:method          :put
+                              :uri             (str "/api/tales/" (:slug project))
+                              :params          project
+                              :format          (ajax/json-request-format)
+                              :response-format (ajax/json-response-format {:keywords? true})
+                              :on-success      [:change-project-success]
+                              :on-failure      [:api-request-error :project]}}))
+
+
 (reg-event-fx :change-project-success
               (fn [{:keys [db]} [_ response]]
                 (let [project (js->clj response)]

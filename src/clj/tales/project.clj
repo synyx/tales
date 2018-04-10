@@ -49,5 +49,10 @@
 
 (s/def ::file-path string?)
 
+(s/def ::width (s/and int? #(> % 0)))
+(s/def ::height (s/and int? #(> % 0)))
+
+(s/def ::dimensions (s/keys :req-un [::width ::height]))
+
 (s/def ::project (s/keys :req-un [::name]
-                         :opt-un [::file-path]))
+                         :opt-un [::file-path ::dimensions]))

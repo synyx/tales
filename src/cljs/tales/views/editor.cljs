@@ -1,30 +1,44 @@
 (ns tales.views.editor
-  (:require [reagent.core :as r]
+  (:require [clojure.core.async :refer [<! go]]
+            [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [tales.routes :refer [home-path]]))
+            [tales.async :refer [<<<]]
+            [tales.routes :refer [home-path]]
+            [tales.image :as image]))
 
-(defn editor-upload [project]
-  [:div {:id "editor-upload"}
+(defn- determine-image-size [project file]
+  (go
+    (let [dimensions (<! (<<< image/dimensions file))]
+      (dispatch [:update-project (assoc project :dimensions dimensions)]))))
+
+(defn image-upload [project]
+  [:div {:id "image-upload"}
    [:h2 "You haven't uploaded a poster yet."]
    [:h3 "Please do so now to start editing your tale!"]
-   [:input {:type "file"
-            :on-change
-                  #(dispatch
-                     [:update-project-image
-                      {:slug (:slug project)
-                       :file (-> % .-target .-files (aget 0))}])}]])
+   [:input {:type      "file"
+            :on-change #(let [file (-> % .-target .-files (aget 0))]
+                          (dispatch [:update-project-image {:slug (:slug project) :file file}])
+                          (determine-image-size project file))}]])
 
-(defn editor-canvas [project]
-  (let [file-path (:file-path project)]
-    [:img {:src file-path}]))
+(defn image-size []
+  [:div {:id "image-size"}
+   [:h2 "We couldn't determine your poster dimensions."]
+   [:h3 "Please help us by manually setting them directly in the image!"]])
+
+(defn canvas [project]
+  (let [file-path  (:file-path project)
+        dimensions (:dimensions project)]
+    [:img {:src file-path :style {:width (:width dimensions) :height (:height dimensions)}}]))
 
 (defn editor-page []
-  (let [project (subscribe [:active-project])]
-    [:div {:id "editor"}
-     [:header [:h1 (:name @project)]]
-     [:main
-      (if (nil? (:file-path @project))
-        [editor-upload @project]
-        [editor-canvas @project])]
-     [:footer
-      [:a {:href (home-path)} "or start a new one..."]]]))
+  (fn []
+    (let [project (subscribe [:active-project])]
+      [:div {:id "editor"}
+       [:header [:h1 (:name @project)]]
+       [:main
+        (cond
+          (nil? (:file-path @project)) [image-upload @project]
+          (nil? (:dimensions @project)) [image-size]
+          :else [canvas @project])]
+       [:footer
+        [:a {:href (home-path)} "or start a new one..."]]])))

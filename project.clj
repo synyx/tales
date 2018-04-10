@@ -5,6 +5,7 @@
             :url  "http://www.apache.org/licenses/LICENSE-2.0.html"}
 
   :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/core.async "0.4.474"]
                  [ring-server "0.5.0"]
                  [ring "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
