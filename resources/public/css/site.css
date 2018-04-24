@@ -99,18 +99,10 @@ input#new-project::placeholder {
   display: flex;
   flex-direction: row;
   justify-content: center;
-}
-
-#editor > main > img {
-  width: 100%;
+  align-items: center;
 }
 
 #editor > footer {
   padding: 16px;
   text-align: center;
-}
-
-#editor #editor-upload {
-  text-align: center;
-  align-self: center;
 }

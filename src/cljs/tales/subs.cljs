@@ -1,6 +1,10 @@
 (ns tales.subs
   (:require [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]))
 
+(reg-sub :window-size
+         (fn [db _]
+           (:window-size db)))
+
 (reg-sub :active-project-slug
          (fn [db _]
            (:active-project db)))

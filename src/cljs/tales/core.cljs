@@ -15,7 +15,8 @@
 
 (defn mount-root []
   (re-frame/clear-subscription-cache!)
-  (reagent/render [main-page] (.getElementById js/document "app")))
+  (reagent/render [main-page] (.getElementById js/document "app"))
+  (.addEventListener js/window "resize" #(dispatch [:window-resize (-> % .-target)])))
 
 (defn init! []
   (dispatch-sync [:initialise-db])
