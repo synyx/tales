@@ -1,14 +1,9 @@
 (ns tales.events
-  (:require [accountant.core :as accountant]
-            [ajax.core :as ajax]
+  (:require [ajax.core :as ajax]
             [day8.re-frame.http-fx]
-            [re-frame.core :refer [reg-fx reg-event-db reg-event-fx]]
+            [re-frame.core :refer [reg-event-db reg-event-fx]]
             [tales.db :as db]
             [tales.routes :refer [editor-path]]))
-
-(reg-fx :navigate
-        (fn [url]
-          (accountant/navigate! url)))
 
 (reg-event-db :initialise-db
               (fn [_ _] db/default-db))
@@ -73,10 +68,11 @@
                    :navigate (editor-path {:slug (:slug project)})})))
 
 (reg-event-fx :update-project-image
-              (fn [{db :db} [_ {slug :slug file :file}]]
-                {:db         (assoc-in db [:loading? :project] true)
+              (fn [cofx [_ {project :project file :file}]]
+                {:db         (assoc-in (:db cofx) [:loading? :project] true)
+                 :determine-image-dimensions {:project project :file file}
                  :http-xhrio {:method          :put
-                              :uri             (str "/api/tales/" slug "/image")
+                              :uri             (str "/api/tales/" (:slug project) "/image")
                               :body            file
                               :headers         {:content-type (.-type file)}
                               :response-format (ajax/json-response-format {:keywords? true})

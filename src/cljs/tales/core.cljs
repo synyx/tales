@@ -1,6 +1,7 @@
 (ns tales.core
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame :refer [dispatch dispatch-sync subscribe]]
+            [tales.effects]
             [tales.events]
             [tales.routes :as routes]
             [tales.subs]
