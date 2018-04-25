@@ -3,10 +3,8 @@
             [re-frame.core :refer [dispatch subscribe]]
             [tales.routes :refer [home-path]]))
 
-(defn- determine-transform [dom-dimensions image-dimensions]
-  (let [transform-x (/ (:width dom-dimensions) (:width image-dimensions))
-        transform-y (/ (:height dom-dimensions) (:height image-dimensions))]
-    (Math/min transform-x transform-y)))
+(defn- bounds [image-dimensions]
+  [[0 0] [(:height image-dimensions) (:width image-dimensions)]])
 
 (defn image-upload [project]
   [:div {:id "image-upload"}
@@ -22,24 +20,23 @@
    [:h3 "Please help us by manually setting them directly in the image!"]])
 
 (defn canvas [project _]
-  (let [dom-node         (r/atom nil)
-        file-path        (:file-path project)
-        image-dimensions (:dimensions project)]
+  (let [map         (r/atom nil)
+        file-path   (:file-path project)
+        bounds      (bounds (:dimensions project))
+        map-options {:attributionControl false,
+                     :zoomControl        false,
+                     :crs                js/L.CRS.Simple,
+                     :minZoom            -5}]
     (r/create-class
       {:component-did-update
        (fn [_] (.log js/console "updated editor canvas size, redraw!"))
        :component-did-mount
-       (fn [this] (reset! dom-node (r/dom-node this)))
+       (fn [this] (do
+                    (reset! map (.map js/L (r/dom-node this) (clj->js map-options)))
+                    (.fitBounds @map (clj->js bounds))
+                    (.addTo (.imageOverlay js/L file-path (clj->js bounds)) @map)))
        :reagent-render
-       (fn []
-         [:div (if-let [node @dom-node]
-                 (let [dom-dimensions {:width  (-> node .-parentNode .-clientWidth)
-                                       :height (-> node .-parentNode .-clientHeight)}
-                       transform      (determine-transform dom-dimensions image-dimensions)]
-                   {:style {:transform (str "scale(" transform ", " transform ")")}}))
-          [:img {:src   file-path
-                 :style {:width  (:width image-dimensions)
-                         :height (:height image-dimensions)}}]])})))
+       (fn [] [:div])})))
 
 (defn editor-page []
   (fn []

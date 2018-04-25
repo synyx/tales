@@ -102,6 +102,11 @@ input#new-project::placeholder {
   align-items: center;
 }
 
+#editor > main > .leaflet-container {
+    width: 100%;
+    height: 100%;
+}
+
 #editor > footer {
   padding: 16px;
   text-align: center;
