@@ -12,10 +12,6 @@
               (fn [db [_ project-slug]]
                 (assoc db :active-project project-slug)))
 
-(reg-event-db :window-resize
-              (fn [db [_ window]]
-                (assoc db :window-size {:width (.-innerWidth window) :height (.-innerHeight window)})))
-
 (reg-event-fx :get-projects
               (fn [{db :db} _]
                 {:db         (assoc-in db [:loading? :projects] true)

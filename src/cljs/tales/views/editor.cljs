@@ -19,7 +19,7 @@
    [:h2 "We couldn't determine your poster dimensions."]
    [:h3 "Please help us by manually setting them directly in the image!"]])
 
-(defn canvas [project _]
+(defn canvas [project]
   (let [map         (r/atom nil)
         file-path   (:file-path project)
         bounds      (bounds (:dimensions project))
@@ -40,14 +40,13 @@
 
 (defn editor-page []
   (fn []
-    (let [project     (subscribe [:active-project])
-          window-size (subscribe [:window-size])]
+    (let [project (subscribe [:active-project])]
       [:div {:id "editor"}
        [:header [:h1 (:name @project)]]
        [:main
         (cond
           (nil? (:file-path @project)) [image-upload @project]
           (nil? (:dimensions @project)) [image-size]
-          :else [canvas @project @window-size])]
+          :else [canvas @project])]
        [:footer
         [:a {:href (home-path)} "or start a new one..."]]])))
