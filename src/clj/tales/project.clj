@@ -31,7 +31,7 @@
   (mapv load-project! (project-names)))
 
 (defn save-project! [slug project]
-  (if (and (not (empty? slug))
+  (if (and (seq slug)
            (s/valid? ::project project))
     (let [loaded-project (load-project! slug)
           project        (merge loaded-project project)
@@ -49,8 +49,8 @@
 
 (s/def ::file-path string?)
 
-(s/def ::width (s/and int? #(> % 0)))
-(s/def ::height (s/and int? #(> % 0)))
+(s/def ::width (s/and int? pos?))
+(s/def ::height (s/and int? pos?))
 
 (s/def ::dimensions (s/keys :req-un [::width ::height]))
 
