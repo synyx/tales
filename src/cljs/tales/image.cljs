@@ -5,34 +5,36 @@
 (defn- dimensions-from-view-box [view-box]
   (let [view-box (str/split view-box #" ")]
     (if (= (count view-box) 4)
-      {:width  (Math/round (- (nth view-box 2) (nth view-box 0)))
+      {:width (Math/round (- (nth view-box 2) (nth view-box 0)))
        :height (Math/round (- (nth view-box 3) (nth view-box 1)))}
       {:width nil :height nil})))
 
 (defn- svg-dimensions [svg]
-  (let [width  (.getAttribute svg "width")
+  (let [width (.getAttribute svg "width")
         height (.getAttribute svg "height")]
     (if (and width height)
       {:width width :height height}
       (dimensions-from-view-box (.getAttribute svg "viewBox")))))
 
 (defn- image-dimensions [image]
-  (let [width  (.-width image)
+  (let [width (.-width image)
         height (.-height image)]
     {:width width :height height}))
 
 (defn- with-svg [file cb]
   (let [reader (js/FileReader.)]
     (set! (.-onload reader) #(-> (js/DOMParser.)
-                                 (.parseFromString (-> % .-target .-result) "image/svg+xml")
-                                 (.getElementsByTagName "svg")
-                                 (aget 0)
-                                 cb))
+                               (.parseFromString
+                                 (-> % .-target .-result)
+                                 "image/svg+xml")
+                               (.getElementsByTagName "svg")
+                               (aget 0)
+                               cb))
     (.readAsText reader file)))
 
 (defn- with-image [file cb]
   (let [reader (js/FileReader.)
-        image  (js/Image.)]
+        image (js/Image.)]
     (set! (.-onload reader) #(set! (.-src image) (-> % .-target .-result)))
     (set! (.-onload image) #(cb image))
     (.readAsDataURL reader file)))

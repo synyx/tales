@@ -29,12 +29,12 @@
     (is (nil? (project/load-project! "test"))))
 
   (testing "returns project"
-    (let [project       (project/save-project! "test" {:name "Test"})
+    (let [project (project/save-project! "test" {:name "Test"})
           found-project (project/load-project! "test")]
       (is (= project found-project))))
 
   (testing "returned project conforms to spec"
-    (let [_             (project/save-project! "test" {:name "Test"})
+    (let [_ (project/save-project! "test" {:name "Test"})
           found-project (project/load-project! "test")]
       (is (s/valid? :tales.project/project found-project)))))
 
@@ -51,8 +51,9 @@
       (is (= "Test" (:name project)))))
 
   (testing "returns the updated project"
-    (let [project         (project/save-project! "test" {:name "Test"})
-          updated-project (project/save-project! "test" (assoc project :name "Updated Test"))]
+    (let [project (project/save-project! "test" {:name "Test"})
+          updated-project (project/save-project! "test"
+                            (assoc project :name "Updated Test"))]
       (is (= "test" (:slug updated-project)))
       (is (= "Updated Test" (:name updated-project))))))
 

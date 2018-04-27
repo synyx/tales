@@ -13,9 +13,9 @@
 
   (testing "handles long sentences"
     (is (= "i-m-a-snaillike-terrestrial-gastropod-having-no-shell"
-           (slugify "I'm a snaillike terrestrial gastropod having no shell")))
+          (slugify "I'm a snaillike terrestrial gastropod having no shell")))
     (is (= "i-m-a-snaillike-terrestrial-ga"
-           (slugify "I'm a snaillike terrestrial gastropod having no shell" 30))))
+          (slugify "I'm a snaillike terrestrial gastropod..." 30))))
 
   (testing "removes non-ascii characters"
     (is (= "aaaaaaaaaa" (slugify "áÁàÀãÃâÂäÄ")))

@@ -1,6 +1,6 @@
 (ns tales.core
   (:require [reagent.core :as reagent]
-            [re-frame.core :as re-frame :refer [dispatch dispatch-sync subscribe]]
+            [re-frame.core :as rf :refer [dispatch dispatch-sync subscribe]]
             [tales.effects]
             [tales.events]
             [tales.routes :as routes]
@@ -15,7 +15,7 @@
       [project-page])))
 
 (defn mount-root []
-  (re-frame/clear-subscription-cache!)
+  (rf/clear-subscription-cache!)
   (reagent/render [main-page] (.getElementById js/document "app")))
 
 (defn init! []

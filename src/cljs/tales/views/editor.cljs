@@ -10,9 +10,10 @@
   [:div {:id "image-upload"}
    [:h2 "You haven't uploaded a poster yet."]
    [:h3 "Please do so now to start editing your tale!"]
-   [:input {:type      "file"
-            :on-change #(let [file (-> % .-target .-files (aget 0))]
-                          (dispatch [:update-project-image {:project project :file file}]))}]])
+   [:input {:type "file"
+            :on-change #(let [file (-> % .-target .-files (aget 0))
+                              data {:project project :file file}]
+                          (dispatch [:update-project-image data]))}]])
 
 (defn image-size []
   [:div {:id "image-size"}
@@ -20,21 +21,22 @@
    [:h3 "Please help us by manually setting them directly in the image!"]])
 
 (defn canvas [project]
-  (let [map         (r/atom nil)
-        file-path   (:file-path project)
-        bounds      (bounds (:dimensions project))
+  (let [map (r/atom nil)
+        file-path (:file-path project)
+        bounds (bounds (:dimensions project))
         map-options {:attributionControl false,
-                     :zoomControl        false,
-                     :crs                js/L.CRS.Simple,
-                     :minZoom            -5}]
+                     :zoomControl false,
+                     :crs js/L.CRS.Simple,
+                     :minZoom -5}]
     (r/create-class
       {:component-did-update
        (fn [_] (.log js/console "updated editor canvas size, redraw!"))
        :component-did-mount
-       (fn [this] (do
-                    (reset! map (.map js/L (r/dom-node this) (clj->js map-options)))
-                    (.fitBounds @map (clj->js bounds))
-                    (.addTo (.imageOverlay js/L file-path (clj->js bounds)) @map)))
+       (fn [this]
+         (do
+           (reset! map (.map js/L (r/dom-node this) (clj->js map-options)))
+           (.fitBounds @map (clj->js bounds))
+           (.addTo (.imageOverlay js/L file-path (clj->js bounds)) @map)))
        :reagent-render
        (fn [] [:div])})))
 

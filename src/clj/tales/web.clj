@@ -5,7 +5,7 @@
 (defn head []
   [:head
    [:meta {:charset "utf-8"}]
-   [:meta {:name    "viewport"
+   [:meta {:name "viewport"
            :content "width=device-width, initial-scale=1"}]
    (include-css "/css/leaflet.css")
    (include-css (if (env :dev) "/css/site.css" "/css/site.min.css"))
@@ -13,8 +13,8 @@
 
 (defn assets []
   (list
-   (include-js (if (env :dev) "/js/leaflet-src.js" "/js/leaflet.js"))
-   (include-js "/js/app.js")))
+    (include-js (if (env :dev) "/js/leaflet-src.js" "/js/leaflet.js"))
+    (include-js "/js/app.js")))
 
 (defn loading-page []
   (html5

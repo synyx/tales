@@ -7,17 +7,17 @@
   (dispatch [:add-project {:name name}]))
 
 (defn project-input []
-  (let [val  (r/atom "")
+  (let [val (r/atom "")
         stop #(do (reset! val ""))
         save #(let [v (-> @val str clojure.string/trim)]
                 (if-not (empty? v) (add-project v))
                 (stop))]
     (fn []
-      [:input {:type        "text"
-               :id          "new-project"
+      [:input {:type "text"
+               :id "new-project"
                :placeholder "Enter the name of your tale and press enter"
-               :value       @val
-               :on-change   #(reset! val (-> % .-target .-value))
+               :value @val
+               :on-change #(reset! val (-> % .-target .-value))
                :on-key-down #(case (.-which %)
                                13 (save)
                                27 (stop)
@@ -38,4 +38,6 @@
      [:main
       [:section [project-input]]
       (if-not (empty? @projects)
-        [:section [:h3 "or choose an existing tale:"] [project-list @projects]])]]))
+        [:section
+         [:h3 "or choose an existing tale:"]
+         [project-list @projects]])]]))

@@ -20,7 +20,7 @@
 
 (defn create [body]
   (if (s/valid? ::project/project body)
-    (let [slug     (tales.utility/slugify (:name body))
+    (let [slug (tales.utility/slugify (:name body))
           resource (format "/api/tales/%s" slug)]
       (if (not (project/project? slug))
         (created resource (project/save-project! slug body))
@@ -42,15 +42,15 @@
 
 (defn upload-image [slug request]
   (let [content-type (get-header request "Content-Type")
-        extension    (case content-type
-                       "image/gif" "gif"
-                       "image/png" "png"
-                       "image/jpeg" "jpg"
-                       "image/bmp" "bmp"
-                       "image/svg+xml" "svg"
-                       false)
-        file-name    (str/join "." [slug extension])
-        target-file  (fs/file *project-dir* slug file-name)]
+        extension (case content-type
+                    "image/gif" "gif"
+                    "image/png" "png"
+                    "image/jpeg" "jpg"
+                    "image/bmp" "bmp"
+                    "image/svg+xml" "svg"
+                    false)
+        file-name (str/join "." [slug extension])
+        target-file (fs/file *project-dir* slug file-name)]
     (if (project/project? slug)
       (if extension
         (with-open [out (io/output-stream target-file)]

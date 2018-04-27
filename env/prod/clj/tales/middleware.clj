@@ -7,10 +7,10 @@
 
 (defn wrap-web-middleware [handler]
   (-> handler
-      (wrap-defaults site-defaults)))
+    (wrap-defaults site-defaults)))
 
 (defn wrap-api-middleware [handler]
   (-> handler
-      wrap-json-response
-      (wrap-defaults api-defaults)
-      (wrap-json-body {:keywords? true})))
+    wrap-json-response
+    (wrap-defaults api-defaults)
+    (wrap-json-body {:keywords? true})))

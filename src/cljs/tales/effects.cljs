@@ -4,9 +4,10 @@
             [tales.image :as image]))
 
 (reg-fx :navigate
-        (fn [url]
-          (accountant/navigate! url)))
+  (fn [url]
+    (accountant/navigate! url)))
 
 (reg-fx :determine-image-dimensions
-        (fn [{project :project file :file}]
-          (image/dimensions file #(dispatch [:update-project (assoc project :dimensions %)]))))
+  (fn [{project :project file :file}]
+    (image/dimensions file
+      #(dispatch [:update-project (assoc project :dimensions %)]))))

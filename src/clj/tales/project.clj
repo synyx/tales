@@ -14,13 +14,13 @@
 
 (defn project? [slug]
   (and (not-empty slug)
-       (fs/exists? (config-file slug))))
+    (fs/exists? (config-file slug))))
 
 (defn project-names []
   (reverse
     (filter project?
-            (mapv fs/name
-                  (filter fs/directory? (fs/list-dir *project-dir*))))))
+      (mapv fs/name
+        (filter fs/directory? (fs/list-dir *project-dir*))))))
 
 (defn load-project! [slug]
   (if (project? slug)
@@ -32,10 +32,10 @@
 
 (defn save-project! [slug project]
   (if (and (seq slug)
-           (s/valid? ::project project))
+        (s/valid? ::project project))
     (let [loaded-project (load-project! slug)
-          project        (merge loaded-project project)
-          filename       (config-file slug)]
+          project (merge loaded-project project)
+          filename (config-file slug)]
       (fs/mkdirs (fs/parent filename))
       (spit filename (pr-str (dissoc project :slug)))
       (assoc project :slug slug))))
@@ -55,4 +55,4 @@
 (s/def ::dimensions (s/keys :req-un [::width ::height]))
 
 (s/def ::project (s/keys :req-un [::name]
-                         :opt-un [::file-path ::dimensions]))
+                   :opt-un [::file-path ::dimensions]))
