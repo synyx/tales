@@ -32,12 +32,12 @@
         (assoc-in [:editor :draw :end] pos)
         (assoc-in [:editor :draw :rect] (L/set-bounds rect [start pos]))))))
 
-(reg-event-db :add-slide
-  (fn [db [_ slide]]
+(reg-event-fx :add-slide
+  (fn [{db :db} [_ slide]]
     (let [slug (get-in db [:editor :project])
           project (get-in db [:projects slug])
           slides (get project :slides)]
-      (assoc-in db [:projects slug :slides] (conj slides slide)))))
+      {:dispatch [:update-project (assoc-in project [:slides] (conj slides slide))]})))
 
 (reg-event-db :set-active-project
   (fn [db [_ project-slug]]

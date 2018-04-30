@@ -47,26 +47,26 @@
         map-options {:attributionControl false,
                      :zoomControl false,
                      :crs js/L.CRS.Simple,
-                     :minZoom -5}]
+                     :minZoom -5}
+        update (fn [this]
+                 (let [[_ _ slides draw-rect] (r/argv this)]
+                   (L/clear-layers slide-layer)
+                   (if draw-rect
+                     (L/add-layer slide-layer draw-rect))
+                   (if-not (empty? slides)
+                     (doseq [slide slides]
+                       (L/add-layer slide-layer (L/rectangle slide))))))]
     (r/create-class
-      {:component-did-update
-       (fn [this]
-         (let [[_ _ slides draw-rect] (r/argv this)]
-           (L/clear-layers slide-layer)
-           (if draw-rect
-             (L/add-layer slide-layer draw-rect))
-           (if-not (empty? slides)
-             (doseq [slide slides]
-               (L/add-layer slide-layer (L/rectangle slide))))))
+      {:component-did-update update
        :component-did-mount
        (fn [this]
          (-> (L/map (r/dom-node this) map-options)
            (L/add-layer (L/image-overlay (:file-path project) bounds))
            (L/add-layer slide-layer)
            (L/fit-bounds bounds)
-           mouse-handler))
-       :reagent-render
-       (fn [] [:div])})))
+           mouse-handler)
+         (update this))
+       :reagent-render (fn [] [:div])})))
 
 (defn canvas-container []
   (let [project (subscribe [:active-project])
