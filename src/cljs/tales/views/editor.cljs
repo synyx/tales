@@ -1,7 +1,8 @@
 (ns tales.views.editor
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [tales.routes :refer [home-path]]))
+            [tales.routes :refer [home-path]]
+            [tales.leaflet.core :as L]))
 
 (defn- bounds [image-dimensions]
   [[0 0] [(:height image-dimensions) (:width image-dimensions)]])
@@ -21,9 +22,7 @@
    [:h3 "Please help us by manually setting them directly in the image!"]])
 
 (defn canvas [project]
-  (let [map (r/atom nil)
-        file-path (:file-path project)
-        bounds (bounds (:dimensions project))
+  (let [bounds (bounds (:dimensions project))
         map-options {:attributionControl false,
                      :zoomControl false,
                      :crs js/L.CRS.Simple,
@@ -33,10 +32,9 @@
        (fn [_] (.log js/console "updated editor canvas size, redraw!"))
        :component-did-mount
        (fn [this]
-         (do
-           (reset! map (.map js/L (r/dom-node this) (clj->js map-options)))
-           (.fitBounds @map (clj->js bounds))
-           (.addTo (.imageOverlay js/L file-path (clj->js bounds)) @map)))
+         (-> (L/map (r/dom-node this) map-options)
+           (L/add-layer (L/image-overlay (:file-path project) bounds))
+           (L/fit-bounds bounds)))
        :reagent-render
        (fn [] [:div])})))
 
