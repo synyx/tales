@@ -79,11 +79,12 @@
   (let [project (subscribe [:active-project])]
     (fn []
       [:div {:id "editor"}
-       [:header [:h1 (:name @project)]]
+       [:header
+        [:h1 (:name @project)]
+        [:a {:href (home-path)} "Close"]]
        [:main
         (cond
           (nil? (:file-path @project)) [image-upload @project]
           (nil? (:dimensions @project)) [image-size]
           :else [canvas-container])]
-       [:footer
-        [:a {:href (home-path)} "or start a new one..."]]])))
+       [:footer]])))
