@@ -22,18 +22,25 @@
    [:h3 "Please help us by manually setting them directly in the image!"]])
 
 (defn canvas [project]
-  (let [bounds (bounds (:dimensions project))
+  (let [slides (subscribe [:slides])
+        slide-layer (L/layer-group)
+        bounds (bounds (:dimensions project))
         map-options {:attributionControl false,
                      :zoomControl false,
                      :crs js/L.CRS.Simple,
                      :minZoom -5}]
     (r/create-class
       {:component-did-update
-       (fn [_] (.log js/console "updated editor canvas size, redraw!"))
+       (fn [_]
+         (L/clear-layers slide-layer)
+         (if-not (empty? @slides)
+           (doseq [slide @slides]
+             (L/add-layer slide-layer (L/rectangle slide)))))
        :component-did-mount
        (fn [this]
          (-> (L/map (r/dom-node this) map-options)
            (L/add-layer (L/image-overlay (:file-path project) bounds))
+           (L/add-layer slide-layer)
            (L/fit-bounds bounds)))
        :reagent-render
        (fn [] [:div])})))

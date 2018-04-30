@@ -17,3 +17,8 @@
   (fn [[projects editor] _]
     (if-let [project (:project editor)]
       (get projects project))))
+
+(reg-sub :slides
+  :<- [:active-project]
+  (fn [project _]
+    (:slides project)))
