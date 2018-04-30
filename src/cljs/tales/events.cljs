@@ -3,10 +3,41 @@
             [day8.re-frame.http-fx]
             [re-frame.core :refer [reg-event-db reg-event-fx]]
             [tales.db :as db]
-            [tales.routes :refer [editor-path]]))
+            [tales.routes :refer [editor-path]]
+            [tales.leaflet.core :as L]))
 
 (reg-event-db :initialise-db
   (fn [_ _] db/default-db))
+
+(reg-event-db :start-draw
+  (fn [db [_ pos]]
+    (-> db
+      (assoc-in [:editor :drawing?] true)
+      (assoc-in [:editor :draw :start] pos)
+      (assoc-in [:editor :draw :rect] (L/rectangle [pos pos])))))
+
+(reg-event-fx :end-draw
+  (fn [{db :db} _]
+    {:db (-> db
+           (assoc-in [:editor :drawing?] false)
+           (update-in [:editor] dissoc :draw))
+     :dispatch [:add-slide [(get-in db [:editor :draw :start])
+                            (get-in db [:editor :draw :end])]]}))
+
+(reg-event-db :update-draw
+  (fn [db [_ pos]]
+    (let [rect (get-in db [:editor :draw :rect])
+          start (get-in db [:editor :draw :start])]
+      (-> db
+        (assoc-in [:editor :draw :end] pos)
+        (assoc-in [:editor :draw :rect] (L/set-bounds rect [start pos]))))))
+
+(reg-event-db :add-slide
+  (fn [db [_ slide]]
+    (let [slug (get-in db [:editor :project])
+          project (get-in db [:projects slug])
+          slides (get project :slides)]
+      (assoc-in db [:projects slug :slides] (conj slides slide)))))
 
 (reg-event-db :set-active-project
   (fn [db [_ project-slug]]

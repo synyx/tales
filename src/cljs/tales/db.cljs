@@ -2,4 +2,5 @@
 
 (def default-db
   {:projects (list)
-   :editor {:project nil}})
+   :editor {:project nil
+            :drawing? false}})

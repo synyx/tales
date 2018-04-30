@@ -22,3 +22,13 @@
   :<- [:active-project]
   (fn [project _]
     (:slides project)))
+
+(reg-sub :drawing?
+  :<- [:editor]
+  (fn [editor _]
+    (:drawing? editor)))
+
+(reg-sub :draw-rect
+  :<- [:editor]
+  (fn [editor _]
+    (get-in editor [:draw :rect])))
