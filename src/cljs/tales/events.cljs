@@ -10,7 +10,7 @@
 
 (reg-event-db :set-active-project
   (fn [db [_ project-slug]]
-    (assoc db :active-project project-slug)))
+    (assoc-in db [:editor :project] project-slug)))
 
 (reg-event-fx :get-projects
   (fn [{db :db} _]
