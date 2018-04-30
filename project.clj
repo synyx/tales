@@ -50,6 +50,7 @@
                              :compiler {:output-to "target/cljsbuild/public/js/app.js"
                                         :output-dir "target/cljsbuild/public/js"
                                         :source-map "target/cljsbuild/public/js/app.js.map"
+                                        :externs ["externs.js"]
                                         :optimizations :advanced
                                         :pretty-print false}}
                        :app {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
