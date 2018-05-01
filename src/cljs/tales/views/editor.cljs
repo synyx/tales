@@ -2,10 +2,8 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.routes :refer [home-path]]
-            [tales.leaflet.core :as L]))
-
-(defn- bounds [image-dimensions]
-  [[0 0] [(:height image-dimensions) (:width image-dimensions)]])
+            [tales.leaflet.core :as L]
+            [tales.leaflet.helper :as L.helper]))
 
 (defn image-upload [project]
   [:div {:id "image-upload"}
@@ -24,6 +22,43 @@
 (defn ctrl-key? [e]
   (-> e .-originalEvent .-ctrlKey))
 
+(defn slide-preview-item [project slide width height]
+  (let [slide (-> slide
+                L.helper/normalize-bounds
+                L.helper/bounds->map)
+        slide-width (- (:x2 slide) (:x1 slide))
+        slide-height (- (:y2 slide) (:y1 slide))
+        scale (if (> (/ width height) (/ slide-width slide-height))
+                (/ height slide-height)
+                (/ width slide-width))
+        div-width (* scale slide-width)
+        div-height (* scale slide-height)
+        dx (* scale (:x1 slide))
+        dy (* scale (- (:height (:dimensions project)) (:y2 slide)))
+        scaled-img-width (* scale (:width (:dimensions project)))
+        scaled-img-height (* scale (:height (:dimensions project)))]
+    (fn []
+      [:div {:style {:width div-width
+                     :height div-height
+                     :background-color "#fff"
+                     :background-repeat "no-repeat"
+                     :background-image (str "url(" (:file-path project) ")")
+                     :background-size (str scaled-img-width "px " scaled-img-height "px")
+                     :background-position (str (- dx) "px " (- dy) "px")}}])))
+
+(defn slide-preview [project]
+  (let [slides (subscribe [:slides])
+        preview-width 100
+        preview-height 75]
+    [:div {:id "slide-preview" :class "slide-preview-list"}
+     (map-indexed (fn [idx slide]
+                    ^{:key idx}
+                    [:div {:class "slide-preview-list-item"
+                           :style {:width preview-width :height preview-height
+                                   :background-color "#333"
+                                   :border "2px solid #333"}}
+                     [slide-preview-item project slide preview-width preview-height]]) @slides)]))
+
 (defn mouse-handler [map]
   (let [drawing? (subscribe [:drawing?])
         draw-start #(if (ctrl-key? %)
@@ -41,9 +76,9 @@
       (L/on "touchend" draw-end)
       (L/on "touchmove" draw-update))))
 
-(defn canvas [project]
+(defn navigator [project]
   (let [slide-layer (L/layer-group)
-        bounds (bounds (:dimensions project))
+        bounds (L.helper/bounds (:dimensions project))
         map-options {:attributionControl false,
                      :zoomControl false,
                      :crs js/L.CRS.Simple,
@@ -66,14 +101,13 @@
            (L/fit-bounds bounds)
            mouse-handler)
          (update this))
-       :reagent-render (fn [] [:div])})))
+       :reagent-render (fn [] [:div {:id "navigator"}])})))
 
-(defn canvas-container []
-  (let [project (subscribe [:active-project])
-        slides (subscribe [:slides])
+(defn navigator-container [project]
+  (let [slides (subscribe [:slides])
         draw-rect (subscribe [:draw-rect])]
     (fn []
-      [canvas @project @slides @draw-rect])))
+      [navigator project @slides @draw-rect])))
 
 (defn editor-page []
   (let [project (subscribe [:active-project])]
@@ -82,9 +116,8 @@
        [:header
         [:h1 (:name @project)]
         [:a {:href (home-path)} "Close"]]
-       [:main
-        (cond
-          (nil? (:file-path @project)) [image-upload @project]
-          (nil? (:dimensions @project)) [image-size]
-          :else [canvas-container])]
-       [:footer]])))
+       [:main (cond
+                (nil? (:file-path @project)) [image-upload @project]
+                (nil? (:dimensions @project)) [image-size]
+                :else [navigator-container @project])]
+       [:footer [slide-preview @project]]])))
