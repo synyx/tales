@@ -61,7 +61,8 @@
                                    :border-width 3
                                    :border-style "solid"
                                    :border-color (if (= idx current-slide) "#ff0000" "#333")}
-                           :on-click #(dispatch [:activate-slide idx])}
+                           :on-click #(dispatch [:activate-slide idx])
+                           :on-double-click #(dispatch [:move-to-slide idx])}
                      [slide-preview-item project slide preview-width preview-height]]) @slides)]))
 
 (defn mouse-handler [map]
@@ -97,9 +98,9 @@
                      (L/add-layer slide-layer draw-rect))
                    (if-not (empty? slides)
                      (doall (map-indexed (fn [idx slide]
-                       (let [color (if (= idx current-slide) "#ff0000" "#3388ff")]
-                         (L/add-layer slide-layer
-                           (L/rectangle slide {:color color})))) slides)))))]
+                                           (let [color (if (= idx current-slide) "#ff0000" "#3388ff")]
+                                             (L/add-layer slide-layer
+                                               (L/rectangle slide {:color color})))) slides)))))]
     (r/create-class
       {:component-did-update update
        :component-did-mount
@@ -110,7 +111,9 @@
            (L/add-layer slide-layer)
            (L/fit-bounds bounds)
            mouse-handler)
+         (dispatch [:navigator-available @map])
          (update this))
+       :component-will-unmount (fn [] (dispatch [:navigator-unavailable @map]))
        :reagent-render (fn [] [:div {:id "navigator"}])})))
 
 (defn navigator-container [project]

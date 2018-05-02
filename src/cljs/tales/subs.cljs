@@ -23,6 +23,16 @@
   (fn [project _]
     (:slides project)))
 
+(reg-sub :slide
+  :<- [:active-project]
+  (fn [project [_ idx]]
+    (nth (:slides project) idx)))
+
+(reg-sub :navigator
+  :<- [:editor]
+  (fn [editor _]
+    (:navigator editor)))
+
 (reg-sub :drawing?
   :<- [:editor]
   (fn [editor _]

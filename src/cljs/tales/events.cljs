@@ -1,13 +1,21 @@
 (ns tales.events
   (:require [ajax.core :as ajax]
             [day8.re-frame.http-fx]
-            [re-frame.core :refer [reg-event-db reg-event-fx]]
+            [re-frame.core :refer [subscribe reg-event-db reg-event-fx]]
             [tales.db :as db]
             [tales.routes :refer [editor-path]]
             [tales.leaflet.core :as L]))
 
 (reg-event-db :initialise-db
   (fn [_ _] db/default-db))
+
+(reg-event-db :navigator-available
+  (fn [db [_ navigator]]
+    (assoc-in db [:editor :navigator] navigator)))
+
+(reg-event-db :navigator-unavailable
+  (fn [db _]
+    (update-in db [:editor] dissoc :navigator)))
 
 (reg-event-db :start-draw
   (fn [db [_ pos]]
@@ -39,9 +47,15 @@
           slides (get project :slides)]
       {:dispatch [:update-project (assoc-in project [:slides] (conj slides slide))]})))
 
-(reg-event-db :activate-slide
-  (fn [db [_ idx]]
-    (assoc-in db [:editor :current-slide] idx)))
+(reg-event-fx :activate-slide
+  (fn [{db :db} [_ idx]]
+    {:db (assoc-in db [:editor :current-slide] idx)}))
+
+(reg-event-fx :move-to-slide
+  (fn [{db :db} [_ idx]]
+    (let [navigator (subscribe [:navigator])
+          slide (subscribe [:slide idx])]
+      {:navigator-fly-to [@navigator @slide]})))
 
 (reg-event-db :set-active-project
   (fn [db [_ project-slug]]
