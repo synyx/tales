@@ -14,6 +14,9 @@
 (defn layer-group []
   (.layerGroup js/L))
 
+(defn feature-group []
+  (.featureGroup js/L))
+
 (defn rectangle
   ([bounds] (rectangle bounds {}))
   ([bounds options]
@@ -36,6 +39,3 @@
 
 (defn on [container event-name f]
   (.on container event-name f))
-
-(defn latlng-to-vec [latlng]
-  [(.-lat latlng) (.-lng latlng)])

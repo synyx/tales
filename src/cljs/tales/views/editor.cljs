@@ -65,15 +65,15 @@
                            :on-double-click #(dispatch [:move-to-slide idx])}
                      [slide-preview-item project slide preview-width preview-height]]) @slides)]))
 
-(defn mouse-handler [map]
+(defn draw-handler [map]
   (let [drawing? (subscribe [:drawing?])
         draw-start #(if (ctrl-key? %)
                       (do (-> map .-dragging .disable)
-                          (dispatch [:start-draw (L/latlng-to-vec (.-latlng %))])))
-        draw-end #(if @drawing? (dispatch [:end-draw (L/latlng-to-vec (.-latlng %))]))
+                          (dispatch [:start-draw (L.helper/latlng-to-vec (.-latlng %))])))
+        draw-end #(if @drawing? (dispatch [:end-draw (L.helper/latlng-to-vec (.-latlng %))]))
         draw-update #(if @drawing?
                        (do (-> map .-dragging .enable)
-                           (dispatch [:update-draw (L/latlng-to-vec (.-latlng %))])))]
+                           (dispatch [:update-draw (L.helper/latlng-to-vec (.-latlng %))])))]
     (-> map
       (L/on "mousedown" draw-start)
       (L/on "mouseup" draw-end)
@@ -82,9 +82,26 @@
       (L/on "touchend" draw-end)
       (L/on "touchmove" draw-update))))
 
+(defn slide-handler [layer]
+  (let [slides (subscribe [:slides])
+        bounds->slide (fn [slides bounds]
+                        (first
+                          (filter
+                            (fn [[_ slide]] (= slide bounds))
+                            (map-indexed vector slides))))]
+    (-> layer
+      (L/on "click" #(let [bounds (L.helper/latlng-bounds-to-vec
+                                    (-> % .-layer .-_bounds))
+                           idx (first (bounds->slide @slides bounds))]
+                       (if idx (dispatch [:activate-slide idx]))))
+      (L/on "dblclick" #(let [bounds (L.helper/latlng-bounds-to-vec
+                                       (-> % .-layer .-_bounds))
+                              idx (first (bounds->slide @slides bounds))]
+                          (if idx (dispatch [:move-to-slide idx])))))))
+
 (defn navigator [project]
   (let [map (r/atom nil)
-        slide-layer (L/layer-group)
+        slide-layer (L/feature-group)
         bounds (L.helper/bounds (:dimensions project))
         map-options {:attributionControl false
                      :zoomControl false
@@ -110,7 +127,9 @@
            (L/add-layer (L/image-overlay (:file-path project) bounds))
            (L/add-layer slide-layer)
            (L/fit-bounds bounds)
-           mouse-handler)
+           draw-handler)
+         (-> slide-layer
+           slide-handler)
          (dispatch [:navigator-available @map])
          (update this))
        :component-will-unmount (fn [] (dispatch [:navigator-unavailable @map]))

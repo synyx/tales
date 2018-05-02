@@ -1,5 +1,11 @@
 (ns tales.leaflet.helper)
 
+(defn latlng-to-vec [latlng]
+  [(.-lat latlng) (.-lng latlng)])
+
+(defn latlng-bounds-to-vec [latlng-bounds]
+  [(latlng-to-vec (.getNorthWest latlng-bounds))
+   (latlng-to-vec (.getSouthEast latlng-bounds))])
 
 (defn- bounds [image-dimensions]
   [[0 0] [(:height image-dimensions) (:width image-dimensions)]])
