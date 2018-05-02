@@ -32,3 +32,8 @@
   :<- [:editor]
   (fn [editor _]
     (get-in editor [:draw :rect])))
+
+(reg-sub :current-slide
+  :<- [:editor]
+  (fn [editor _]
+    (get editor :current-slide)))

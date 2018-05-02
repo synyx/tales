@@ -121,7 +121,8 @@ input#new-project::placeholder {
 .slide-preview-list {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  overflow: auto;
+  margin: 4px 2px;
 }
 
 .slide-preview-list > .slide-preview-list-item {
@@ -129,5 +130,10 @@ input#new-project::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 5px
+  margin: 0 2px;
+}
+
+.slide-preview-list > .slide-preview-list-item:hover {
+  border-color: #3388ff !important;
+  cursor: pointer;
 }

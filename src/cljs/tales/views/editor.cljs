@@ -48,15 +48,20 @@
 
 (defn slide-preview [project]
   (let [slides (subscribe [:slides])
+        current-slide @(subscribe [:current-slide])
         preview-width 100
         preview-height 75]
     [:div {:id "slide-preview" :class "slide-preview-list"}
      (map-indexed (fn [idx slide]
                     ^{:key idx}
                     [:div {:class "slide-preview-list-item"
-                           :style {:width preview-width :height preview-height
+                           :style {:width preview-width :min-width preview-width
+                                   :height preview-height :min-height preview-height
                                    :background-color "#333"
-                                   :border "2px solid #333"}}
+                                   :border-width 3
+                                   :border-style "solid"
+                                   :border-color (if (= idx current-slide) "#ff0000" "#333")}
+                           :on-click #(dispatch [:activate-slide idx])}
                      [slide-preview-item project slide preview-width preview-height]]) @slides)]))
 
 (defn mouse-handler [map]
@@ -77,25 +82,30 @@
       (L/on "touchmove" draw-update))))
 
 (defn navigator [project]
-  (let [slide-layer (L/layer-group)
+  (let [map (r/atom nil)
+        slide-layer (L/layer-group)
         bounds (L.helper/bounds (:dimensions project))
-        map-options {:attributionControl false,
-                     :zoomControl false,
-                     :crs js/L.CRS.Simple,
-                     :minZoom -5}
+        map-options {:attributionControl false
+                     :zoomControl false
+                     :crs js/L.CRS.Simple
+                     :minZoom -5
+                     :zoomSnap 0}
         update (fn [this]
-                 (let [[_ _ slides draw-rect] (r/argv this)]
+                 (let [[_ _ slides current-slide draw-rect] (r/argv this)]
                    (L/clear-layers slide-layer)
                    (if draw-rect
                      (L/add-layer slide-layer draw-rect))
                    (if-not (empty? slides)
-                     (doseq [slide slides]
-                       (L/add-layer slide-layer (L/rectangle slide))))))]
+                     (doall (map-indexed (fn [idx slide]
+                       (let [color (if (= idx current-slide) "#ff0000" "#3388ff")]
+                         (L/add-layer slide-layer
+                           (L/rectangle slide {:color color})))) slides)))))]
     (r/create-class
       {:component-did-update update
        :component-did-mount
        (fn [this]
-         (-> (L/map (r/dom-node this) map-options)
+         (reset! map (L/map (r/dom-node this) map-options))
+         (-> @map
            (L/add-layer (L/image-overlay (:file-path project) bounds))
            (L/add-layer slide-layer)
            (L/fit-bounds bounds)
@@ -105,9 +115,10 @@
 
 (defn navigator-container [project]
   (let [slides (subscribe [:slides])
+        current-slide (subscribe [:current-slide])
         draw-rect (subscribe [:draw-rect])]
     (fn []
-      [navigator project @slides @draw-rect])))
+      [navigator project @slides @current-slide @draw-rect])))
 
 (defn editor-page []
   (let [project (subscribe [:active-project])]

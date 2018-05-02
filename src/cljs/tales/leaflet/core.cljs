@@ -3,14 +3,21 @@
 (defn map [dom-node options]
   (.map js/L dom-node (clj->js options)))
 
+(defn fly-to-bounds
+  ([map bounds] (fly-to-bounds map bounds {}))
+  ([map bounds options]
+    (.flyToBounds map (clj->js bounds) (clj->js options))))
+
 (defn image-overlay [file-path bounds]
   (.imageOverlay js/L file-path (clj->js bounds)))
 
 (defn layer-group []
   (.layerGroup js/L))
 
-(defn rectangle [bounds]
-  (.rectangle js/L (clj->js bounds)))
+(defn rectangle
+  ([bounds] (rectangle bounds {}))
+  ([bounds options]
+   (.rectangle js/L (clj->js bounds) (clj->js options))))
 
 (defn set-bounds [layer bounds]
   (.setBounds layer (clj->js bounds)))

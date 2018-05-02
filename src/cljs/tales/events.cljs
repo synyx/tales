@@ -39,6 +39,10 @@
           slides (get project :slides)]
       {:dispatch [:update-project (assoc-in project [:slides] (conj slides slide))]})))
 
+(reg-event-db :activate-slide
+  (fn [db [_ idx]]
+    (assoc-in db [:editor :current-slide] idx)))
+
 (reg-event-db :set-active-project
   (fn [db [_ project-slug]]
     (assoc-in db [:editor :project] project-slug)))
