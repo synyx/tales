@@ -79,7 +79,8 @@
                                              :optimizations :none
                                              :pretty-print true}}}}
 
-  :doo {:build "test"}
+  :doo {:build "test"
+        :alias  {:default  [:chrome]}}
 
   :figwheel {:http-server-root "public"
              :server-logfile false
