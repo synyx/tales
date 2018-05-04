@@ -93,11 +93,13 @@
       (L/on "click" #(let [bounds (L.helper/latlng-bounds-to-vec
                                     (-> % .-layer .getBounds))
                            idx (first (bounds->slide @slides bounds))]
-                       (if idx (dispatch [:activate-slide idx]))))
+                       (if idx (do (.stopPropagation js/L.DomEvent %)
+                                   (dispatch [:activate-slide idx])))))
       (L/on "dblclick" #(let [bounds (L.helper/latlng-bounds-to-vec
                                        (-> % .-layer .getBounds))
                               idx (first (bounds->slide @slides bounds))]
-                          (if idx (dispatch [:move-to-slide idx])))))))
+                          (if idx (do (.stopPropagation js/L.DomEvent %)
+                                      (dispatch [:move-to-slide idx]))))))))
 
 (defn navigator [project]
   (let [map (r/atom nil)
