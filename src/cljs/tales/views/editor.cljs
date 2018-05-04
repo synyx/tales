@@ -91,11 +91,11 @@
                             (map-indexed vector slides))))]
     (-> layer
       (L/on "click" #(let [bounds (L.helper/latlng-bounds-to-vec
-                                    (-> % .-layer .-_bounds))
+                                    (-> % .-layer .getBounds))
                            idx (first (bounds->slide @slides bounds))]
                        (if idx (dispatch [:activate-slide idx]))))
       (L/on "dblclick" #(let [bounds (L.helper/latlng-bounds-to-vec
-                                       (-> % .-layer .-_bounds))
+                                       (-> % .-layer .getBounds))
                               idx (first (bounds->slide @slides bounds))]
                           (if idx (dispatch [:move-to-slide idx])))))))
 
