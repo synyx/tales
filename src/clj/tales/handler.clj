@@ -12,13 +12,13 @@
 (defroutes api-routes
   (wrap-api-middleware
     (routes
-      (GET "/" [] (api/find-all))
-      (POST "/" {body :body} (api/create body))
+      (GET "/" [] (api/get-projects))
+      (POST "/" {body :body} (api/create-project body))
       (context "/:slug" [slug]
-        (GET "/" [] (api/find-by-slug slug))
-        (PUT "/" {body :body} (api/update slug body))
-        (DELETE "/" [] (api/delete slug))
-        (PUT "/image" request (api/upload-image slug request))))))
+        (GET "/" [] (api/get-project slug))
+        (PUT "/" {body :body} (api/update-project slug body))
+        (DELETE "/" [] (api/delete-project slug))
+        (PUT "/image" request (api/update-project-image slug request))))))
 
 (defroutes web-routes
   (wrap-web-middleware

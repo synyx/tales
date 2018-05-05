@@ -9,46 +9,49 @@
 (defn bad-request [body] {:status 400 :headers {} :body body})
 (defn conflict [body] {:status 409 :headers {} :body body})
 
-(defn find-all []
-  (response (project/load-projects!)))
+(defn get-projects []
+  (response (project/load-projects)))
 
-(defn find-by-slug [slug]
-  (let [project (project/load-project! slug)]
+(defn get-project [slug]
+  (let [project (project/load-project slug)]
     (if project
       (response project)
       (not-found {}))))
 
-(defn create [body]
-  (if (s/valid? ::project/project body)
-    (let [slug (tales.utility/slugify (:name body))
+(defn create-project [project]
+  (if (s/valid? ::project/project project)
+    (let [slug (tales.utility/slugify (:name project))
           resource (format "/api/tales/%s" slug)]
       (if (not (project/project? slug))
-        (created resource (project/save-project! slug body))
+        (created resource (project/save-project slug project))
         (conflict {})))
-    (bad-request {:error (s/explain-str ::project/project body)})))
+    (bad-request {:error (s/explain-str ::project/project project)})))
 
-(defn update [slug body]
+(defn update-project [slug project]
   (if (project/project? slug)
-    (if (s/valid? ::project/project body)
-      (response (project/save-project! slug body))
-      (bad-request {:error (s/explain-str ::project/project body)}))
+    (if (s/valid? ::project/project project)
+      (response (project/save-project slug project))
+      (bad-request {:error (s/explain-str ::project/project project)}))
     (not-found {})))
 
-(defn delete [slug]
+(defn delete-project [slug]
   (if (project/project? slug)
-    (do (project/delete-project! slug)
+    (do (project/delete-project slug)
         (response {}))
     (not-found {})))
 
-(defn upload-image [slug request]
+(defn image-type [content-type]
+  (case content-type
+    "image/gif" "gif"
+    "image/png" "png"
+    "image/jpeg" "jpg"
+    "image/bmp" "bmp"
+    "image/svg+xml" "svg"
+    false))
+
+(defn update-project-image [slug request]
   (let [content-type (get-header request "Content-Type")
-        extension (case content-type
-                    "image/gif" "gif"
-                    "image/png" "png"
-                    "image/jpeg" "jpg"
-                    "image/bmp" "bmp"
-                    "image/svg+xml" "svg"
-                    false)
+        extension (image-type content-type)
         file-name (str/join "." [slug extension])
         target-file (fs/file *project-dir* slug file-name)]
     (if (project/project? slug)
@@ -56,8 +59,8 @@
         (with-open [out (io/output-stream target-file)]
           (io/copy (:body request) out)
           (response
-            (project/save-project! slug (assoc
-                                          (project/load-project! slug)
+            (project/save-project slug (assoc
+                                          (project/load-project slug)
                                           :file-path file-name))))
         (bad-request {:error (str "Invalid content-type: " content-type)}))
       (not-found {}))))
