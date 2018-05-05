@@ -31,9 +31,9 @@
       (is (= 200 (:status response)))
       (is (content-type-json? response))
       (is (= 3 (count body)))
-      (is (= project1 (nth body 0)))
-      (is (= project2 (nth body 1)))
-      (is (= project3 (nth body 2))))))
+      (is (some #{project1} body))
+      (is (some #{project2} body))
+      (is (some #{project3} body)))))
 
 (deftest test-api-get-tale
   (testing "returns not-found for non-existing project"

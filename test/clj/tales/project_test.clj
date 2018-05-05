@@ -17,9 +17,9 @@
           project3 (project/save-project! "project-3" {:name "Project 3"})
           projects (project/load-projects!)]
       (is (= 3 (count projects)))
-      (is (= project1 (nth projects 0)))
-      (is (= project2 (nth projects 1)))
-      (is (= project3 (nth projects 2))))))
+      (is (some #{project1} projects))
+      (is (some #{project2} projects))
+      (is (some #{project3} projects)))))
 
 (deftest test-load-project
   (testing "returns nil for nil"
