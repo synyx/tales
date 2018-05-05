@@ -31,15 +31,15 @@
         scale (if (> (/ width height) (/ slide-width slide-height))
                 (/ height slide-height)
                 (/ width slide-width))
-        div-width (* scale slide-width)
-        div-height (* scale slide-height)
         dx (* scale (:x1 slide))
         dy (* scale (- (:height (:dimensions project)) (:y2 slide)))
+        scaled-slide-width (* scale slide-width)
+        scaled-slide-height (* scale slide-height)
         scaled-img-width (* scale (:width (:dimensions project)))
         scaled-img-height (* scale (:height (:dimensions project)))]
     (fn []
-      [:div {:style {:width div-width
-                     :height div-height
+      [:div {:style {:width scaled-slide-width
+                     :height scaled-slide-height
                      :background-color "#fff"
                      :background-repeat "no-repeat"
                      :background-image (str "url(" (:file-path project) ")")
@@ -103,7 +103,7 @@
 
 (defn navigator [project]
   (let [map (r/atom nil)
-        slide-layer (L/feature-group)
+        slide-layer (L/create-feature-group)
         bounds (L.helper/bounds (:dimensions project))
         map-options {:attributionControl false
                      :zoomControl false
@@ -119,14 +119,14 @@
                      (doall (map-indexed (fn [idx slide]
                                            (let [color (if (= idx current-slide) "#ff0000" "#3388ff")]
                                              (L/add-layer slide-layer
-                                               (L/rectangle slide {:color color})))) slides)))))]
+                                               (L/create-rectangle slide {:color color})))) slides)))))]
     (r/create-class
       {:component-did-update update
        :component-did-mount
        (fn [this]
-         (reset! map (L/map (r/dom-node this) map-options))
+         (reset! map (L/create-map (r/dom-node this) map-options))
          (-> @map
-           (L/add-layer (L/image-overlay (:file-path project) bounds))
+           (L/add-layer (L/create-image-overlay (:file-path project) bounds))
            (L/add-layer slide-layer)
            (L/fit-bounds bounds)
            draw-handler)

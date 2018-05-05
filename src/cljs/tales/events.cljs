@@ -22,7 +22,7 @@
     (-> db
       (assoc-in [:editor :drawing?] true)
       (assoc-in [:editor :draw :start] pos)
-      (assoc-in [:editor :draw :rect] (L/rectangle [pos pos])))))
+      (assoc-in [:editor :draw :rect] (L/create-rectangle [pos pos])))))
 
 (reg-event-fx :end-draw
   (fn [{db :db} _]
