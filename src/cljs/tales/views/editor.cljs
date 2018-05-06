@@ -2,8 +2,7 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.routes :refer [home-path]]
-            [tales.leaflet.core :as L]
-            [tales.leaflet.helper :as L.helper]))
+            [tales.leaflet.core :as L]))
 
 (defn image-upload [project]
   [:div {:id "image-upload"}
@@ -23,16 +22,18 @@
   (-> e .-originalEvent .-ctrlKey))
 
 (defn slide-preview-item [project slide width height]
-  (let [slide (-> slide
-                L.helper/normalize-bounds
-                L.helper/bounds->map)
-        slide-width (- (:x2 slide) (:x1 slide))
-        slide-height (- (:y2 slide) (:y1 slide))
+  (let [rect (:rect slide)
+        slide-width (Math/abs (-
+                                (:x (:top-right rect))
+                                (:x (:bottom-left rect))))
+        slide-height (Math/abs (-
+                                 (:y (:top-right rect))
+                                 (:y (:bottom-left rect))))
         scale (if (> (/ width height) (/ slide-width slide-height))
                 (/ height slide-height)
                 (/ width slide-width))
-        dx (* scale (:x1 slide))
-        dy (* scale (- (:height (:dimensions project)) (:y2 slide)))
+        dx (* scale (:x (:bottom-left rect)))
+        dy (* scale (- (:height (:dimensions project)) (:y (:top-right rect))))
         scaled-slide-width (* scale slide-width)
         scaled-slide-height (* scale slide-height)
         scaled-img-width (* scale (:width (:dimensions project)))
@@ -69,11 +70,12 @@
   (let [drawing? (subscribe [:drawing?])
         draw-start #(if (ctrl-key? %)
                       (do (-> map .-dragging .disable)
-                          (dispatch [:start-draw (L.helper/latlng-to-vec (.-latlng %))])))
-        draw-end #(if @drawing? (dispatch [:end-draw (L.helper/latlng-to-vec (.-latlng %))]))
+                          (dispatch [:start-draw (.-latlng %)])))
+        draw-end #(if @drawing?
+                    (dispatch [:end-draw (.-latlng %)]))
         draw-update #(if @drawing?
                        (do (-> map .-dragging .enable)
-                           (dispatch [:update-draw (L.helper/latlng-to-vec (.-latlng %))])))]
+                           (dispatch [:update-draw (.-latlng %)])))]
     (-> map
       (L/on "mousedown" draw-start)
       (L/on "mouseup" draw-end)
@@ -82,29 +84,20 @@
       (L/on "touchend" draw-end)
       (L/on "touchmove" draw-update))))
 
-(defn slide-handler [layer]
-  (let [slides (subscribe [:slides])
-        bounds->slide (fn [slides bounds]
-                        (first
-                          (filter
-                            (fn [[_ slide]] (= slide bounds))
-                            (map-indexed vector slides))))]
-    (-> layer
-      (L/on "click" #(let [bounds (L.helper/latlng-bounds-to-vec
-                                    (-> % .-layer .getBounds))
-                           idx (first (bounds->slide @slides bounds))]
-                       (if idx (do (.stopPropagation js/L.DomEvent %)
-                                   (dispatch [:activate-slide idx])))))
-      (L/on "dblclick" #(let [bounds (L.helper/latlng-bounds-to-vec
-                                       (-> % .-layer .getBounds))
-                              idx (first (bounds->slide @slides bounds))]
-                          (if idx (do (.stopPropagation js/L.DomEvent %)
-                                      (dispatch [:move-to-slide idx]))))))))
+(defn navigator-slide [idx slide current?]
+  (let [color (if current? "#ff0000" "#3388ff")
+        bounds (L/slide-rect->latlng-bounds (:rect slide))
+        rectangle (L/create-rectangle bounds {:color color})]
+    (-> rectangle
+      (L/on "click" #(dispatch [:activate-slide idx]))
+      (L/on "dblclick" #(dispatch [:move-to-slide idx])))))
 
 (defn navigator [project]
   (let [map (r/atom nil)
         slide-layer (L/create-feature-group)
-        bounds (L.helper/bounds (:dimensions project))
+        bounds [[0 0]
+                [(:height (:dimensions project))
+                 (:width (:dimensions project))]]
         map-options {:attributionControl false
                      :zoomControl false
                      :crs js/L.CRS.Simple
@@ -115,11 +108,12 @@
                    (L/clear-layers slide-layer)
                    (if draw-rect
                      (L/add-layer slide-layer draw-rect))
-                   (if-not (empty? slides)
-                     (doall (map-indexed (fn [idx slide]
-                                           (let [color (if (= idx current-slide) "#ff0000" "#3388ff")]
-                                             (L/add-layer slide-layer
-                                               (L/create-rectangle slide {:color color})))) slides)))))]
+                   (doall
+                     (map-indexed
+                       (fn [idx slide]
+                         (->> (navigator-slide idx slide (= idx current-slide))
+                           (L/add-layer slide-layer)))
+                       slides))))]
     (r/create-class
       {:component-did-update update
        :component-did-mount
@@ -130,8 +124,6 @@
            (L/add-layer slide-layer)
            (L/fit-bounds bounds)
            draw-handler)
-         (-> slide-layer
-           slide-handler)
          (dispatch [:navigator-available @map])
          (update this))
        :component-will-unmount (fn [] (dispatch [:navigator-unavailable @map]))

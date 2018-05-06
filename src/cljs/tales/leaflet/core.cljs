@@ -41,3 +41,19 @@
 
 (defn on [container event-name f]
   (.on container event-name f))
+
+(defn latlng->coord [latlng]
+  {:x (.-lng latlng) :y (.-lat latlng)})
+
+(defn coord->latlng [coord]
+  (.latLng js/L (:y coord) (:x coord)))
+
+(defn latlng-bounds->slide-rect [latlng-bounds]
+  (let [bottom-left (latlng->coord (.getSouthWest latlng-bounds))
+        top-right (latlng->coord (.getNorthEast latlng-bounds))]
+    {:bottom-left bottom-left :top-right top-right}))
+
+(defn slide-rect->latlng-bounds [slide-rect]
+  (.latLngBounds js/L
+    (coord->latlng (:bottom-left slide-rect))
+    (coord->latlng (:top-right slide-rect))))

@@ -14,5 +14,7 @@
       #(dispatch [:update-project (assoc project :dimensions %)]))))
 
 (reg-fx :navigator-fly-to
-  (fn [[navigator bounds]]
-    (if-not (nil? navigator) (L/fly-to-bounds navigator bounds))))
+  (fn [[navigator slide]]
+    (if-not (nil? navigator)
+      (L/fly-to-bounds navigator
+        (L/slide-rect->latlng-bounds (:rect slide))))))

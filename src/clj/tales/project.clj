@@ -10,16 +10,24 @@
                                (fs/file (fs/home) "Tales")))
 
 (s/def ::name string?)
-
 (s/def ::file-path string?)
 
 (s/def ::width (s/and int? pos?))
 (s/def ::height (s/and int? pos?))
-
 (s/def ::dimensions (s/keys :req-un [::width ::height]))
 
+(s/def ::x int?)
+(s/def ::y int?)
+(s/def ::coordinate (s/keys ::req-un [::x ::y]))
+(s/def ::bottom-left ::coordinate)
+(s/def ::top-right ::coordinate)
+
+(s/def ::rect (s/keys ::req-un [::bottom-left ::top-right]))
+(s/def ::slide (s/keys ::req-un [::rect]))
+(s/def ::slides (s/coll-of ::slide))
+
 (s/def ::project (s/keys :req-un [::name]
-                   :opt-un [::file-path ::dimensions]))
+                   :opt-un [::file-path ::dimensions ::slides]))
 
 (defn- config-file [slug]
   (fs/file *project-dir* slug "config.edn"))
