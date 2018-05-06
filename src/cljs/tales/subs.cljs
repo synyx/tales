@@ -21,12 +21,14 @@
 (reg-sub :slides
   :<- [:active-project]
   (fn [project _]
-    (:slides project)))
+    (doall (map-indexed
+             (fn [index slide] (assoc slide :index index))
+             (:slides project)))))
 
 (reg-sub :slide
-  :<- [:active-project]
-  (fn [project [_ idx]]
-    (nth (:slides project) idx)))
+  :<- [:slides]
+  (fn [slides [_ idx]]
+    (nth slides idx)))
 
 (reg-sub :navigator
   :<- [:editor]
@@ -38,10 +40,10 @@
   (fn [editor _]
     (:drawing? editor)))
 
-(reg-sub :draw-rect
+(reg-sub :draw-slide
   :<- [:editor]
   (fn [editor _]
-    (get-in editor [:draw :rect])))
+    (get-in editor [:draw :slide])))
 
 (reg-sub :current-slide
   :<- [:editor]

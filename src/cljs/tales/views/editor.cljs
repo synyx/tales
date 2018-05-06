@@ -2,10 +2,11 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.routes :refer [home-path]]
-            [tales.leaflet.core :as L]))
+            [tales.leaflet.core :as L]
+            [tales.views.preview :as preview]))
 
 (defn image-upload [project]
-  [:div {:id "image-upload"}
+  [:div#image-upload
    [:h2 "You haven't uploaded a poster yet."]
    [:h3 "Please do so now to start editing your tale!"]
    [:input {:type "file"
@@ -14,57 +15,12 @@
                           (dispatch [:update-project-image data]))}]])
 
 (defn image-size []
-  [:div {:id "image-size"}
+  [:div#image-size
    [:h2 "We couldn't determine your poster dimensions."]
    [:h3 "Please help us by manually setting them directly in the image!"]])
 
 (defn ctrl-key? [e]
   (-> e .-originalEvent .-ctrlKey))
-
-(defn slide-preview-item [project slide width height]
-  (let [rect (:rect slide)
-        slide-width (Math/abs (-
-                                (:x (:top-right rect))
-                                (:x (:bottom-left rect))))
-        slide-height (Math/abs (-
-                                 (:y (:top-right rect))
-                                 (:y (:bottom-left rect))))
-        scale (if (> (/ width height) (/ slide-width slide-height))
-                (/ height slide-height)
-                (/ width slide-width))
-        dx (* scale (:x (:bottom-left rect)))
-        dy (* scale (- (:height (:dimensions project)) (:y (:top-right rect))))
-        scaled-slide-width (* scale slide-width)
-        scaled-slide-height (* scale slide-height)
-        scaled-img-width (* scale (:width (:dimensions project)))
-        scaled-img-height (* scale (:height (:dimensions project)))]
-    (fn []
-      [:div {:style {:width scaled-slide-width
-                     :height scaled-slide-height
-                     :background-color "#fff"
-                     :background-repeat "no-repeat"
-                     :background-image (str "url(" (:file-path project) ")")
-                     :background-size (str scaled-img-width "px " scaled-img-height "px")
-                     :background-position (str (- dx) "px " (- dy) "px")}}])))
-
-(defn slide-preview [project]
-  (let [slides (subscribe [:slides])
-        current-slide @(subscribe [:current-slide])
-        preview-width 100
-        preview-height 75]
-    [:div {:id "slide-preview" :class "slide-preview-list"}
-     (map-indexed (fn [idx slide]
-                    ^{:key idx}
-                    [:div {:class "slide-preview-list-item"
-                           :style {:width preview-width :min-width preview-width
-                                   :height preview-height :min-height preview-height
-                                   :background-color "#333"
-                                   :border-width 3
-                                   :border-style "solid"
-                                   :border-color (if (= idx current-slide) "#ff0000" "#333")}
-                           :on-click #(dispatch [:activate-slide idx])
-                           :on-double-click #(dispatch [:move-to-slide idx])}
-                     [slide-preview-item project slide preview-width preview-height]]) @slides)]))
 
 (defn draw-handler [map]
   (let [drawing? (subscribe [:drawing?])
@@ -84,17 +40,90 @@
       (L/on "touchend" draw-end)
       (L/on "touchmove" draw-update))))
 
-(defn navigator-slide [idx slide current?]
-  (let [color (if current? "#ff0000" "#3388ff")
-        bounds (L/slide-rect->latlng-bounds (:rect slide))
-        rectangle (L/create-rectangle bounds {:color color})]
-    (-> rectangle
-      (L/on "click" #(dispatch [:activate-slide idx]))
-      (L/on "dblclick" #(dispatch [:move-to-slide idx])))))
+(defn slide-rect [props layer-container slide]
+  (let [rectangle (r/atom nil)
+        on-click #(do (dispatch [:activate-slide (:index slide)])
+                      (.stopPropagation js/L.DomEvent %))
+        on-dblclick #(do (dispatch [:move-to-slide (:index slide)])
+                         (.stopPropagation js/L.DomEvent %))
+        will-mount (fn []
+                     (let [bounds (L/slide-rect->latlng-bounds (:rect slide))]
+                       (reset! rectangle (L/create-rectangle bounds))
+                       (-> @rectangle
+                         (L/set-style props)
+                         (L/on "click" on-click)
+                         (L/on "dblclick" on-dblclick))))
+        did-mount (fn []
+                    (L/add-layer layer-container @rectangle))
+        did-update (fn [this [_ prev-props _ prev-slide]]
+                     (let [[_ _ _ slide] (r/argv this)]
+                       (if-not (= prev-props (r/props this))
+                         (L/set-style @rectangle (r/props this)))
+                       (if-not (= prev-slide slide)
+                         (L/set-bounds @rectangle
+                           (L/slide-rect->latlng-bounds (:rect slide))))))
+        will-unmount (fn []
+                       (-> @rectangle
+                         (L/off "click")
+                         (L/off "dblclick"))
+                       (L/remove-layer layer-container @rectangle))
+        render (fn [] [:div {:style {:display "none"}}])]
+    (r/create-class
+      {:display-name "navigator-slide"
+       :component-will-mount will-mount
+       :component-did-mount did-mount
+       :component-did-update did-update
+       :component-will-unmount will-unmount
+       :reagent-render render})))
+
+(defn slide-layer [layer-container]
+  (let [slides (subscribe [:slides])
+        current-slide (subscribe [:current-slide])
+        layer (r/atom nil)
+        will-mount (fn []
+                     (reset! layer (L/create-feature-group)))
+        did-mount (fn []
+                    (L/add-layer layer-container @layer))
+        will-unmount (fn []
+                       (L/remove-layer layer-container @layer))
+        render (fn []
+                 (let [layer @layer
+                       current-slide @current-slide]
+                   [:div {:style {:display "none"}}
+                    (for [slide @slides]
+                      (let [current? (= (:index slide) current-slide)
+                            color (if current? "#ff0000" "#3388ff")]
+                        ^{:key (:index slide)}
+                        [slide-rect {:color color} layer slide]))]))]
+    (r/create-class
+      {:display-name "slide-layer"
+       :component-will-mount will-mount
+       :component-did-mount did-mount
+       :component-will-unmount will-unmount
+       :reagent-render render})))
+
+(defn draw-layer [layer-container]
+  (let [draw-slide (subscribe [:draw-slide])
+        layer (r/atom nil)
+        will-mount (fn []
+                     (reset! layer (L/create-feature-group)))
+        did-mount (fn []
+                    (L/add-layer layer-container @layer))
+        will-unmount (fn []
+                       (L/remove-layer layer-container @layer))
+        render (fn []
+                 [:div {:style {:display "none"}}
+                  (if @draw-slide
+                    [slide-rect {:color "#ff9900"} @layer @draw-slide])])]
+    (r/create-class
+      {:display-name "slide-layer"
+       :component-will-mount will-mount
+       :component-did-mount did-mount
+       :component-will-unmount will-unmount
+       :reagent-render render})))
 
 (defn navigator [project]
-  (let [map (r/atom nil)
-        slide-layer (L/create-feature-group)
+  (let [leaflet-map (r/atom nil)
         bounds [[0 0]
                 [(:height (:dimensions project))
                  (:width (:dimensions project))]]
@@ -103,38 +132,31 @@
                      :crs js/L.CRS.Simple
                      :minZoom -5
                      :zoomSnap 0}
-        update (fn [this]
-                 (let [[_ _ slides current-slide draw-rect] (r/argv this)]
-                   (L/clear-layers slide-layer)
-                   (if draw-rect
-                     (L/add-layer slide-layer draw-rect))
-                   (doall
-                     (map-indexed
-                       (fn [idx slide]
-                         (->> (navigator-slide idx slide (= idx current-slide))
-                           (L/add-layer slide-layer)))
-                       slides))))]
+        did-mount (fn [this]
+                    (reset! leaflet-map (L/create-map
+                                          (r/dom-node this)
+                                          map-options))
+                    (-> @leaflet-map
+                      (L/add-layer
+                        (L/create-image-overlay (:file-path project) bounds))
+                      (L/fit-bounds bounds)
+                      draw-handler)
+                    (dispatch [:navigator-available @leaflet-map])
+                    (r/force-update this))
+        will-unmount (fn []
+                       (dispatch [:navigator-unavailable @leaflet-map]))
+        render (fn []
+                 (let [layer-container @leaflet-map]
+                   (if @leaflet-map
+                     [:div#navigator
+                      [slide-layer layer-container]
+                      [draw-layer layer-container]]
+                     [:div#navigator])))]
     (r/create-class
-      {:component-did-update update
-       :component-did-mount
-       (fn [this]
-         (reset! map (L/create-map (r/dom-node this) map-options))
-         (-> @map
-           (L/add-layer (L/create-image-overlay (:file-path project) bounds))
-           (L/add-layer slide-layer)
-           (L/fit-bounds bounds)
-           draw-handler)
-         (dispatch [:navigator-available @map])
-         (update this))
-       :component-will-unmount (fn [] (dispatch [:navigator-unavailable @map]))
-       :reagent-render (fn [] [:div {:id "navigator"}])})))
-
-(defn navigator-container [project]
-  (let [slides (subscribe [:slides])
-        current-slide (subscribe [:current-slide])
-        draw-rect (subscribe [:draw-rect])]
-    (fn []
-      [navigator project @slides @current-slide @draw-rect])))
+      {:display-name "navigator"
+       :component-did-mount did-mount
+       :component-will-unmount will-unmount
+       :reagent-render render})))
 
 (defn editor-page []
   (let [project (subscribe [:active-project])]
@@ -146,5 +168,5 @@
        [:main (cond
                 (nil? (:file-path @project)) [image-upload @project]
                 (nil? (:dimensions @project)) [image-size]
-                :else [navigator-container @project])]
-       [:footer [slide-preview @project]]])))
+                :else [navigator @project])]
+       [:footer [preview/slides @project]]])))

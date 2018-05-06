@@ -6,7 +6,9 @@
 
 (defn create-image-overlay
   ([file-path bounds] (create-image-overlay file-path bounds {}))
-  ([file-path bounds options] (.imageOverlay js/L file-path (clj->js bounds) (clj->js options))))
+  ([file-path bounds options] (.imageOverlay js/L
+                                file-path
+                                (clj->js bounds)(clj->js options))))
 
 (defn create-layer-group
   ([] (create-layer-group {}))
@@ -20,11 +22,14 @@
   ([bounds] (create-rectangle bounds {}))
   ([bounds options] (.rectangle js/L (clj->js bounds) (clj->js options))))
 
-(defn add-layer [map layer]
-  (.addLayer map layer))
+(defn add-layer [layer-container layer]
+  (.addLayer layer-container layer))
 
-(defn has-layer [map layer]
-  (.hasLayer map layer))
+(defn has-layer [layer-container layer]
+  (.hasLayer layer-container layer))
+
+(defn remove-layer [layer-container layer]
+  (.removeLayer layer-container layer))
 
 (defn clear-layers [layer]
   (.clearLayers layer))
@@ -36,11 +41,17 @@
 (defn set-bounds [layer bounds]
   (.setBounds layer (clj->js bounds)))
 
+(defn set-style [layer options]
+  (.setStyle layer (clj->js options)))
+
 (defn fit-bounds [map bounds]
   (.fitBounds map (clj->js bounds)))
 
 (defn on [container event-name f]
   (.on container event-name f))
+
+(defn off ([container event-name]
+  (.off container event-name)))
 
 (defn latlng->coord [latlng]
   {:x (.-lng latlng) :y (.-lat latlng)})

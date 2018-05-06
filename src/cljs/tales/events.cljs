@@ -22,29 +22,30 @@
     (-> db
       (assoc-in [:editor :drawing?] true)
       (assoc-in [:editor :draw :start] latlng)
-      (assoc-in [:editor :draw :rect]
-        (L/create-rectangle
-          (.latLngBounds js/L latlng latlng))))))
+      (assoc-in [:editor :draw :slide]
+        {:rect (L/latlng-bounds->slide-rect
+                 (.latLngBounds js/L latlng latlng))}))))
 
 (reg-event-fx :end-draw
   (fn [{db :db} _]
     (let [start (get-in db [:editor :draw :start])
           end (get-in db [:editor :draw :end])
-          bounds (.latLngBounds js/L start end)
-          slide {:rect (L/latlng-bounds->slide-rect bounds)}]
+          slide {:rect (L/latlng-bounds->slide-rect
+                         (.latLngBounds js/L start end))}]
       {:db (-> db
              (assoc-in [:editor :drawing?] false)
              (update-in [:editor] dissoc :draw))
-       :dispatch [:add-slide slide]})))
+       :dispatch [:add-slide slide]
+       })))
 
 (reg-event-db :update-draw
   (fn [db [_ latlng]]
-    (let [rect (get-in db [:editor :draw :rect])
-          start (get-in db [:editor :draw :start])]
+    (let [start (get-in db [:editor :draw :start])]
       (-> db
         (assoc-in [:editor :draw :end] latlng)
-        (assoc-in [:editor :draw :rect]
-          (L/set-bounds rect (.latLngBounds js/L start latlng)))))))
+        (assoc-in [:editor :draw :slide]
+          {:rect (L/latlng-bounds->slide-rect
+                   (.latLngBounds js/L start latlng))})))))
 
 (reg-event-fx :add-slide
   (fn [{db :db} [_ slide]]
