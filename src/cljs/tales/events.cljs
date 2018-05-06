@@ -18,25 +18,27 @@
     (update-in db [:editor] dissoc :navigator)))
 
 (reg-event-db :start-draw
-  (fn [db [_ latlng]]
+  (fn [db [_ start end editing?]]
     (-> db
       (assoc-in [:editor :drawing?] true)
-      (assoc-in [:editor :draw :start] latlng)
+      (assoc-in [:editor :draw :start] start)
+      (assoc-in [:editor :draw :end] end)
+      (assoc-in [:editor :draw :editing?] editing?)
       (assoc-in [:editor :draw :slide]
         {:rect (L/latlng-bounds->slide-rect
-                 (.latLngBounds js/L latlng latlng))}))))
+                 (.latLngBounds js/L start (or end start)))}))))
 
 (reg-event-fx :end-draw
   (fn [{db :db} _]
     (let [start (get-in db [:editor :draw :start])
           end (get-in db [:editor :draw :end])
+          editing? (get-in db [:editor :draw :editing?])
           slide {:rect (L/latlng-bounds->slide-rect
                          (.latLngBounds js/L start end))}]
       {:db (-> db
              (assoc-in [:editor :drawing?] false)
              (update-in [:editor] dissoc :draw))
-       :dispatch [:add-slide slide]
-       })))
+       :dispatch (if editing? [:update-slide slide] [:add-slide slide])})))
 
 (reg-event-db :update-draw
   (fn [db [_ latlng]]
@@ -54,6 +56,15 @@
           slides (get project :slides)]
       {:dispatch [:update-project
                   (assoc-in project [:slides] (conj slides slide))]})))
+
+(reg-event-fx :update-slide
+  (fn [{db :db} [_ slide]]
+    (let [slug (get-in db [:editor :project])
+          current-slide (get-in db [:editor :current-slide])
+          project (get-in db [:projects slug])
+          slides (get project :slides)]
+      {:dispatch [:update-project
+                  (assoc-in project [:slides] (assoc slides current-slide slide))]})))
 
 (reg-event-fx :activate-slide
   (fn [{db :db} [_ idx]]

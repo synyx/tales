@@ -22,6 +22,20 @@
 (defn ctrl-key? [e]
   (-> e .-originalEvent .-ctrlKey))
 
+(defn corners [bounds]
+  {:north-west (.getNorthWest bounds)
+   :north-east (.getNorthEast bounds)
+   :south-east (.getSouthEast bounds)
+   :south-west (.getSouthWest bounds)})
+
+(defn opposite-corner [corner]
+  (case corner
+    :north-west :south-east
+    :north-east :south-west
+    :south-east :north-west
+    :south-west :north-east
+    nil))
+
 (defn draw-handler [map]
   (let [drawing? (subscribe [:drawing?])
         draw-start #(if (ctrl-key? %)
@@ -76,6 +90,52 @@
        :component-will-unmount will-unmount
        :reagent-render render})))
 
+(defn edit-rect [props layer-container slide]
+  (let [rectangle (r/atom nil)
+        markers (r/atom [])
+        start-draw (fn [rectangle corner e]
+                     (let [opposite ((opposite-corner corner) (corners (.getBounds rectangle)))]
+                       (dispatch [:start-draw opposite (.-latlng e) true])))
+        icon (.divIcon js/L (clj->js {:className "slide-resize-marker"}))
+        will-mount (fn []
+                     (let [bounds (L/slide-rect->latlng-bounds (:rect slide))]
+                       (reset! rectangle (L/create-rectangle bounds))
+                       (-> @rectangle
+                         (L/set-style props))
+                       (doseq [[corner latlng] (corners bounds)]
+                         (let [options {:icon icon :draggable true}
+                               marker (.marker js/L (clj->js latlng) (clj->js options))]
+                           (reset! markers (conj @markers marker))
+                           (L/on marker "mousedown" #(start-draw @rectangle corner %))
+                           (L/on marker "touchstart" #(start-draw @rectangle corner %))))))
+        did-mount (fn []
+                    (L/add-layer layer-container @rectangle)
+                    (doseq [marker @markers]
+                      (L/add-layer layer-container marker)))
+        did-update (fn [this [_ prev-props _ prev-slide]]
+                     (let [[_ _ _ slide] (r/argv this)]
+                       (if-not (= prev-props (r/props this))
+                         (L/set-style @rectangle (r/props this)))
+                       (if-not (= prev-slide slide)
+                         (let [bounds (L/slide-rect->latlng-bounds (:rect slide))]
+                           (L/set-bounds @rectangle bounds)
+                           (doseq [[marker [_ latlng]] (map vector @markers (corners bounds))]
+                             (.setLatLng marker (clj->js latlng)))))))
+        will-unmount (fn []
+                       (doseq [marker @markers]
+                         (L/off marker "mousedown")
+                         (L/off marker "touchstart")
+                         (L/remove-layer layer-container marker))
+                       (L/remove-layer layer-container @rectangle))
+        render (fn [] [:div {:style {:display "none"}}])]
+    (r/create-class
+      {:display-name "navigator-slide"
+       :component-will-mount will-mount
+       :component-did-mount did-mount
+       :component-did-update did-update
+       :component-will-unmount will-unmount
+       :reagent-render render})))
+
 (defn slide-layer [layer-container]
   (let [slides (subscribe [:slides])
         current-slide (subscribe [:current-slide])
@@ -92,9 +152,10 @@
                    [:div {:style {:display "none"}}
                     (for [slide @slides]
                       (let [current? (= (:index slide) current-slide)
-                            color (if current? "#ff0000" "#3388ff")]
-                        ^{:key (:index slide)}
-                        [slide-rect {:color color} layer slide]))]))]
+                            color (if current? "#ff9900" "#3388ff")]
+                        (if current?
+                          ^{:key (:index slide)} [edit-rect {:color color} layer slide]
+                          ^{:key (:index slide)} [slide-rect {:color color} layer slide])))]))]
     (r/create-class
       {:display-name "slide-layer"
        :component-will-mount will-mount
@@ -116,7 +177,7 @@
                   (if @draw-slide
                     [slide-rect {:color "#ff9900"} @layer @draw-slide])])]
     (r/create-class
-      {:display-name "slide-layer"
+      {:display-name "draw-layer"
        :component-will-mount will-mount
        :component-did-mount did-mount
        :component-will-unmount will-unmount
