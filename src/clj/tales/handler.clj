@@ -27,7 +27,7 @@
       (context "/editor/:slug" [slug]
         (GET "/" [] (web/loading-page))
         (files "/" {:root (str (fs/file *project-dir* slug))}))
-      (if (env :dev) (GET "/cards" [] (web/cards-page)))
+      (GET "/cards" [] (web/cards-page))
       (resources "/")
       (not-found "Not Found"))))
 
