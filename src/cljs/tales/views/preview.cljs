@@ -31,7 +31,8 @@
         dy (* scale (- (:height (:dimensions project)) (:y (:top-right rect))))
         scaled-slide-width (* scale (slide-width slide))
         scaled-slide-height (* scale (slide-height slide))
-        scaled-img-width (* scale (:width (:dimensions project)))]
+        scaled-img-width (* scale (:width (:dimensions project)))
+        scaled-img-height (* scale (:height (:dimensions project)))]
     [:div.slide-preview-list-item
      {:style {:width preview-width :min-width preview-width
               :height preview-height :min-height preview-height
@@ -47,7 +48,7 @@
                :background-color "#fff"
                :background-repeat "no-repeat"
                :background-image (str "url(" (:file-path project) ")")
-               :background-size (str scaled-img-width "px auto")
+               :background-size (str scaled-img-width "px" " " scaled-img-height "px")
                :background-position-x (- dx)
                :background-position-y (- dy)}}]]))
 
