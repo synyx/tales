@@ -7,13 +7,13 @@
    [:meta {:charset "utf-8"}]
    [:meta {:name "viewport"
            :content "width=device-width, initial-scale=1"}]
-   (include-css "/css/leaflet.css")
-   (include-css (if (env :dev) "/css/site.css" "/css/site.min.css"))
-   (include-css (if (env :dev) "/css/normalize.css" "/css/normalize.min.css"))])
+   (include-css "/vendor/leaflet/leaflet.css")
+   (include-css "/vendor/normalize/normalize.css")
+   (include-css (if (env :dev) "/css/site.css" "/css/site.min.css"))])
 
 (defn assets []
   (list
-    (include-js (if (env :dev) "/js/leaflet-src.js" "/js/leaflet.js"))
+    (include-js (if (env :dev) "/vendor/leaflet/leaflet-src.js" "/vendor/leaflet/leaflet.js"))
     (include-js "/js/app.js")))
 
 (defn loading-page []
