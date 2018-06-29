@@ -1,6 +1,10 @@
 (ns tales.subs
   (:require [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]))
 
+(reg-sub :active-page
+  (fn [db _]
+    (:active-page db)))
+
 (reg-sub-raw :projects
   (fn [db _]
     (dispatch [:get-projects])
@@ -12,18 +16,16 @@
     (:editor db)))
 
 (reg-sub :active-project
-  :<- [:projects]
-  :<- [:editor]
-  (fn [[projects editor] _]
-    (if-let [project (:project editor)]
-      (get projects project))))
+  (fn [db _]
+    (get-in db [:projects (:active-project db)])))
 
 (reg-sub :slides
   :<- [:active-project]
   (fn [project _]
-    (doall (map-indexed
-             (fn [index slide] (assoc slide :index index))
-             (:slides project)))))
+    (doall
+      (map-indexed
+        (fn [index slide] (assoc slide :index index))
+        (:slides project)))))
 
 (reg-sub :slide
   :<- [:slides]

@@ -2,6 +2,7 @@
 
 (def default-db
   {:projects (list)
-   :editor {:project nil
-            :current-slide nil
+   :active-page nil
+   :active-project nil
+   :editor {:current-slide nil
             :drawing? false}})

@@ -9,6 +9,14 @@
 (reg-event-db :initialise-db
   (fn [_ _] db/default-db))
 
+(reg-event-db :set-active-page
+  (fn [db [_ active-page]]
+    (assoc db :active-page active-page)))
+
+(reg-event-db :set-active-project
+  (fn [db [_ active-project]]
+    (assoc db :active-project active-project)))
+
 (reg-event-db :navigator-available
   (fn [db [_ navigator]]
     (assoc-in db [:editor :navigator] navigator)))
@@ -51,18 +59,18 @@
 
 (reg-event-fx :add-slide
   (fn [{db :db} [_ slide]]
-    (let [slug (get-in db [:editor :project])
+    (let [slug (:active-project db)
           project (get-in db [:projects slug])
-          slides (get project :slides)]
+          slides (:slides project)]
       {:dispatch [:update-project
                   (assoc-in project [:slides] (conj slides slide))]})))
 
 (reg-event-fx :update-slide
   (fn [{db :db} [_ slide]]
-    (let [slug (get-in db [:editor :project])
+    (let [slug (:active-project db)
           current-slide (get-in db [:editor :current-slide])
           project (get-in db [:projects slug])
-          slides (get project :slides)]
+          slides (:slides project)]
       {:dispatch [:update-project
                   (assoc-in project [:slides] (assoc slides current-slide slide))]})))
 
@@ -75,10 +83,6 @@
     (let [navigator (subscribe [:navigator])
           slide (subscribe [:slide idx])]
       {:navigator-fly-to [@navigator @slide]})))
-
-(reg-event-db :set-active-project
-  (fn [db [_ project-slug]]
-    (assoc-in db [:editor :project] project-slug)))
 
 (reg-event-fx :get-projects
   (fn [{db :db} _]

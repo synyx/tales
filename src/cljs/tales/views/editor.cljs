@@ -1,7 +1,7 @@
 (ns tales.views.editor
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [tales.routes :refer [home-path]]
+            [tales.routes :as routes]
             [tales.leaflet.core :as L]
             [tales.views.preview :as preview]))
 
@@ -194,9 +194,8 @@
                      :minZoom -5
                      :zoomSnap 0}
         did-mount (fn [this]
-                    (reset! leaflet-map (L/create-map
-                                          (r/dom-node this)
-                                          map-options))
+                    (reset! leaflet-map
+                      (L/create-map (r/dom-node this) map-options))
                     (-> @leaflet-map
                       (L/add-layer
                         (L/create-image-overlay (:file-path project) bounds))
@@ -219,13 +218,13 @@
        :component-will-unmount will-unmount
        :reagent-render render})))
 
-(defn editor-page []
+(defn page []
   (let [project (subscribe [:active-project])]
     (fn []
       [:div {:id "editor"}
        [:header
         [:h1 (:name @project)]
-        [:a {:href (home-path)} "Close"]]
+        [:a {:href (routes/home-path)} "Close"]]
        [:main (cond
                 (nil? (:file-path @project)) [image-upload @project]
                 (nil? (:dimensions @project)) [image-size]
