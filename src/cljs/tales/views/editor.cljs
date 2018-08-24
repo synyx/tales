@@ -56,9 +56,10 @@
                        current-slide @current-slide]
                    [:div {:style {:display "none"}}
                     (for [slide @slides]
-                      (let [current? (= (:index slide) current-slide)
-                            color (if current? "#ff9900" "#3388ff")]
-                        ^{:key (:index slide)} [slide/rect {:color color} layer slide]))]))]
+                      ^{:key (:index slide)}
+                      [slide/rect
+                       {:active? (= (:index slide) current-slide)}
+                       layer slide])]))]
     (r/create-class
       {:display-name "slide-layer"
        :component-will-mount will-mount

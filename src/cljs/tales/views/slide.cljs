@@ -22,6 +22,7 @@
 (defn rect [props layer-container slide]
   (let [rectangle (r/atom nil)
         markers (r/atom [])
+
         icon (.divIcon js/L (clj->js {:className "slide-resize-marker"}))
 
         start-draw (fn [rectangle corner e]
@@ -35,10 +36,12 @@
                          (.stopPropagation js/L.DomEvent %))
 
         will-mount (fn []
-                     (let [bounds (L/slide-rect->latlng-bounds (:rect slide))]
+                     (let [bounds (L/slide-rect->latlng-bounds (:rect slide))
+                           active? (:active? props)
+                           color (if active? "#ff9900" "#3388ff")]
                        (reset! rectangle (L/create-rectangle bounds))
                        (-> @rectangle
-                         (L/set-style props)
+                         (L/set-style {:color color})
                          (L/on "click" on-click)
                          (L/on "dblclick" on-dblclick))
                        (doseq [[corner latlng] (corners bounds)]
@@ -56,7 +59,15 @@
         did-update (fn [this [_ prev-props _ prev-slide]]
                      (let [[_ _ _ slide] (r/argv this)]
                        (if-not (= prev-props (r/props this))
-                         (L/set-style @rectangle (r/props this)))
+                         (let [active? (:active? (r/props this))
+                               color (if active? "#ff9900" "#3388ff")
+                               display (if active? "block" "none")]
+                           (L/set-style @rectangle {:color color})
+                           (doseq [marker @markers]
+                             (set!
+                               (-> marker .-_icon .-style .-backgroundColor) color)
+                             (set!
+                               (-> marker .-_icon .-style .-display) display))))
                        (if-not (= prev-slide slide)
                          (let [bounds (L/slide-rect->latlng-bounds (:rect slide))]
                            (L/set-bounds @rectangle bounds)

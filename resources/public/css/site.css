@@ -139,7 +139,6 @@ input#new-project::placeholder {
 }
 
 .leaflet-marker-icon.slide-resize-marker {
-  background-color: #ff9900;
   border-radius: 100%;
   cursor: move;
 }
