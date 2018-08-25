@@ -6,6 +6,27 @@
             [tales.routes :refer [editor-path]]
             [tales.leaflet.core :as L]))
 
+(defn delta-resize [corner start pos]
+  (let [dx (- (.-lng pos) (.-lng start))
+        dy (- (.-lat pos) (.-lat start))]
+    (case corner
+      :north-east {:dx 0
+                   :dy dy
+                   :dwidth (+ dx)
+                   :dheight (- dy)}
+      :south-east {:dx 0
+                   :dy 0
+                   :dwidth (+ dx)
+                   :dheight (+ dy)}
+      :south-west {:dx dx
+                   :dy 0
+                   :dwidth (- dx)
+                   :dheight (+ dy)}
+      :north-west {:dx dx
+                   :dy dy
+                   :dwidth (- dx)
+                   :dheight (- dy)})))
+
 (reg-event-db :initialise-db
   (fn [_ _] db/default-db))
 
@@ -26,36 +47,49 @@
     (update-in db [:editor] dissoc :navigator)))
 
 (reg-event-db :start-draw
-  (fn [db [_ start end editing?]]
+  (fn [db [_ action slide start corner]]
     (-> db
       (assoc-in [:editor :drawing?] true)
+      (assoc-in [:editor :draw :action] (or action :create))
+      (assoc-in [:editor :draw :slide] slide)
       (assoc-in [:editor :draw :start] start)
-      (assoc-in [:editor :draw :end] end)
-      (assoc-in [:editor :draw :editing?] editing?)
-      (assoc-in [:editor :draw :slide]
-        {:rect (L/latlng-bounds->slide-rect
-                 (.latLngBounds js/L start (or end start)))}))))
+      (assoc-in [:editor :draw :corner] corner))))
 
 (reg-event-fx :end-draw
   (fn [{db :db} _]
-    (let [start (get-in db [:editor :draw :start])
-          end (get-in db [:editor :draw :end])
-          editing? (get-in db [:editor :draw :editing?])
-          slide {:rect (L/latlng-bounds->slide-rect
-                         (.latLngBounds js/L start end))}]
+    (let [action (get-in db [:editor :draw :action])
+          slide (get-in db [:editor :draw :slide])
+          delta (get-in db [:editor :draw :delta])
+          new-slide (merge slide {:rect {:bottom-left {:x (+ (get-in slide [:rect :bottom-left :x]) (:dx delta))
+                                                       :y (+ (get-in slide [:rect :bottom-left :y]) (:dy delta))}
+                                         :top-right {:x (+ (get-in slide [:rect :top-right :x]) (:dx delta) (:dwidth delta))
+                                                     :y (+ (get-in slide [:rect :top-right :y]) (:dy delta) (:dheight delta))}}})]
       {:db (-> db
              (assoc-in [:editor :drawing?] false)
              (update-in [:editor] dissoc :draw))
-       :dispatch (if editing? [:update-slide slide] [:add-slide slide])})))
+       :dispatch (case action
+                   :create [:add-slide new-slide]
+                   :move [:update-slide new-slide]
+                   :resize [:update-slide new-slide])})))
 
 (reg-event-db :update-draw
-  (fn [db [_ latlng]]
-    (let [start (get-in db [:editor :draw :start])]
+  (fn [db [_ pos]]
+    (let [action (get-in db [:editor :draw :action])
+          slide (get-in db [:editor :draw :slide])
+          start (get-in db [:editor :draw :start])
+          corner (get-in db [:editor :draw :corner])]
       (-> db
-        (assoc-in [:editor :draw :end] latlng)
-        (assoc-in [:editor :draw :slide]
-          {:rect (L/latlng-bounds->slide-rect
-                   (.latLngBounds js/L start latlng))})))))
+        (assoc-in [:editor :draw :delta]
+          (case action
+            :create {:dx 0
+                     :dy 0
+                     :dwidth (- (.-lng pos) (.-lng start))
+                     :dheight (- (.-lat pos) (.-lat start))}
+            :move {:dx (- (.-lng pos) (.-lng start))
+                   :dy (- (.-lat pos) (.-lat start))
+                   :dwidth 0
+                   :dheight 0}
+            :resize (delta-resize corner start pos)))))))
 
 (reg-event-fx :add-slide
   (fn [{db :db} [_ slide]]

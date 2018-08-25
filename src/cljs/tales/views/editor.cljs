@@ -26,10 +26,13 @@
 (defn draw-handler [map]
   (let [drawing? (subscribe [:drawing?])
         draw-start #(if (ctrl-key? %)
-                      (do (-> map .-dragging .disable)
-                          (dispatch [:start-draw (.-latlng %)])))
+                      (let [start (.-latlng %)
+                            slide {:rect {:bottom-left {:x (.-lng start) :y (.-lat start)}
+                                          :top-right {:x (.-lng start) :y (.-lat start)}}}]
+                        (do (-> map .-dragging .disable)
+                            (dispatch [:start-draw :create slide start]))))
         draw-end #(if @drawing?
-                    (dispatch [:end-draw (.-latlng %)]))
+                    (dispatch [:end-draw]))
         draw-update #(if @drawing?
                        (do (-> map .-dragging .enable)
                            (dispatch [:update-draw (.-latlng %)])))]
@@ -124,7 +127,6 @@
 
 (defn page []
   (let [project (subscribe [:active-project])]
-    (fn []
       [:div {:id "editor"}
        [:header
         [:h1 (:name @project)]
@@ -133,4 +135,4 @@
                 (nil? (:file-path @project)) [image-upload @project]
                 (nil? (:dimensions @project)) [image-size]
                 :else [navigator @project])]
-       [:footer [preview/slides @project]]])))
+       [:footer [preview/slides @project]]]))

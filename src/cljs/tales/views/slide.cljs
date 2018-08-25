@@ -10,78 +10,80 @@
    :south-east (.getSouthEast bounds)
    :south-west (.getSouthWest bounds)})
 
-(defn opposite-corner [corner]
-  "Names the opposite of a corner"
-  (case corner
-    :north-west :south-east
-    :north-east :south-west
-    :south-east :north-west
-    :south-west :north-east
-    nil))
-
 (defn rect [props layer-container slide]
   (let [rectangle (r/atom nil)
-        markers (r/atom [])
+        slide (r/atom slide)
+        markers (r/atom {})
 
-        icon (.divIcon js/L (clj->js {:className "slide-resize-marker"}))
+        start-move (fn [e]
+                     (-> layer-container .-_map .-dragging .disable)
+                     (dispatch [:activate-slide (:index @slide)])
+                     (dispatch [:start-draw :move @slide (.-latlng e)]))
 
-        start-draw (fn [rectangle corner e]
-                     (let [opposite ((opposite-corner corner) (corners (.getBounds rectangle)))]
-                       (dispatch [:start-draw opposite (.-latlng e) true])))
+        start-resize (fn [corner e]
+                       (-> layer-container .-_map .-dragging .disable)
+                       (dispatch [:activate-slide (:index @slide)])
+                       (dispatch [:start-draw :resize @slide (.-latlng e) corner]))
 
-        on-click #(do (dispatch [:activate-slide (:index slide)])
-                      (.stopPropagation js/L.DomEvent %))
-
-        on-dblclick #(do (dispatch [:move-to-slide (:index slide)])
+        on-dblclick #(do (dispatch [:move-to-slide (:index @slide)])
                          (.stopPropagation js/L.DomEvent %))
 
+        create-markers (fn [bounds]
+                         (let [icon (L/create-div-icon {:className "slide-resize-marker"})
+                               options {:icon icon :draggable true}]
+                           (doseq [[corner latlng] (corners bounds)]
+                             (reset! markers
+                               (assoc @markers corner (L/create-marker latlng options)))
+                             (L/on (get @markers corner) "mousedown" #(start-resize corner %)))))
+
+        set-props (fn [props]
+                    (let [active? (:active? props)
+                          color (if active? "#ff9900" "#3388ff")
+                          display (if active? "block" "none")]
+                      (L/set-style @rectangle {:color color})
+                      (doseq [[_ marker] @markers]
+                        (set!
+                          (-> marker .-_icon .-style .-backgroundColor) color)
+                        (set!
+                          (-> marker .-_icon .-style .-display) display))))
+
+        set-bounds (fn [bounds]
+                     (L/set-bounds @rectangle bounds)
+                     (doseq [[corner latlng] (corners bounds)]
+                       (L/set-latlng (get @markers corner) latlng)))
+
         will-mount (fn []
-                     (let [bounds (L/slide-rect->latlng-bounds (:rect slide))
+                     (let [bounds (L/slide-rect->latlng-bounds (:rect @slide))
                            active? (:active? props)
                            color (if active? "#ff9900" "#3388ff")]
                        (reset! rectangle (L/create-rectangle bounds))
                        (-> @rectangle
                          (L/set-style {:color color})
-                         (L/on "click" on-click)
+                         (L/on "mousedown" start-move)
                          (L/on "dblclick" on-dblclick))
-                       (doseq [[corner latlng] (corners bounds)]
-                         (let [options {:icon icon :draggable true}
-                               marker (.marker js/L (clj->js latlng) (clj->js options))]
-                           (reset! markers (conj @markers marker))
-                           (L/on marker "mousedown" #(start-draw @rectangle corner %))
-                           (L/on marker "touchstart" #(start-draw @rectangle corner %))))))
+                       (create-markers (L/slide-rect->latlng-bounds (:rect @slide)))))
 
         did-mount (fn []
                     (L/add-layer layer-container @rectangle)
-                    (doseq [marker @markers]
+                    (doseq [[_ marker] @markers]
                       (L/add-layer layer-container marker)))
 
         did-update (fn [this [_ prev-props _ prev-slide]]
-                     (let [[_ _ _ slide] (r/argv this)]
+                     (let [[_ _ _ updated-slide] (r/argv this)]
                        (if-not (= prev-props (r/props this))
-                         (let [active? (:active? (r/props this))
-                               color (if active? "#ff9900" "#3388ff")
-                               display (if active? "block" "none")]
-                           (L/set-style @rectangle {:color color})
-                           (doseq [marker @markers]
-                             (set!
-                               (-> marker .-_icon .-style .-backgroundColor) color)
-                             (set!
-                               (-> marker .-_icon .-style .-display) display))))
-                       (if-not (= prev-slide slide)
-                         (let [bounds (L/slide-rect->latlng-bounds (:rect slide))]
-                           (L/set-bounds @rectangle bounds)
-                           (doseq [[marker [_ latlng]] (map vector @markers (corners bounds))]
-                             (.setLatLng marker (clj->js latlng)))))))
+                         (set-props (r/props this)))
+                       (if-not (= prev-slide updated-slide)
+                         (do
+                           (reset! slide updated-slide)
+                           (set-bounds (L/slide-rect->latlng-bounds (:rect @slide)))))))
 
         will-unmount (fn []
-                       (doseq [marker @markers]
+                       (doseq [[_ marker] @markers]
                          (L/off marker "mousedown")
-                         (L/off marker "touchstart")
                          (L/remove-layer layer-container marker))
                        (-> @rectangle
-                         (L/off "click")
-                         (L/off "dblclick"))
+                         (L/off "dblclick")
+                         (L/off "mousedown"))
                        (L/remove-layer layer-container @rectangle))
 
         render (fn [] [:div {:style {:display "none"}}])]
