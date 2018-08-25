@@ -126,6 +126,26 @@
           slide (subscribe [:slide idx])]
       {:navigator-fly-to [@navigator @slide]})))
 
+(reg-event-fx :next-slide
+  (fn [{db :db} _]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])]
+      (if (nil? current-slide)
+        {:dispatch [:activate-slide 0]}
+        {:dispatch [:activate-slide (mod (+ current-slide 1) (count slides))]}))))
+
+(reg-event-fx :prev-slide
+  (fn [{db :db} _]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])]
+      (if (nil? current-slide)
+        {:dispatch [:activate-slide 0]}
+        {:dispatch [:activate-slide (mod (- current-slide 1) (count slides))]}))))
+
 (reg-event-fx :get-projects
   (fn [{db :db} _]
     {:db (assoc-in db [:loading? :projects] true)

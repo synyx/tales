@@ -47,6 +47,12 @@
         preview-height 75]
     (let [current-slide @current-slide]
       [:div#slides-preview.slide-preview-list
+       {:tabIndex 0
+        :on-key-down #(case (.-key %)
+                        " " (dispatch [:next-slide])
+                        "ArrowRight" (dispatch [:next-slide])
+                        "ArrowLeft" (dispatch [:prev-slide])
+                        nil)}
        (for [item @slides]
          ^{:key (:index item)}
          [slide {:width preview-width
