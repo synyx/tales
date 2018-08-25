@@ -1,22 +1,10 @@
 (ns tales.views.preview
   (:require [re-frame.core :refer [dispatch subscribe]]))
 
-(defn- slide-width [slide]
-  "Calculates the width of a slide"
-  (Math/abs (-
-              (:x (:top-right (:rect slide)))
-              (:x (:bottom-left (:rect slide))))))
-
-(defn- slide-height [slide]
-  "Calculates the height of a slide"
-  (Math/abs (-
-              (:y (:top-right (:rect slide)))
-              (:y (:bottom-left (:rect slide))))))
-
 (defn- slide-scale [slide target-width target-height]
   "Calculates the scale factor to resize the slide to target-width/-height"
-  (let [slide-width (slide-width slide)
-        slide-height (slide-height slide)]
+  (let [slide-width (get-in slide [:rect :width])
+        slide-height (get-in slide [:rect :height])]
     (if (> (/ target-width target-height) (/ slide-width slide-height))
       (/ target-height slide-height)
       (/ target-width slide-width))))
@@ -27,10 +15,10 @@
         preview-height (:height props)
         active? (:active? props)
         scale (slide-scale slide preview-width preview-height)
-        dx (* scale (:x (:bottom-left rect)))
-        dy (* scale (- (:height (:dimensions project)) (:y (:bottom-left rect))))
-        scaled-slide-width (* scale (slide-width slide))
-        scaled-slide-height (* scale (slide-height slide))
+        dx (* scale (:x rect))
+        dy (* scale (- (:height (:dimensions project)) (:y rect) (:height rect)))
+        scaled-slide-width (* scale (:width rect))
+        scaled-slide-height (* scale (:height rect))
         scaled-img-width (* scale (:width (:dimensions project)))
         scaled-img-height (* scale (:height (:dimensions project)))]
     [:div.slide-preview-list-item

@@ -48,10 +48,10 @@
     (let [rect (get-in editor [:draw :slide :rect])
           delta (or (get-in editor [:draw :delta])
                   {:dx 0 :dy 0 :dwidth 0 :dheight 0})]
-      {:rect {:bottom-left {:x (+ (get-in rect [:bottom-left :x]) (:dx delta))
-                            :y (+ (get-in rect [:bottom-left :y]) (:dy delta))}
-              :top-right {:x (+ (get-in rect [:top-right :x]) (:dx delta) (:dwidth delta))
-                          :y (+ (get-in rect [:top-right :y]) (:dy delta) (:dheight delta))}}})))
+      {:rect {:x (+ (:x rect) (:dx delta))
+              :y (+ (:y rect) (:dy delta))
+              :width (+ (:width rect) (:dwidth delta))
+              :height (+ (:height rect) (:dheight delta))}})))
 
 (reg-sub :current-slide
   :<- [:editor]

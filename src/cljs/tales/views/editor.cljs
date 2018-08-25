@@ -27,8 +27,10 @@
   (let [drawing? (subscribe [:drawing?])
         draw-start #(if (ctrl-key? %)
                       (let [start (.-latlng %)
-                            slide {:rect {:bottom-left {:x (.-lng start) :y (.-lat start)}
-                                          :top-right {:x (.-lng start) :y (.-lat start)}}}]
+                            slide {:rect {:x (.-lng start)
+                                          :y (.-lat start)
+                                          :width 0
+                                          :height 0}}]
                         (do (-> map .-dragging .disable)
                             (dispatch [:start-draw :create slide start]))))
         draw-end #(if @drawing?

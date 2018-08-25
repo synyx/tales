@@ -16,13 +16,10 @@
 (s/def ::height (s/and int? pos?))
 (s/def ::dimensions (s/keys :req-un [::width ::height]))
 
-(s/def ::x int?)
-(s/def ::y int?)
-(s/def ::coordinate (s/keys ::req-un [::x ::y]))
-(s/def ::bottom-left ::coordinate)
-(s/def ::top-right ::coordinate)
+(s/def ::x (s/and int? pos?))
+(s/def ::y (s/and int? pos?))
 
-(s/def ::rect (s/keys ::req-un [::bottom-left ::top-right]))
+(s/def ::rect (s/keys ::req-un [::x ::y ::width ::height]))
 (s/def ::slide (s/keys ::req-un [::rect]))
 (s/def ::slides (s/coll-of ::slide))
 

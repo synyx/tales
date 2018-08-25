@@ -77,5 +77,6 @@
 
 (defn slide-rect->latlng-bounds [slide-rect]
   (.latLngBounds js/L
-    (coord->latlng (:bottom-left slide-rect))
-    (coord->latlng (:top-right slide-rect))))
+    (coord->latlng slide-rect)
+    (coord->latlng {:x (+ (:x slide-rect) (:width slide-rect))
+                    :y (+ (:y slide-rect) (:height slide-rect))})))

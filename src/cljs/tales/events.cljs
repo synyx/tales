@@ -11,21 +11,27 @@
         dy (- (.-lat pos) (.-lat start))]
     (case corner
       :north-east {:dx 0
+                   :dy 0
+                   :dwidth (+ dx)
+                   :dheight (+ dy)}
+      :south-east {:dx 0
                    :dy dy
                    :dwidth (+ dx)
                    :dheight (- dy)}
-      :south-east {:dx 0
-                   :dy 0
-                   :dwidth (+ dx)
-                   :dheight (+ dy)}
       :south-west {:dx dx
-                   :dy 0
-                   :dwidth (- dx)
-                   :dheight (+ dy)}
-      :north-west {:dx dx
                    :dy dy
                    :dwidth (- dx)
-                   :dheight (- dy)})))
+                   :dheight (- dy)}
+      :north-west {:dx dx
+                   :dy 0
+                   :dwidth (- dx)
+                   :dheight (+ dy)})))
+
+(defn normalize-rect [rect]
+  {:x (if (< (:width rect) 0) (+ (:x rect) (:width rect)) (:x rect))
+   :y (if (< (:height rect) 0) (+ (:y rect) (:height rect)) (:y rect))
+   :width (Math/abs (:width rect))
+   :height (Math/abs (:height rect))})
 
 (reg-event-db :initialise-db
   (fn [_ _] db/default-db))
@@ -59,11 +65,14 @@
   (fn [{db :db} _]
     (let [action (get-in db [:editor :draw :action])
           slide (get-in db [:editor :draw :slide])
+          rect (get-in db [:editor :draw :slide :rect])
           delta (get-in db [:editor :draw :delta])
-          new-slide (merge slide {:rect {:bottom-left {:x (+ (get-in slide [:rect :bottom-left :x]) (:dx delta))
-                                                       :y (+ (get-in slide [:rect :bottom-left :y]) (:dy delta))}
-                                         :top-right {:x (+ (get-in slide [:rect :top-right :x]) (:dx delta) (:dwidth delta))
-                                                     :y (+ (get-in slide [:rect :top-right :y]) (:dy delta) (:dheight delta))}}})]
+          new-slide (merge slide
+                      {:rect (normalize-rect
+                               {:x (+ (:x rect) (:dx delta))
+                                :y (+ (:y rect) (:dy delta))
+                                :width (+ (:width rect) (:dwidth delta))
+                                :height (+ (:height rect) (:dheight delta))})})]
       {:db (-> db
              (assoc-in [:editor :drawing?] false)
              (update-in [:editor] dissoc :draw))
@@ -75,7 +84,6 @@
 (reg-event-db :update-draw
   (fn [db [_ pos]]
     (let [action (get-in db [:editor :draw :action])
-          slide (get-in db [:editor :draw :slide])
           start (get-in db [:editor :draw :start])
           corner (get-in db [:editor :draw :corner])]
       (-> db
