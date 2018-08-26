@@ -49,6 +49,7 @@
       [:div#slides-preview.slide-preview-list
        {:tabIndex 0
         :on-key-down #(case (.-key %)
+                        "Delete" (dispatch [:delete-current-slide])
                         " " (dispatch [:next-slide])
                         "ArrowRight" (dispatch [:next-slide])
                         "ArrowLeft" (dispatch [:prev-slide])

@@ -6,6 +6,11 @@
             [tales.routes :refer [editor-path]]
             [tales.leaflet.core :as L]))
 
+(defn drop-nth [n coll]
+  (concat
+    (take n coll)
+    (drop (inc n) coll)))
+
 (defn delta-resize [corner start pos]
   (let [dx (- (.-lng pos) (.-lng start))
         dy (- (.-lat pos) (.-lat start))]
@@ -110,15 +115,25 @@
 (reg-event-fx :update-slide
   (fn [{db :db} [_ slide]]
     (let [slug (:active-project db)
-          current-slide (get-in db [:editor :current-slide])
           project (get-in db [:projects slug])
-          slides (:slides project)]
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])]
       {:dispatch [:update-project
                   (assoc-in project [:slides] (assoc slides current-slide slide))]})))
 
 (reg-event-fx :activate-slide
   (fn [{db :db} [_ idx]]
     {:db (assoc-in db [:editor :current-slide] idx)}))
+
+(reg-event-fx :delete-current-slide
+  (fn [{db :db}]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])]
+      (if-not (nil? current-slide)
+        {:dispatch [:update-project
+                    (assoc-in project [:slides] (drop-nth current-slide slides))]}))))
 
 (reg-event-fx :move-to-slide
   (fn [{db :db} [_ idx]]
