@@ -31,7 +31,7 @@
       [:a {:href (editor-path {:slug (:slug project)})}
        (:name project)]])])
 
-(defn project-page []
+(defn page []
   (let [projects (subscribe [:projects])]
     [:div {:id "projects"}
      [:header [:h1 "tales"]]

@@ -8,7 +8,7 @@
   ([file-path bounds] (create-image-overlay file-path bounds {}))
   ([file-path bounds options] (.imageOverlay js/L
                                 file-path
-                                (clj->js bounds)(clj->js options))))
+                                (clj->js bounds) (clj->js options))))
 
 (defn create-layer-group
   ([] (create-layer-group {}))
@@ -21,6 +21,14 @@
 (defn create-rectangle
   ([bounds] (create-rectangle bounds {}))
   ([bounds options] (.rectangle js/L (clj->js bounds) (clj->js options))))
+
+(defn create-div-icon
+  ([] (create-div-icon {}))
+  ([options] (.divIcon js/L (clj->js options))))
+
+(defn create-marker
+  ([latlng] (create-marker latlng {}))
+  ([latlng options] (.marker js/L (clj->js latlng) (clj->js options))))
 
 (defn add-layer [layer-container layer]
   (.addLayer layer-container layer))
@@ -41,6 +49,9 @@
 (defn set-bounds [layer bounds]
   (.setBounds layer (clj->js bounds)))
 
+(defn set-latlng [layer latlng]
+  (.setLatLng layer (clj->js latlng)))
+
 (defn set-style [layer options]
   (.setStyle layer (clj->js options)))
 
@@ -51,7 +62,7 @@
   (.on container event-name f))
 
 (defn off ([container event-name]
-  (.off container event-name)))
+           (.off container event-name)))
 
 (defn latlng->coord [latlng]
   {:x (.-lng latlng) :y (.-lat latlng)})
@@ -66,5 +77,6 @@
 
 (defn slide-rect->latlng-bounds [slide-rect]
   (.latLngBounds js/L
-    (coord->latlng (:bottom-left slide-rect))
-    (coord->latlng (:top-right slide-rect))))
+    (coord->latlng slide-rect)
+    (coord->latlng {:x (+ (:x slide-rect) (:width slide-rect))
+                    :y (+ (:y slide-rect) (:height slide-rect))})))

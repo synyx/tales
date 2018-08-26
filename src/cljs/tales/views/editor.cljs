@@ -1,9 +1,10 @@
 (ns tales.views.editor
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [tales.routes :refer [home-path]]
+            [tales.routes :as routes]
             [tales.leaflet.core :as L]
-            [tales.views.preview :as preview]))
+            [tales.views.preview :as preview]
+            [tales.views.slide :as slide]))
 
 (defn image-upload [project]
   [:div#image-upload
@@ -25,10 +26,15 @@
 (defn draw-handler [map]
   (let [drawing? (subscribe [:drawing?])
         draw-start #(if (ctrl-key? %)
-                      (do (-> map .-dragging .disable)
-                          (dispatch [:start-draw (.-latlng %)])))
+                      (let [start (.-latlng %)
+                            slide {:rect {:x (.-lng start)
+                                          :y (.-lat start)
+                                          :width 0
+                                          :height 0}}]
+                        (do (-> map .-dragging .disable)
+                            (dispatch [:start-draw :create slide start]))))
         draw-end #(if @drawing?
-                    (dispatch [:end-draw (.-latlng %)]))
+                    (dispatch [:end-draw]))
         draw-update #(if @drawing?
                        (do (-> map .-dragging .enable)
                            (dispatch [:update-draw (.-latlng %)])))]
@@ -39,42 +45,6 @@
       (L/on "touchstart" draw-start)
       (L/on "touchend" draw-end)
       (L/on "touchmove" draw-update))))
-
-(defn slide-rect [props layer-container slide]
-  (let [rectangle (r/atom nil)
-        on-click #(do (dispatch [:activate-slide (:index slide)])
-                      (.stopPropagation js/L.DomEvent %))
-        on-dblclick #(do (dispatch [:move-to-slide (:index slide)])
-                         (.stopPropagation js/L.DomEvent %))
-        will-mount (fn []
-                     (let [bounds (L/slide-rect->latlng-bounds (:rect slide))]
-                       (reset! rectangle (L/create-rectangle bounds))
-                       (-> @rectangle
-                         (L/set-style props)
-                         (L/on "click" on-click)
-                         (L/on "dblclick" on-dblclick))))
-        did-mount (fn []
-                    (L/add-layer layer-container @rectangle))
-        did-update (fn [this [_ prev-props _ prev-slide]]
-                     (let [[_ _ _ slide] (r/argv this)]
-                       (if-not (= prev-props (r/props this))
-                         (L/set-style @rectangle (r/props this)))
-                       (if-not (= prev-slide slide)
-                         (L/set-bounds @rectangle
-                           (L/slide-rect->latlng-bounds (:rect slide))))))
-        will-unmount (fn []
-                       (-> @rectangle
-                         (L/off "click")
-                         (L/off "dblclick"))
-                       (L/remove-layer layer-container @rectangle))
-        render (fn [] [:div {:style {:display "none"}}])]
-    (r/create-class
-      {:display-name "navigator-slide"
-       :component-will-mount will-mount
-       :component-did-mount did-mount
-       :component-did-update did-update
-       :component-will-unmount will-unmount
-       :reagent-render render})))
 
 (defn slide-layer [layer-container]
   (let [slides (subscribe [:slides])
@@ -91,10 +61,10 @@
                        current-slide @current-slide]
                    [:div {:style {:display "none"}}
                     (for [slide @slides]
-                      (let [current? (= (:index slide) current-slide)
-                            color (if current? "#ff0000" "#3388ff")]
-                        ^{:key (:index slide)}
-                        [slide-rect {:color color} layer slide]))]))]
+                      ^{:key (:index slide)}
+                      [slide/rect
+                       {:active? (= (:index slide) current-slide)}
+                       layer slide])]))]
     (r/create-class
       {:display-name "slide-layer"
        :component-will-mount will-mount
@@ -114,9 +84,9 @@
         render (fn []
                  [:div {:style {:display "none"}}
                   (if @draw-slide
-                    [slide-rect {:color "#ff9900"} @layer @draw-slide])])]
+                    [slide/rect {:color "#ff9900"} @layer @draw-slide])])]
     (r/create-class
-      {:display-name "slide-layer"
+      {:display-name "draw-layer"
        :component-will-mount will-mount
        :component-did-mount did-mount
        :component-will-unmount will-unmount
@@ -133,9 +103,8 @@
                      :minZoom -5
                      :zoomSnap 0}
         did-mount (fn [this]
-                    (reset! leaflet-map (L/create-map
-                                          (r/dom-node this)
-                                          map-options))
+                    (reset! leaflet-map
+                      (L/create-map (r/dom-node this) map-options))
                     (-> @leaflet-map
                       (L/add-layer
                         (L/create-image-overlay (:file-path project) bounds))
@@ -158,15 +127,14 @@
        :component-will-unmount will-unmount
        :reagent-render render})))
 
-(defn editor-page []
+(defn page []
   (let [project (subscribe [:active-project])]
-    (fn []
       [:div {:id "editor"}
        [:header
         [:h1 (:name @project)]
-        [:a {:href (home-path)} "Close"]]
+        [:a {:href (routes/home-path)} "Close"]]
        [:main (cond
                 (nil? (:file-path @project)) [image-upload @project]
                 (nil? (:dimensions @project)) [image-size]
                 :else [navigator @project])]
-       [:footer [preview/slides @project]]])))
+       [:footer [preview/slides @project]]]))

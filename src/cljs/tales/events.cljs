@@ -6,8 +6,48 @@
             [tales.routes :refer [editor-path]]
             [tales.leaflet.core :as L]))
 
+(defn drop-nth [n coll]
+  (concat
+    (take n coll)
+    (drop (inc n) coll)))
+
+(defn delta-resize [corner start pos]
+  (let [dx (- (.-lng pos) (.-lng start))
+        dy (- (.-lat pos) (.-lat start))]
+    (case corner
+      :north-east {:dx 0
+                   :dy 0
+                   :dwidth (+ dx)
+                   :dheight (+ dy)}
+      :south-east {:dx 0
+                   :dy dy
+                   :dwidth (+ dx)
+                   :dheight (- dy)}
+      :south-west {:dx dx
+                   :dy dy
+                   :dwidth (- dx)
+                   :dheight (- dy)}
+      :north-west {:dx dx
+                   :dy 0
+                   :dwidth (- dx)
+                   :dheight (+ dy)})))
+
+(defn normalize-rect [rect]
+  {:x (if (< (:width rect) 0) (+ (:x rect) (:width rect)) (:x rect))
+   :y (if (< (:height rect) 0) (+ (:y rect) (:height rect)) (:y rect))
+   :width (Math/abs (:width rect))
+   :height (Math/abs (:height rect))})
+
 (reg-event-db :initialise-db
   (fn [_ _] db/default-db))
+
+(reg-event-db :set-active-page
+  (fn [db [_ active-page]]
+    (assoc db :active-page active-page)))
+
+(reg-event-db :set-active-project
+  (fn [db [_ active-project]]
+    (assoc db :active-project active-project)))
 
 (reg-event-db :navigator-available
   (fn [db [_ navigator]]
@@ -18,46 +58,82 @@
     (update-in db [:editor] dissoc :navigator)))
 
 (reg-event-db :start-draw
-  (fn [db [_ latlng]]
+  (fn [db [_ action slide start corner]]
     (-> db
       (assoc-in [:editor :drawing?] true)
-      (assoc-in [:editor :draw :start] latlng)
-      (assoc-in [:editor :draw :slide]
-        {:rect (L/latlng-bounds->slide-rect
-                 (.latLngBounds js/L latlng latlng))}))))
+      (assoc-in [:editor :draw :action] (or action :create))
+      (assoc-in [:editor :draw :slide] slide)
+      (assoc-in [:editor :draw :start] start)
+      (assoc-in [:editor :draw :corner] corner))))
 
 (reg-event-fx :end-draw
   (fn [{db :db} _]
-    (let [start (get-in db [:editor :draw :start])
-          end (get-in db [:editor :draw :end])
-          slide {:rect (L/latlng-bounds->slide-rect
-                         (.latLngBounds js/L start end))}]
+    (let [action (get-in db [:editor :draw :action])
+          slide (get-in db [:editor :draw :slide])
+          rect (get-in db [:editor :draw :slide :rect])
+          delta (get-in db [:editor :draw :delta])
+          new-slide (merge slide
+                      {:rect (normalize-rect
+                               {:x (+ (:x rect) (:dx delta))
+                                :y (+ (:y rect) (:dy delta))
+                                :width (+ (:width rect) (:dwidth delta))
+                                :height (+ (:height rect) (:dheight delta))})})]
       {:db (-> db
              (assoc-in [:editor :drawing?] false)
              (update-in [:editor] dissoc :draw))
-       :dispatch [:add-slide slide]
-       })))
+       :dispatch (case action
+                   :create [:add-slide new-slide]
+                   :move [:update-slide new-slide]
+                   :resize [:update-slide new-slide])})))
 
 (reg-event-db :update-draw
-  (fn [db [_ latlng]]
-    (let [start (get-in db [:editor :draw :start])]
+  (fn [db [_ pos]]
+    (let [action (get-in db [:editor :draw :action])
+          start (get-in db [:editor :draw :start])
+          corner (get-in db [:editor :draw :corner])]
       (-> db
-        (assoc-in [:editor :draw :end] latlng)
-        (assoc-in [:editor :draw :slide]
-          {:rect (L/latlng-bounds->slide-rect
-                   (.latLngBounds js/L start latlng))})))))
+        (assoc-in [:editor :draw :delta]
+          (case action
+            :create {:dx 0
+                     :dy 0
+                     :dwidth (- (.-lng pos) (.-lng start))
+                     :dheight (- (.-lat pos) (.-lat start))}
+            :move {:dx (- (.-lng pos) (.-lng start))
+                   :dy (- (.-lat pos) (.-lat start))
+                   :dwidth 0
+                   :dheight 0}
+            :resize (delta-resize corner start pos)))))))
 
 (reg-event-fx :add-slide
   (fn [{db :db} [_ slide]]
-    (let [slug (get-in db [:editor :project])
+    (let [slug (:active-project db)
           project (get-in db [:projects slug])
-          slides (get project :slides)]
+          slides (:slides project)]
       {:dispatch [:update-project
                   (assoc-in project [:slides] (conj slides slide))]})))
+
+(reg-event-fx :update-slide
+  (fn [{db :db} [_ slide]]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])]
+      {:dispatch [:update-project
+                  (assoc-in project [:slides] (assoc slides current-slide slide))]})))
 
 (reg-event-fx :activate-slide
   (fn [{db :db} [_ idx]]
     {:db (assoc-in db [:editor :current-slide] idx)}))
+
+(reg-event-fx :delete-current-slide
+  (fn [{db :db}]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])]
+      (if-not (nil? current-slide)
+        {:dispatch [:update-project
+                    (assoc-in project [:slides] (drop-nth current-slide slides))]}))))
 
 (reg-event-fx :move-to-slide
   (fn [{db :db} [_ idx]]
@@ -65,9 +141,25 @@
           slide (subscribe [:slide idx])]
       {:navigator-fly-to [@navigator @slide]})))
 
-(reg-event-db :set-active-project
-  (fn [db [_ project-slug]]
-    (assoc-in db [:editor :project] project-slug)))
+(reg-event-fx :next-slide
+  (fn [{db :db} _]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])]
+      (if (nil? current-slide)
+        {:dispatch [:activate-slide 0]}
+        {:dispatch [:activate-slide (mod (+ current-slide 1) (count slides))]}))))
+
+(reg-event-fx :prev-slide
+  (fn [{db :db} _]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])]
+      (if (nil? current-slide)
+        {:dispatch [:activate-slide 0]}
+        {:dispatch [:activate-slide (mod (- current-slide 1) (count slides))]}))))
 
 (reg-event-fx :get-projects
   (fn [{db :db} _]
