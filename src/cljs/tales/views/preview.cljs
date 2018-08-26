@@ -51,8 +51,12 @@
         :on-key-down #(case (.-key %)
                         "Delete" (dispatch [:delete-current-slide])
                         " " (dispatch [:next-slide])
-                        "ArrowRight" (dispatch [:next-slide])
-                        "ArrowLeft" (dispatch [:prev-slide])
+                        "ArrowRight" (if (.-ctrlKey %)
+                                       (dispatch [:change-order 1])
+                                       (dispatch [:next-slide]))
+                        "ArrowLeft" (if (.-ctrlKey %)
+                                      (dispatch [:change-order -1])
+                                      (dispatch [:prev-slide]))
                         nil)}
        (for [item @slides]
          ^{:key (:index item)}

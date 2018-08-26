@@ -38,6 +38,9 @@
    :width (Math/abs (:width rect))
    :height (Math/abs (:height rect))})
 
+(defn swap [v i1 i2]
+  (assoc v i2 (v i1) i1 (v i2)))
+
 (reg-event-db :initialise-db
   (fn [_ _] db/default-db))
 
@@ -160,6 +163,19 @@
       (if (nil? current-slide)
         {:dispatch [:activate-slide 0]}
         {:dispatch [:activate-slide (mod (- current-slide 1) (count slides))]}))))
+
+(reg-event-fx :change-order
+  (fn [{db :db} [_ delta]]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          slides (:slides project)
+          current-slide (get-in db [:editor :current-slide])
+          next-slide (+ current-slide delta)]
+      (if (<= 0 next-slide (- (count slides) 1))
+        {:db (assoc-in db [:editor :current-slide] next-slide)
+         :dispatch [:update-project
+                    (assoc-in project [:slides]
+                      (swap slides current-slide next-slide))]}))))
 
 (reg-event-fx :get-projects
   (fn [{db :db} _]
