@@ -33,11 +33,9 @@
                                           :height 0}}]
                         (do (-> map .-dragging .disable)
                             (dispatch [:start-draw :create slide start]))))
-        draw-end #(if @drawing?
-                    (dispatch [:end-draw]))
-        draw-update #(if @drawing?
-                       (do (-> map .-dragging .enable)
-                           (dispatch [:update-draw (.-latlng %)])))]
+        draw-end #(do (-> map .-dragging .enable)
+                      (if @drawing? (dispatch [:end-draw])))
+        draw-update #(if @drawing? (dispatch [:update-draw (.-latlng %)]))]
     (-> map
       (L/on "mousedown" draw-start)
       (L/on "mouseup" draw-end)
@@ -129,12 +127,12 @@
 
 (defn page []
   (let [project (subscribe [:active-project])]
-      [:div {:id "editor"}
-       [:header
-        [:h1 (:name @project)]
-        [:a {:href (routes/home-path)} "Close"]]
-       [:main (cond
-                (nil? (:file-path @project)) [image-upload @project]
-                (nil? (:dimensions @project)) [image-size]
-                :else [navigator @project])]
-       [:footer [preview/slides @project]]]))
+    [:div {:id "editor"}
+     [:header
+      [:h1 (:name @project)]
+      [:a {:href (routes/home-path)} "Close"]]
+     [:main (cond
+              (nil? (:file-path @project)) [image-upload @project]
+              (nil? (:dimensions @project)) [image-size]
+              :else [navigator @project])]
+     [:footer [preview/slides @project]]]))
