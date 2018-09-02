@@ -21,7 +21,9 @@
    [:h3 "Please help us by manually setting them directly in the image!"]])
 
 (defn ctrl-key? [e]
-  (-> e .-originalEvent .-ctrlKey))
+  (or
+    (-> e .-originalEvent .-ctrlKey)
+    (-> e .-originalEvent .-metaKey)))
 
 (defn draw-handler [map]
   (let [drawing? (subscribe [:drawing?])
@@ -113,12 +115,11 @@
         will-unmount (fn []
                        (dispatch [:navigator-unavailable @leaflet-map]))
         render (fn []
-                 (let [layer-container @leaflet-map]
-                   (if @leaflet-map
-                     [:div#navigator
-                      [slide-layer layer-container]
-                      [draw-layer layer-container]]
-                     [:div#navigator])))]
+                 (if @leaflet-map
+                   [:div#navigator
+                    [slide-layer @leaflet-map]
+                    [draw-layer @leaflet-map]]
+                   [:div#navigator]))]
     (r/create-class
       {:display-name "navigator"
        :component-did-mount did-mount
