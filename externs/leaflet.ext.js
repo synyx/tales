@@ -10929,6 +10929,7 @@ L.Layer.__super__.constructor.prototype = {
   "_off": function () {},
   "_on": function () {},
   "_propagateEvent": function () {},
+  "_map": function () {},
   "addEventListener": function () {},
   "addEventParent": function () {},
   "addOneTimeEventListener": function () {},
