@@ -19,6 +19,29 @@
   (fn [db _]
     (get-in db [:projects (:active-project db)])))
 
+(reg-sub :poster/dimensions
+  :<- [:active-project]
+  (fn [project _]
+    (:dimensions project)))
+
+(reg-sub :poster/file-path
+  :<- [:active-project]
+  (fn [project _]
+    (:file-path project)))
+
+(reg-sub :stage/zoom
+  (fn [db _]
+    (get-in db [:stage :zoom])))
+
+(reg-sub :stage/scale
+  :<- [:stage/zoom]
+  (fn [zoom _]
+    (Math/pow 2 zoom)))
+
+(reg-sub :stage/position
+  (fn [db _]
+    (get-in db [:stage :position])))
+
 (reg-sub :slides
   :<- [:active-project]
   (fn [project _]

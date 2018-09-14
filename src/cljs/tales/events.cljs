@@ -60,6 +60,24 @@
   (fn [db _]
     (update-in db [:editor] dissoc :navigator)))
 
+(reg-event-db :stage/zoom
+  (fn [db [_ zoom]]
+    (assoc-in db [:stage :zoom] zoom)))
+
+(reg-event-fx :stage/zoom-in
+  (fn [{db :db} _]
+    (let [current-zoom (get-in db [:stage :zoom])]
+      {:dispatch [:stage/zoom (+ current-zoom 1)]})))
+
+(reg-event-fx :stage/zoom-out
+  (fn [{db :db} _]
+    (let [current-zoom (get-in db [:stage :zoom])]
+      {:dispatch [:stage/zoom (- current-zoom 1)]})))
+
+(reg-event-db :stage/move-to
+  (fn [db [_ x y]]
+    (assoc-in db [:stage :position] {:x x :y y})))
+
 (reg-event-db :start-draw
   (fn [db [_ action slide start corner]]
     (-> db
