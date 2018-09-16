@@ -92,40 +92,6 @@
        :component-will-unmount will-unmount
        :reagent-render render})))
 
-(defn navigator [project]
-  (let [leaflet-map (r/atom nil)
-        bounds [[0 0]
-                [(:height (:dimensions project))
-                 (:width (:dimensions project))]]
-        map-options {:attributionControl false
-                     :zoomControl false
-                     :crs js/L.CRS.Simple
-                     :minZoom -5
-                     :zoomSnap 0}
-        did-mount (fn [this]
-                    (reset! leaflet-map
-                      (L/create-map (r/dom-node this) map-options))
-                    (-> @leaflet-map
-                      (L/add-layer
-                        (L/create-image-overlay (:file-path project) bounds))
-                      (L/fit-bounds bounds)
-                      draw-handler)
-                    (dispatch [:navigator-available @leaflet-map])
-                    (r/force-update this))
-        will-unmount (fn []
-                       (dispatch [:navigator-unavailable @leaflet-map]))
-        render (fn []
-                 (if @leaflet-map
-                   [:div#navigator
-                    [slide-layer @leaflet-map]
-                    [draw-layer @leaflet-map]]
-                   [:div#navigator]))]
-    (r/create-class
-      {:display-name "navigator"
-       :component-did-mount did-mount
-       :component-will-unmount will-unmount
-       :reagent-render render})))
-
 (defn- mouse-pos [event]
   {:x (.-clientX event)
    :y (.-clientY event)})
@@ -181,7 +147,8 @@
         (r/children this)))))
 
 (defn stage []
-  (let [dimensions (subscribe [:poster/dimensions])
+  (let [this (r/current-component)
+        dimensions (subscribe [:poster/dimensions])
         file-path (subscribe [:poster/file-path])
         stage-position (subscribe [:stage/position])
         stage-scale (subscribe [:stage/scale])
@@ -203,21 +170,46 @@
                           center-x (/ width 2)]
                       [zoomable
                        [movable
-                        [:div {:style {:transform-origin (str center-x "px 0 0")
-                                       :transform (str
-                                                    (scale @stage-scale)
-                                                    " "
-                                                    (translate
-                                                      (:x @stage-position)
-                                                      (:y @stage-position)))}}
-                         [:img {:style {:width (:width @dimensions)
-                                        :height (:height @dimensions)}
-                                :src @file-path}]]]]))])]
+                        (into
+                          [:div {:style {:width (:width @dimensions)
+                                         :height (:height @dimensions)
+                                         :transform-origin (str center-x "px 0 0")
+                                         :transform (str
+                                                      (scale @stage-scale)
+                                                      " "
+                                                      (translate
+                                                        (:x @stage-position)
+                                                        (:y @stage-position)))}}
+                           [:img {:style {:position "absolute"
+                                          :width "100%"
+                                          :height "100%"}
+                                  :src @file-path}]]
+                          (r/children this))]]))])]
     (r/create-class
       {:display-name "stage"
        :component-did-mount did-mount
        :component-will-unmount will-unmount
        :reagent-render render})))
+
+(defn navigator []
+  (let [slides (subscribe [:slides])
+        current-slide (subscribe [:current-slide])]
+    [stage
+     [:svg {:style {:position "absolute"
+                    :width "100%"
+                    :height "100%"}}
+      (doall
+        (for [slide @slides]
+          (let [active? (= (:index slide) @current-slide)
+                rect (:rect slide)]
+            ^{:key (:index slide)}
+            [:g [:rect {:x (:x rect)
+                        :y (:y rect)
+                        :width (:width rect)
+                        :height (:height rect)
+                        :stroke (if active? "#ff9900" "#3388ff")
+                        :stroke-width "5"
+                        :fill "none"}]])))]]))
 
 (defn page []
   (let [project (subscribe [:active-project])]
@@ -228,5 +220,5 @@
      [:main (cond
               (nil? (:file-path @project)) [image-upload @project]
               (nil? (:dimensions @project)) [image-size]
-              :else [stage])]
+              :else [navigator])]
      [:footer [preview/slides @project]]]))
