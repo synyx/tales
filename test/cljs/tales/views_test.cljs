@@ -1,8 +1,8 @@
 (ns tales.views-test
   (:require [cljs.test :refer-macros [is are deftest testing use-fixtures]]
             [reagent.core :as reagent :refer [atom]]
-            [tales.views.editor :refer [editor-page]]
-            [tales.views.project :refer [project-page]]
+            [tales.views.editor :as editor]
+            [tales.views.project :as project]
             [tales.subs]))
 
 
@@ -35,13 +35,13 @@
 
 (deftest test-project-page
   (testing "contains heading in tell page"
-    (with-mounted-component (project-page)
+    (with-mounted-component (project/page)
       (fn [c div]
         (.log js/console div)
         (is (found-in #"Enter the name of your tale and press enter" div))))))
 
 (deftest test-editor-page
   (testing "contains heading in editor page"
-    (with-mounted-component (editor-page)
+    (with-mounted-component (editor/page)
       (fn [c div]
         (is (found-in #"You haven't uploaded a poster yet." div))))))
