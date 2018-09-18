@@ -17,7 +17,7 @@
         active? (:active? props)
         scale (slide-scale slide preview-width preview-height)
         dx (* scale (:x rect))
-        dy (* scale (- (:height (:dimensions project)) (:y rect) (:height rect)))
+        dy (* scale (:y rect))
         scaled-slide-width (* scale (:width rect))
         scaled-slide-height (* scale (:height rect))
         scaled-img-width (* scale (:width (:dimensions project)))
