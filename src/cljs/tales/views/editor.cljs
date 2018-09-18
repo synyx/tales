@@ -1,10 +1,12 @@
 (ns tales.views.editor
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
+            [tales.dom :as dom]
             [tales.routes :as routes]
-            [tales.leaflet.core :as L]
-            [tales.views.preview :as preview]
-            [tales.views.slide :as slide]))
+            [tales.slide.core :refer [move normalize resize]]
+            [tales.slide.rect :as slide]
+            [tales.stage.core :refer [stage]]
+            [tales.views.preview :as preview]))
 
 (defn image-upload [project]
   [:div#image-upload
@@ -20,111 +22,75 @@
    [:h2 "We couldn't determine your poster dimensions."]
    [:h3 "Please help us by manually setting them directly in the image!"]])
 
-(defn ctrl-key? [e]
-  (or
-    (-> e .-originalEvent .-ctrlKey)
-    (-> e .-originalEvent .-metaKey)))
-
-(defn draw-handler [map]
-  (let [drawing? (subscribe [:drawing?])
-        draw-start #(if (ctrl-key? %)
-                      (let [start (.-latlng %)
-                            slide {:rect {:x (.-lng start)
-                                          :y (.-lat start)
-                                          :width 0
-                                          :height 0}}]
-                        (do (-> map .-dragging .disable)
-                            (dispatch [:start-draw :create slide start]))))
-        draw-end #(do (-> map .-dragging .enable)
-                      (if @drawing? (dispatch [:end-draw])))
-        draw-update #(if @drawing? (dispatch [:update-draw (.-latlng %)]))]
-    (-> map
-      (L/on "mousedown" draw-start)
-      (L/on "mouseup" draw-end)
-      (L/on "mousemove" draw-update)
-      (L/on "touchstart" draw-start)
-      (L/on "touchend" draw-end)
-      (L/on "touchmove" draw-update))))
-
-(defn slide-layer [layer-container]
+(defn navigator []
   (let [slides (subscribe [:slides])
         current-slide (subscribe [:current-slide])
-        layer (r/atom nil)
-        will-mount (fn []
-                     (reset! layer (L/create-feature-group)))
-        did-mount (fn []
-                    (L/add-layer layer-container @layer))
-        will-unmount (fn []
-                       (L/remove-layer layer-container @layer))
-        render (fn []
-                 (let [layer @layer
-                       current-slide @current-slide]
-                   [:div {:style {:display "none"}}
-                    (for [slide @slides]
-                      ^{:key (:index slide)}
-                      [slide/rect
-                       {:active? (= (:index slide) current-slide)}
-                       layer slide])]))]
-    (r/create-class
-      {:display-name "slide-layer"
-       :component-will-mount will-mount
-       :component-did-mount did-mount
-       :component-will-unmount will-unmount
-       :reagent-render render})))
+        scale (subscribe [:stage/scale])
 
-(defn draw-layer [layer-container]
-  (let [draw-slide (subscribe [:draw-slide])
-        layer (r/atom nil)
-        will-mount (fn []
-                     (reset! layer (L/create-feature-group)))
-        did-mount (fn []
-                    (L/add-layer layer-container @layer))
-        will-unmount (fn []
-                       (L/remove-layer layer-container @layer))
-        render (fn []
-                 [:div {:style {:display "none"}}
-                  (if @draw-slide
-                    [slide/rect {:color "#ff9900"} @layer @draw-slide])])]
-    (r/create-class
-      {:display-name "draw-layer"
-       :component-will-mount will-mount
-       :component-did-mount did-mount
-       :component-will-unmount will-unmount
-       :reagent-render render})))
+        svg-node (r/atom nil)
+        draw-rect (r/atom nil)
 
-(defn navigator [project]
-  (let [leaflet-map (r/atom nil)
-        bounds [[0 0]
-                [(:height (:dimensions project))
-                 (:width (:dimensions project))]]
-        map-options {:attributionControl false
-                     :zoomControl false
-                     :crs js/L.CRS.Simple
-                     :minZoom -5
-                     :zoomSnap 0}
-        did-mount (fn [this]
-                    (reset! leaflet-map
-                      (L/create-map (r/dom-node this) map-options))
-                    (-> @leaflet-map
-                      (L/add-layer
-                        (L/create-image-overlay (:file-path project) bounds))
-                      (L/fit-bounds bounds)
-                      draw-handler)
-                    (dispatch [:navigator-available @leaflet-map])
-                    (r/force-update this))
-        will-unmount (fn []
-                       (dispatch [:navigator-unavailable @leaflet-map]))
-        render (fn []
-                 (if @leaflet-map
-                   [:div#navigator
-                    [slide-layer @leaflet-map]
-                    [draw-layer @leaflet-map]]
-                   [:div#navigator]))]
-    (r/create-class
-      {:display-name "navigator"
-       :component-did-mount did-mount
-       :component-will-unmount will-unmount
-       :reagent-render render})))
+        on-create (fn [{drag-start :start dx :dx dy :dy}]
+                    (let [drag-start (dom/screen-point->container-point
+                                       drag-start @svg-node)
+                          x (/ (:x drag-start) @scale)
+                          y (/ (:y drag-start) @scale)
+                          dx (/ dx @scale)
+                          dy (/ dy @scale)]
+                      (reset! draw-rect (normalize
+                                          {:x x :y y :width dx :height dy}))))
+
+        on-create-end (fn []
+                        (if-let [rect @draw-rect]
+                          (let [new-slide {:rect rect}]
+                            (reset! draw-rect nil)
+                            (dispatch [:add-slide new-slide]))))
+
+        on-move (fn [slide {dx :dx dy :dy}]
+                  (let [dx (/ dx @scale)
+                        dy (/ dy @scale)]
+                    (reset! draw-rect (move (:rect slide) dx dy))))
+
+        on-move-end (fn [slide]
+                      (if-let [rect @draw-rect]
+                        (let [new-slide (assoc-in slide [:rect] rect)]
+                          (reset! draw-rect nil)
+                          (dispatch [:update-slide new-slide]))))
+
+        on-resize (fn [slide corner {dx :dx dy :dy}]
+                    (let [dx (/ dx @scale)
+                          dy (/ dy @scale)]
+                      (reset! draw-rect (resize (:rect slide) corner dx dy))))
+
+        on-resize-end (fn [slide]
+                        (if-let [rect @draw-rect]
+                          (let [new-slide (assoc-in slide [:rect] rect)]
+                            (reset! draw-rect nil)
+                            (dispatch [:update-slide new-slide]))))
+
+        start-create (fn [e]
+                       (if (dom/ctrl-key? e)
+                         (do
+                           (.stopPropagation e)
+                           (dom/dragging e on-create on-create-end))))]
+    (fn []
+      (let [current-slide @current-slide]
+        [stage
+         [:svg {:ref #(reset! svg-node %)
+                :style {:position "absolute"
+                        :width "100%"
+                        :height "100%"}
+                :on-mouse-down start-create}
+          (for [slide @slides]
+            [slide/rect {:key (:index slide)
+                         :rect (:rect slide)
+                         :active? (= (:index slide) current-slide)
+                         :on-move #(on-move slide %1)
+                         :on-move-end #(on-move-end slide)
+                         :on-resize #(on-resize slide %1 %2)
+                         :on-resize-end #(on-resize-end slide)}])
+          (if-let [draw-rect @draw-rect]
+            [slide/rect {:rect draw-rect}])]]))))
 
 (defn page []
   (let [project (subscribe [:active-project])]
@@ -135,5 +101,5 @@
      [:main (cond
               (nil? (:file-path @project)) [image-upload @project]
               (nil? (:dimensions @project)) [image-size]
-              :else [navigator @project])]
+              :else [navigator])]
      [:footer [preview/slides @project]]]))

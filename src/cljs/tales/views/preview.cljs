@@ -1,10 +1,6 @@
 (ns tales.views.preview
-  (:require [re-frame.core :refer [dispatch subscribe]]))
-
-(defn ctrl-key? [e]
-  (or
-    (-> e .-ctrlKey)
-    (-> e .-metaKey)))
+  (:require [re-frame.core :refer [dispatch subscribe]]
+            [tales.dom :as dom]))
 
 (defn- slide-scale [slide target-width target-height]
   "Calculates the scale factor to resize the slide to target-width/-height"
@@ -21,7 +17,7 @@
         active? (:active? props)
         scale (slide-scale slide preview-width preview-height)
         dx (* scale (:x rect))
-        dy (* scale (- (:height (:dimensions project)) (:y rect) (:height rect)))
+        dy (* scale (:y rect))
         scaled-slide-width (* scale (:width rect))
         scaled-slide-height (* scale (:height rect))
         scaled-img-width (* scale (:width (:dimensions project)))
@@ -56,10 +52,10 @@
         :on-key-down #(case (.-key %)
                         "Delete" (dispatch [:delete-current-slide])
                         " " (dispatch [:next-slide])
-                        "ArrowRight" (if (ctrl-key? %)
+                        "ArrowRight" (if (dom/ctrl-key? %)
                                        (dispatch [:change-order 1])
                                        (dispatch [:next-slide]))
-                        "ArrowLeft" (if (ctrl-key? %)
+                        "ArrowLeft" (if (dom/ctrl-key? %)
                                       (dispatch [:change-order -1])
                                       (dispatch [:prev-slide]))
                         nil)}

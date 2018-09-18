@@ -3,40 +3,12 @@
             [day8.re-frame.http-fx]
             [re-frame.core :refer [subscribe reg-event-db reg-event-fx]]
             [tales.db :as db]
-            [tales.routes :refer [editor-path]]
-            [tales.leaflet.core :as L]))
+            [tales.routes :refer [editor-path]]))
 
 (defn drop-nth [n coll]
   (concat
     (take n coll)
     (drop (inc n) coll)))
-
-(defn delta-resize [corner start pos]
-  (let [dx (- (.-lng pos) (.-lng start))
-        dy (- (.-lat pos) (.-lat start))]
-    (case corner
-      :north-east {:dx 0
-                   :dy 0
-                   :dwidth (+ dx)
-                   :dheight (+ dy)}
-      :south-east {:dx 0
-                   :dy dy
-                   :dwidth (+ dx)
-                   :dheight (- dy)}
-      :south-west {:dx dx
-                   :dy dy
-                   :dwidth (- dx)
-                   :dheight (- dy)}
-      :north-west {:dx dx
-                   :dy 0
-                   :dwidth (- dx)
-                   :dheight (+ dy)})))
-
-(defn normalize-rect [rect]
-  {:x (if (< (:width rect) 0) (+ (:x rect) (:width rect)) (:x rect))
-   :y (if (< (:height rect) 0) (+ (:y rect) (:height rect)) (:y rect))
-   :width (Math/abs (:width rect))
-   :height (Math/abs (:height rect))})
 
 (defn swap [v i1 i2]
   (assoc v i2 (v i1) i1 (v i2)))
@@ -52,60 +24,23 @@
   (fn [db [_ active-project]]
     (assoc db :active-project active-project)))
 
-(reg-event-db :navigator-available
-  (fn [db [_ navigator]]
-    (assoc-in db [:editor :navigator] navigator)))
+(reg-event-db :stage/zoom
+  (fn [db [_ zoom]]
+    (assoc-in db [:stage :zoom] zoom)))
 
-(reg-event-db :navigator-unavailable
-  (fn [db _]
-    (update-in db [:editor] dissoc :navigator)))
-
-(reg-event-db :start-draw
-  (fn [db [_ action slide start corner]]
-    (-> db
-      (assoc-in [:editor :drawing?] true)
-      (assoc-in [:editor :draw :action] (or action :create))
-      (assoc-in [:editor :draw :slide] slide)
-      (assoc-in [:editor :draw :start] start)
-      (assoc-in [:editor :draw :corner] corner))))
-
-(reg-event-fx :end-draw
+(reg-event-fx :stage/zoom-in
   (fn [{db :db} _]
-    (let [action (get-in db [:editor :draw :action])
-          slide (get-in db [:editor :draw :slide])
-          rect (get-in db [:editor :draw :slide :rect])
-          delta (get-in db [:editor :draw :delta])
-          new-slide (merge slide
-                      {:rect (normalize-rect
-                               {:x (+ (:x rect) (:dx delta))
-                                :y (+ (:y rect) (:dy delta))
-                                :width (+ (:width rect) (:dwidth delta))
-                                :height (+ (:height rect) (:dheight delta))})})]
-      {:db (-> db
-             (assoc-in [:editor :drawing?] false)
-             (update-in [:editor] dissoc :draw))
-       :dispatch (case action
-                   :create [:add-slide new-slide]
-                   :move [:update-slide new-slide]
-                   :resize [:update-slide new-slide])})))
+    (let [current-zoom (get-in db [:stage :zoom])]
+      {:dispatch [:stage/zoom (+ current-zoom 1)]})))
 
-(reg-event-db :update-draw
-  (fn [db [_ pos]]
-    (let [action (get-in db [:editor :draw :action])
-          start (get-in db [:editor :draw :start])
-          corner (get-in db [:editor :draw :corner])]
-      (-> db
-        (assoc-in [:editor :draw :delta]
-          (case action
-            :create {:dx 0
-                     :dy 0
-                     :dwidth (- (.-lng pos) (.-lng start))
-                     :dheight (- (.-lat pos) (.-lat start))}
-            :move {:dx (- (.-lng pos) (.-lng start))
-                   :dy (- (.-lat pos) (.-lat start))
-                   :dwidth 0
-                   :dheight 0}
-            :resize (delta-resize corner start pos)))))))
+(reg-event-fx :stage/zoom-out
+  (fn [{db :db} _]
+    (let [current-zoom (get-in db [:stage :zoom])]
+      {:dispatch [:stage/zoom (- current-zoom 1)]})))
+
+(reg-event-db :stage/move-to
+  (fn [db [_ x y]]
+    (assoc-in db [:stage :position] {:x x :y y})))
 
 (reg-event-fx :add-slide
   (fn [{db :db} [_ slide]]
@@ -139,10 +74,10 @@
                     (assoc-in project [:slides] (drop-nth current-slide slides))]}))))
 
 (reg-event-fx :move-to-slide
-  (fn [{db :db} [_ idx]]
-    (let [navigator (subscribe [:navigator])
-          slide (subscribe [:slide idx])]
-      {:navigator-fly-to [@navigator @slide]})))
+  (fn [_ [_ idx]]
+    (let [slide (subscribe [:slide idx])
+          rect (:rect @slide)]
+      {:dispatch [:stage/move-to (:x rect) (:y rect)]})))
 
 (reg-event-fx :next-slide
   (fn [{db :db} _]

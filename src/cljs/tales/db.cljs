@@ -4,5 +4,6 @@
   {:projects (list)
    :active-page nil
    :active-project nil
-   :editor {:current-slide nil
-            :drawing? false}})
+   :editor {:current-slide nil}
+   :stage {:zoom -3
+           :position {:x 0 :y 0}}})
