@@ -55,27 +55,6 @@
   (fn [slides [_ idx]]
     (nth slides idx)))
 
-(reg-sub :navigator
-  :<- [:editor]
-  (fn [editor _]
-    (:navigator editor)))
-
-(reg-sub :drawing?
-  :<- [:editor]
-  (fn [editor _]
-    (:drawing? editor)))
-
-(reg-sub :draw-slide
-  :<- [:editor]
-  (fn [editor _]
-    (let [rect (get-in editor [:draw :slide :rect])
-          delta (or (get-in editor [:draw :delta])
-                  {:dx 0 :dy 0 :dwidth 0 :dheight 0})]
-      {:rect {:x (+ (:x rect) (:dx delta))
-              :y (+ (:y rect) (:dy delta))
-              :width (+ (:width rect) (:dwidth delta))
-              :height (+ (:height rect) (:dheight delta))}})))
-
 (reg-sub :current-slide
   :<- [:editor]
   (fn [editor _]

@@ -3,8 +3,7 @@
             [day8.re-frame.http-fx]
             [re-frame.core :refer [subscribe reg-event-db reg-event-fx]]
             [tales.db :as db]
-            [tales.routes :refer [editor-path]]
-            [tales.leaflet.core :as L]))
+            [tales.routes :refer [editor-path]]))
 
 (defn drop-nth [n coll]
   (concat
@@ -24,14 +23,6 @@
 (reg-event-db :set-active-project
   (fn [db [_ active-project]]
     (assoc db :active-project active-project)))
-
-(reg-event-db :navigator-available
-  (fn [db [_ navigator]]
-    (assoc-in db [:editor :navigator] navigator)))
-
-(reg-event-db :navigator-unavailable
-  (fn [db _]
-    (update-in db [:editor] dissoc :navigator)))
 
 (reg-event-db :stage/zoom
   (fn [db [_ zoom]]
@@ -83,10 +74,10 @@
                     (assoc-in project [:slides] (drop-nth current-slide slides))]}))))
 
 (reg-event-fx :move-to-slide
-  (fn [{db :db} [_ idx]]
-    (let [navigator (subscribe [:navigator])
-          slide (subscribe [:slide idx])]
-      {:navigator-fly-to [@navigator @slide]})))
+  (fn [_ [_ idx]]
+    (let [slide (subscribe [:slide idx])
+          rect (:rect @slide)]
+      {:dispatch [:stage/move-to (:x rect) (:y rect)]})))
 
 (reg-event-fx :next-slide
   (fn [{db :db} _]

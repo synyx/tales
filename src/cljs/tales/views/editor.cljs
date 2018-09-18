@@ -5,7 +5,6 @@
             [tales.routes :as routes]
             [tales.slide.core :refer [move normalize resize]]
             [tales.slide.rect :as slide]
-            [tales.leaflet.core :as L]
             [tales.stage.core :refer [stage]]
             [tales.views.preview :as preview]))
 
