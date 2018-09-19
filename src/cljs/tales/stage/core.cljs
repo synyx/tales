@@ -17,7 +17,9 @@
                      (dispatch [:stage/zoom-in])
                      (dispatch [:stage/zoom-out])))]
     (fn []
-      (into [:div {:on-wheel on-wheel}]
+      (into [:div.zoomable {:style {:width "100%"
+                                    :height "100%"}
+                            :on-wheel on-wheel}]
         (r/children this)))))
 
 (defn movable []
@@ -46,10 +48,12 @@
                       (reset! original-pos nil)
                       (.preventDefault e))]
     (fn []
-      (into [:div {:style {:cursor (if @moving? "grab" "pointer")}
-                   :on-mouse-down on-mouse-down
-                   :on-mouse-move on-mouse-move
-                   :on-mouse-up on-mouse-up}]
+      (into [:div.movable {:style {:width "100%"
+                                   :height "100%"
+                                   :cursor (if @moving? "grab" "pointer")}
+                           :on-mouse-down on-mouse-down
+                           :on-mouse-move on-mouse-move
+                           :on-mouse-up on-mouse-up}]
         (r/children this)))))
 
 (defn stage []
