@@ -39,7 +39,6 @@
                                 dy (/ (- (:y pos) (:y @start-pos)) @stage-scale)
                                 x (- (:x @original-pos) dx)
                                 y (- (:y @original-pos) dy)]
-                            (.log js/console x y)
                             (dispatch [:stage/move-to x y]))))
         on-mouse-up (fn [e]
                       (reset! moving? false)
@@ -58,30 +57,36 @@
         dimensions (subscribe [:poster/dimensions])
         file-path (subscribe [:poster/file-path])
         stage-position (subscribe [:stage/position])
-        stage-scale (subscribe [:stage/scale])]
-    (fn []
-      [:div {:style {:background-color "#ddd"
-                     :overflow "hidden"
-                     :width "100%"
-                     :height "100%"
-                     :position "relative"}}
-       [zoomable
-        [movable
-         (into
-           [:div {:style {:width (:width @dimensions)
-                          :height (:height @dimensions)
-                          :position "absolute"
-                          :left "50%"
-                          :top "50%"
-                          :transform-origin "0 0 0"
-                          :transform (str
-                                       (scale @stage-scale)
-                                       " "
-                                       (translate
-                                         (- (:x @stage-position))
-                                         (- (:y @stage-position))))}}
-            [:img {:style {:position "absolute"
-                           :width "100%"
-                           :height "100%"}
-                   :src @file-path}]]
-           (r/children this))]]])))
+        stage-scale (subscribe [:stage/scale])
+        did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))
+        will-unmount (fn [] (dispatch [:stage/unmounted]))
+        render (fn []
+                 [:div {:style {:background-color "#ddd"
+                                :overflow "hidden"
+                                :width "100%"
+                                :height "100%"
+                                :position "relative"}}
+                  [zoomable
+                   [movable
+                    (into
+                      [:div {:style {:width (:width @dimensions)
+                                     :height (:height @dimensions)
+                                     :position "absolute"
+                                     :left "50%"
+                                     :top "50%"
+                                     :transform-origin "0 0 0"
+                                     :transform (str
+                                                  (scale @stage-scale)
+                                                  " "
+                                                  (translate
+                                                    (- (:x @stage-position))
+                                                    (- (:y @stage-position))))}}
+                       [:img {:style {:position "absolute"
+                                      :width "100%"
+                                      :height "100%"}
+                              :src @file-path}]]
+                      (r/children this))]]])]
+    (r/create-class {:display-name "stage"
+                     :component-did-mount did-mount
+                     :component-will-unmount will-unmount
+                     :reagent-render render})))

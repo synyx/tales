@@ -3,6 +3,7 @@
             [day8.re-frame.http-fx]
             [re-frame.core :refer [subscribe reg-event-db reg-event-fx]]
             [tales.db :as db]
+            [tales.slide.core :as slide]
             [tales.routes :refer [editor-path]]))
 
 (defn drop-nth [n coll]
@@ -24,6 +25,14 @@
   (fn [db [_ active-project]]
     (assoc db :active-project active-project)))
 
+(reg-event-db :stage/mounted
+  (fn [db [_ dom-node]]
+    (assoc-in db [:stage :dom-node] dom-node)))
+
+(reg-event-db :stage/unmounted
+  (fn [db _]
+    (assoc-in db [:stage :dom-node] nil)))
+
 (reg-event-db :stage/zoom
   (fn [db [_ zoom]]
     (assoc-in db [:stage :zoom] zoom)))
@@ -41,6 +50,20 @@
 (reg-event-db :stage/move-to
   (fn [db [_ x y]]
     (assoc-in db [:stage :position] {:x x :y y})))
+
+(reg-event-db :stage/fit-rect
+  (fn [db [_ rect]]
+    (let [center (slide/center rect)
+          dom-node (get-in db [:stage :dom-node])
+          sx (/ (.-clientWidth dom-node) (:width rect))
+          sy (/ (.-clientHeight dom-node) (:height rect))
+          scale (Math/min sx sy)
+          zoom (/ (Math/log scale) Math/LN2)]
+      (if dom-node
+        (-> db
+          (assoc-in [:stage :position] center)
+          (assoc-in [:stage :zoom] zoom))
+        db))))
 
 (reg-event-fx :add-slide
   (fn [{db :db} [_ slide]]
@@ -77,7 +100,7 @@
   (fn [_ [_ idx]]
     (let [slide (subscribe [:slide idx])
           rect (:rect @slide)]
-      {:dispatch [:stage/move-to (:x rect) (:y rect)]})))
+      {:dispatch [:stage/fit-rect rect]})))
 
 (reg-event-fx :next-slide
   (fn [{db :db} _]

@@ -22,6 +22,7 @@
                          (.stopPropagation e)
                          (dom/dragging e #(on-resize corner %1 %2 %3) on-resize-end)))]
     [:g {:on-click #(dispatch [:activate-slide (:key props)])
+         :on-double-click #(dispatch [:stage/fit-rect rect])
          :on-mouse-down activate-slide
          :class (:key props)}
      [:rect {:x x
