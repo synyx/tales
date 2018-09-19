@@ -37,8 +37,9 @@
                           (let [pos (dom/mouse-position e)
                                 dx (/ (- (:x pos) (:x @start-pos)) @stage-scale)
                                 dy (/ (- (:y pos) (:y @start-pos)) @stage-scale)
-                                x (+ (:x @original-pos) dx)
-                                y (+ (:y @original-pos) dy)]
+                                x (- (:x @original-pos) dx)
+                                y (- (:y @original-pos) dy)]
+                            (.log js/console x y)
                             (dispatch [:stage/move-to x y]))))
         on-mouse-up (fn [e]
                       (reset! moving? false)
@@ -57,42 +58,30 @@
         dimensions (subscribe [:poster/dimensions])
         file-path (subscribe [:poster/file-path])
         stage-position (subscribe [:stage/position])
-        stage-scale (subscribe [:stage/scale])
-        dom-node (r/atom nil)
-
-        did-mount (fn [this]
-                    (reset! dom-node (r/dom-node this)))
-
-        will-unmount (fn []
-                       (reset! dom-node nil))
-
-        render (fn []
-                 [:div {:style {:background-color "#ddd"
-                                :overflow "hidden"
-                                :width "100%"
-                                :height "100%"}}
-                  (if @dom-node
-                    (let [width (.-clientWidth @dom-node)
-                          center-x (/ width 2)]
-                      [zoomable
-                       [movable
-                        (into
-                          [:div {:style {:width (:width @dimensions)
-                                         :height (:height @dimensions)
-                                         :transform-origin (str center-x "px 0 0")
-                                         :transform (str
-                                                      (scale @stage-scale)
-                                                      " "
-                                                      (translate
-                                                        (:x @stage-position)
-                                                        (:y @stage-position)))}}
-                           [:img {:style {:position "absolute"
-                                          :width "100%"
-                                          :height "100%"}
-                                  :src @file-path}]]
-                          (r/children this))]]))])]
-    (r/create-class
-      {:display-name "stage"
-       :component-did-mount did-mount
-       :component-will-unmount will-unmount
-       :reagent-render render})))
+        stage-scale (subscribe [:stage/scale])]
+    (fn []
+      [:div {:style {:background-color "#ddd"
+                     :overflow "hidden"
+                     :width "100%"
+                     :height "100%"
+                     :position "relative"}}
+       [zoomable
+        [movable
+         (into
+           [:div {:style {:width (:width @dimensions)
+                          :height (:height @dimensions)
+                          :position "absolute"
+                          :left "50%"
+                          :top "50%"
+                          :transform-origin "0 0 0"
+                          :transform (str
+                                       (scale @stage-scale)
+                                       " "
+                                       (translate
+                                         (- (:x @stage-position))
+                                         (- (:y @stage-position))))}}
+            [:img {:style {:position "absolute"
+                           :width "100%"
+                           :height "100%"}
+                   :src @file-path}]]
+           (r/children this))]]])))
