@@ -40,22 +40,26 @@
                 :y y
                 :width 20
                 :height 20
-                :fill color}]
+                :fill color
+                :style {:cursor "nw-resize"}}]
         [:rect {:on-mouse-down #(start-resize :top-right %)
                 :x (- (+ x width) 20)
                 :y y
                 :width 20
                 :height 20
-                :fill color}]
+                :fill color
+                :style {:cursor "ne-resize"}}]
         [:rect {:on-mouse-down #(start-resize :bottom-right %)
                 :x (- (+ x width) 20)
                 :y (- (+ y height) 20)
                 :width 20
                 :height 20
-                :fill color}]
+                :fill color
+                :style {:cursor "se-resize"}}]
         [:rect {:on-mouse-down #(start-resize :bottom-left %)
                 :x x
                 :y (- (+ y height) 20)
                 :width 20
                 :height 20
-                :fill color}]])]))
+                :fill color
+                :style {:cursor "sw-resize"}}]])]))
