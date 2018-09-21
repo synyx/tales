@@ -12,18 +12,21 @@
 
         color (if active? "#ff9900" "#3388ff")
 
-        activate-slide (fn [e]
+        start-move (fn [e]
+                     (if active?
+                       (do
                          (.stopPropagation e)
-                         (dom/dragging e (:on-move props) (:on-move-end props)))
+                         (dom/dragging e (:on-move props) (:on-move-end props)))))
 
         start-resize (fn [corner e]
-                       (let [on-resize (:on-resize props)
-                             on-resize-end (:on-resize-end props)]
-                         (.stopPropagation e)
-                         (dom/dragging e #(on-resize corner %1 %2 %3) on-resize-end)))]
+                       (if active?
+                         (let [on-resize (:on-resize props)
+                               on-resize-end (:on-resize-end props)]
+                           (.stopPropagation e)
+                           (dom/dragging e #(on-resize corner %1 %2 %3) on-resize-end))))]
     [:g {:on-click #(dispatch [:activate-slide (:key props)])
          :on-double-click #(dispatch [:stage/fit-rect rect])
-         :on-mouse-down activate-slide
+         :on-mouse-down start-move
          :class (:key props)}
      [:rect {:x x
              :y y
