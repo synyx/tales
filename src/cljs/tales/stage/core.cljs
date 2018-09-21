@@ -1,7 +1,8 @@
 (ns tales.stage.core
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [tales.dom :as dom]))
+            [tales.dom :as dom]
+            [tales.views.components :refer [hide-loading]]))
 
 (defn- scale
   ([sxy] (str "scale(" sxy ")"))
@@ -60,6 +61,7 @@
   (let [this (r/current-component)
         dimensions (subscribe [:poster/dimensions])
         file-path (subscribe [:poster/file-path])
+        ready? (subscribe [:stage/ready?])
         stage-position (subscribe [:stage/position])
         stage-scale (subscribe [:stage/scale])
         did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))
@@ -70,26 +72,29 @@
                                 :width "100%"
                                 :height "100%"
                                 :position "relative"}}
-                  [zoomable
-                   [movable
-                    (into
-                      [:div {:style {:width (:width @dimensions)
-                                     :height (:height @dimensions)
-                                     :position "absolute"
-                                     :left "50%"
-                                     :top "50%"
-                                     :transform-origin "0 0 0"
-                                     :transform (str
-                                                  (scale @stage-scale)
-                                                  " "
-                                                  (translate
-                                                    (- (:x @stage-position))
-                                                    (- (:y @stage-position))))}}
-                       [:img {:style {:position "absolute"
-                                      :width "100%"
-                                      :height "100%"}
-                              :src @file-path}]]
-                      (r/children this))]]])]
+                  [hide-loading {:loading? (not @ready?)
+                                 :background-color "#ddd"
+                                 :color "#fff"}
+                   [zoomable
+                    [movable
+                     (into
+                       [:div {:style {:width (:width @dimensions)
+                                      :height (:height @dimensions)
+                                      :position "absolute"
+                                      :left "50%"
+                                      :top "50%"
+                                      :transform-origin "0 0 0"
+                                      :transform (str
+                                                   (scale @stage-scale)
+                                                   " "
+                                                   (translate
+                                                     (- (:x @stage-position))
+                                                     (- (:y @stage-position))))}}
+                        [:img {:style {:position "absolute"
+                                       :width "100%"
+                                       :height "100%"}
+                               :src @file-path}]]
+                       (r/children this))]]]])]
     (r/create-class {:display-name "stage"
                      :component-did-mount did-mount
                      :component-will-unmount will-unmount

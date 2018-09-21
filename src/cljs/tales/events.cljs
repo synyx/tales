@@ -31,13 +31,13 @@
           project (get-in db [:projects slug])
           dimensions (:dimensions project)
           position (get-in db [:stage :position])]
-      {:db (-> db
-             (assoc-in [:stage :dom-node] dom-node))
+      {:db (assoc-in db [:stage :dom-node] dom-node)
        :dispatch-n [(when (nil? position) [:stage/fit-rect dimensions])]})))
 
 (reg-event-db :stage/unmounted
   (fn [db _]
-    (assoc-in db [:stage :dom-node] nil)))
+    (-> db
+      (assoc-in [:stage :dom-node] nil))))
 
 (reg-event-db :stage/zoom
   (fn [db [_ zoom]]

@@ -29,6 +29,12 @@
   (fn [project _]
     (:file-path project)))
 
+(reg-sub :stage/ready?
+  (fn [db _]
+    (let [dom-node (get-in db [:stage :dom-node])
+          position (get-in db [:stage :position])]
+      (and dom-node position))))
+
 (reg-sub :stage/zoom
   (fn [db _]
     (get-in db [:stage :zoom])))
