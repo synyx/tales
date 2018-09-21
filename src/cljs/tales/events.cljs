@@ -25,9 +25,15 @@
   (fn [db [_ active-project]]
     (assoc db :active-project active-project)))
 
-(reg-event-db :stage/mounted
-  (fn [db [_ dom-node]]
-    (assoc-in db [:stage :dom-node] dom-node)))
+(reg-event-fx :stage/mounted
+  (fn [{db :db} [_ dom-node]]
+    (let [slug (:active-project db)
+          project (get-in db [:projects slug])
+          dimensions (:dimensions project)
+          position (get-in db [:stage :position])]
+      {:db (-> db
+             (assoc-in [:stage :dom-node] dom-node))
+       :dispatch-n [(when (nil? position) [:stage/fit-rect dimensions])]})))
 
 (reg-event-db :stage/unmounted
   (fn [db _]
