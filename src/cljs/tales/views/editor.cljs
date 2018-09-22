@@ -85,7 +85,7 @@
             [slide/rect {:key (:index slide)
                          :rect (:rect slide)
                          :active? (= (:index slide) current-slide)
-                         :on-move #(on-move slide %1)
+                         :on-move #(on-move slide %)
                          :on-move-end #(on-move-end slide)
                          :on-resize #(on-resize slide %1 %2)
                          :on-resize-end #(on-resize-end slide)}])

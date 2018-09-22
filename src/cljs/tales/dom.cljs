@@ -19,10 +19,12 @@
           drag-end (mouse-position e)
           dx (- (:x drag-end) (:x drag-start))
           dy (- (:y drag-end) (:y drag-start))]
+      (.preventDefault e)
       (on-drag {:start drag-start :end drag-end :dx dx :dy dy}))))
 
 (defn- drag-end-fn [drag-move drag-end on-drag-end]
-  (fn []
+  (fn [e]
+    (.preventDefault e)
     (.removeEventListener js/window "mousemove" drag-move)
     (.removeEventListener js/window "mouseup" @drag-end)
     (on-drag-end)))

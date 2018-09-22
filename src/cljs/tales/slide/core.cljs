@@ -1,5 +1,9 @@
 (ns tales.slide.core)
 
+(defn center [rect]
+  {:x (+ (:x rect) (/ (:width rect) 2))
+   :y (+ (:y rect) (/ (:height rect) 2))})
+
 (defn move [rect dx dy]
   {:x (+ (:x rect) dx)
    :y (+ (:y rect) dy)
