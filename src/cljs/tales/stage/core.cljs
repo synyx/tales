@@ -11,18 +11,6 @@
 (defn- translate [dx dy]
   (str "translate(" dx "px," dy "px)"))
 
-(defn zoomable []
-  (let [this (r/current-component)
-        on-wheel (fn [e]
-                   (if (> 0 (.-deltaY e))
-                     (dispatch [:stage/zoom-in])
-                     (dispatch [:stage/zoom-out])))]
-    (fn []
-      (into [:div.zoomable {:style {:width "100%"
-                                    :height "100%"}
-                            :on-wheel on-wheel}]
-        (r/children this)))))
-
 (defn movable []
   (let [this (r/current-component)
         stage-scale (subscribe [:stage/scale])
@@ -64,10 +52,21 @@
         ready? (subscribe [:stage/ready?])
         stage-position (subscribe [:stage/position])
         stage-scale (subscribe [:stage/scale])
+        img-node (r/atom nil)
         did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))
         will-unmount (fn [] (dispatch [:stage/unmounted]))
+        on-wheel (fn [e]
+                   (let [pos (dom/mouse-position e)
+                         container-pos (dom/screen-point->container-point pos @img-node)
+                         x (/ (:x container-pos) @stage-scale)
+                         y (/ (:y container-pos) @stage-scale)
+                         position {:x x :y y}]
+                     (if (> 0 (.-deltaY e))
+                       (dispatch [:stage/zoom-in position])
+                       (dispatch [:stage/zoom-out position]))))
         render (fn []
-                 [:div {:style {:background-color "#ddd"
+                 [:div {:on-wheel on-wheel
+                        :style {:background-color "#ddd"
                                 :overflow "hidden"
                                 :width "100%"
                                 :height "100%"
@@ -75,26 +74,26 @@
                   [hide-loading {:loading? (not @ready?)
                                  :background-color "#ddd"
                                  :color "#fff"}
-                   [zoomable
-                    [movable
-                     (into
-                       [:div {:style {:width (:width @dimensions)
-                                      :height (:height @dimensions)
-                                      :position "absolute"
-                                      :left "50%"
-                                      :top "50%"
-                                      :transform-origin "0 0 0"
-                                      :transform (str
-                                                   (scale @stage-scale)
-                                                   " "
-                                                   (translate
-                                                     (- (:x @stage-position))
-                                                     (- (:y @stage-position))))}}
-                        [:img {:style {:position "absolute"
-                                       :width "100%"
-                                       :height "100%"}
-                               :src @file-path}]]
-                       (r/children this))]]]])]
+                   [movable
+                    (into
+                      [:div {:style {:width (:width @dimensions)
+                                     :height (:height @dimensions)
+                                     :position "absolute"
+                                     :left "50%"
+                                     :top "50%"
+                                     :transform-origin "0 0 0"
+                                     :transform (str
+                                                  (scale @stage-scale)
+                                                  " "
+                                                  (translate
+                                                    (- (:x @stage-position))
+                                                    (- (:y @stage-position))))}}
+                       [:img {:ref #(reset! img-node %)
+                              :style {:position "absolute"
+                                      :width "100%"
+                                      :height "100%"}
+                              :src @file-path}]]
+                      (r/children this))]]])]
     (r/create-class {:display-name "stage"
                      :component-did-mount did-mount
                      :component-will-unmount will-unmount

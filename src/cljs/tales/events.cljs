@@ -14,6 +14,12 @@
 (defn swap [v i1 i2]
   (assoc v i2 (v i1) i1 (v i2)))
 
+(defn zoom->scale [zoom]
+  (Math/pow 2 zoom))
+
+(defn scale->zoom [scale]
+  (/ (Math/log scale) Math/LN2))
+
 (reg-event-db :initialise-db
   (fn [_ _] db/default-db))
 
@@ -39,23 +45,41 @@
     (-> db
       (assoc-in [:stage :dom-node] nil))))
 
-(reg-event-db :stage/zoom
-  (fn [db [_ zoom]]
-    (assoc-in db [:stage :zoom] zoom)))
+(reg-event-fx :stage/zoom
+  (fn [{db :db} [_ zoom position]]
+    (let [current-zoom (get-in db [:stage :zoom])
+          current-position (get-in db [:stage :position])
+          s1 (zoom->scale current-zoom)
+          s2 (zoom->scale zoom)
+          x1 (- (:x position) (:x current-position))
+          y1 (- (:y position) (:y current-position))
+          x2 (/ (* x1 s1) s2)
+          y2 (/ (* y1 s1) s2)
+          dx (- x2 x1)
+          dy (- y2 y1)]
+      {:db (assoc-in db [:stage :zoom] zoom)
+       :dispatch [:stage/move-by (- dx) (- dy)]})))
 
 (reg-event-fx :stage/zoom-in
-  (fn [{db :db} _]
+  (fn [{db :db} [_ position]]
     (let [current-zoom (get-in db [:stage :zoom])]
-      {:dispatch [:stage/zoom (+ current-zoom 1)]})))
+      {:dispatch [:stage/zoom (+ current-zoom 1) position]})))
 
 (reg-event-fx :stage/zoom-out
-  (fn [{db :db} _]
+  (fn [{db :db} [_ position]]
     (let [current-zoom (get-in db [:stage :zoom])]
-      {:dispatch [:stage/zoom (- current-zoom 1)]})))
+      {:dispatch [:stage/zoom (- current-zoom 1) position]})))
 
 (reg-event-db :stage/move-to
   (fn [db [_ x y]]
     (assoc-in db [:stage :position] {:x x :y y})))
+
+(reg-event-db :stage/move-by
+  (fn [db [_ dx dy]]
+    (let [current-position (get-in db [:stage :position])
+          x (+ (:x current-position) dx)
+          y (+ (:y current-position) dy)]
+      (assoc-in db [:stage :position] {:x x :y y}))))
 
 (reg-event-db :stage/fit-rect
   (fn [db [_ rect]]
@@ -64,7 +88,7 @@
           sx (/ (.-clientWidth dom-node) (:width rect))
           sy (/ (.-clientHeight dom-node) (:height rect))
           scale (Math/min sx sy)
-          zoom (/ (Math/log scale) Math/LN2)]
+          zoom (scale->zoom scale)]
       (if dom-node
         (-> db
           (assoc-in [:stage :position] center)
