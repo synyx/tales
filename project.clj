@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/core.async "0.4.474"]
                  [ring-server "0.5.0"]
-                 [ring "1.6.3"]
+                 [ring "1.7.0"]
                  [ring/ring-defaults "0.3.2"]
                  [ring/ring-json "0.4.0"]
                  [compojure "1.6.1"]
@@ -94,7 +94,7 @@
                                   :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :dependencies [[binaryage/devtools "0.9.10"]
                                   [ring/ring-mock "0.3.2"]
-                                  [ring/ring-devel "1.6.3"]
+                                  [ring/ring-devel "1.7.0"]
                                   [prone "1.6.0"]
                                   [figwheel-sidecar "0.5.16"]
                                   [org.clojure/tools.nrepl "0.2.13"]
