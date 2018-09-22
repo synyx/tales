@@ -23,7 +23,7 @@
                          (let [on-resize (:on-resize props)
                                on-resize-end (:on-resize-end props)]
                            (.stopPropagation e)
-                           (dom/dragging e #(on-resize corner %1 %2 %3) on-resize-end))))]
+                           (dom/dragging e #(on-resize corner %) on-resize-end))))]
     [:g {:on-click #(dispatch [:activate-slide (:key props)])
          :on-double-click #(dispatch [:stage/fit-rect rect])
          :on-mouse-down start-move
