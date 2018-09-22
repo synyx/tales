@@ -30,7 +30,7 @@
               :border-style "solid"
               :border-color (if active? "#ff0000" "#333")}
       :on-click #(dispatch [:activate-slide (:index slide)])
-      :on-double-click #(dispatch [:move-to-slide (:index slide)])}
+      :on-double-click #(dispatch [:stage/fit-rect (:rect slide)])}
      [:div
       {:style {:width scaled-slide-width
                :height scaled-slide-height

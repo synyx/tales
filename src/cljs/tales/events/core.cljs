@@ -1,7 +1,8 @@
 (ns tales.events.core
   (:require [day8.re-frame.http-fx]
-            [re-frame.core :refer [subscribe reg-event-db reg-event-fx]]
+            [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.db :as db]
+            [tales.interceptors :refer [active-project]]
             [tales.events.editor]
             [tales.events.project]
             [tales.events.stage]))
@@ -10,56 +11,46 @@
   (assoc v i2 (v i1) i1 (v i2)))
 
 (reg-event-db :initialise-db
-  (fn [_ _] db/default-db))
+  (fn [] db/default-db))
 
-(reg-event-db :set-active-page
-  (fn [db [_ active-page]]
+(reg-event-db :activate-page
+  [trim-v]
+  (fn [db [active-page]]
     (assoc db :active-page active-page)))
 
-(reg-event-db :set-active-project
-  (fn [db [_ active-project]]
+(reg-event-db :activate-project
+  [trim-v]
+  (fn [db [active-project]]
     (assoc db :active-project active-project)))
 
 (reg-event-db :activate-slide
-  (fn [db [_ idx]]
+  [trim-v]
+  (fn [db [idx]]
     (assoc db :active-slide idx)))
 
-(reg-event-fx :move-to-slide
-  (fn [_ [_ idx]]
-    (let [slide (subscribe [:slide idx])
-          rect (:rect @slide)]
-      {:dispatch [:stage/fit-rect rect]})))
-
 (reg-event-fx :next-slide
-  (fn [{db :db} _]
-    (let [slug (:active-project db)
-          project (get-in db [:projects slug])
-          slides (:slides project)
-          active-slide (:active-slide db)]
-      (if (nil? active-slide)
-        {:dispatch [:activate-slide 0]}
-        {:dispatch [:activate-slide (mod (+ active-slide 1) (count slides))]}))))
+  [trim-v active-project]
+  (fn [{db :db} [active-project]]
+    (let [slides (:slides active-project)
+          idx (or (:active-slide db) 0)]
+      {:dispatch [:activate-slide (mod (+ idx 1) (count slides))]})))
 
 (reg-event-fx :prev-slide
-  (fn [{db :db} _]
-    (let [slug (:active-project db)
-          project (get-in db [:projects slug])
-          slides (:slides project)
-          active-slide (:active-slide db)]
-      (if (nil? active-slide)
-        {:dispatch [:activate-slide 0]}
-        {:dispatch [:activate-slide (mod (- active-slide 1) (count slides))]}))))
+  [trim-v active-project]
+  (fn [{db :db} [active-project]]
+    (let [slides (:slides active-project)
+          idx (or (:active-slide db) 0)]
+      {:dispatch [:activate-slide (mod (- idx 1) (count slides))]})))
 
 (reg-event-fx :change-order
-  (fn [{db :db} [_ delta]]
-    (let [slug (:active-project db)
-          project (get-in db [:projects slug])
-          slides (:slides project)
+  [trim-v active-project]
+  (fn [{db :db} [delta active-project]]
+    (let [slides (:slides active-project)
           active-slide (:active-slide db)
           next-slide (+ active-slide delta)]
       (if (<= 0 next-slide (- (count slides) 1))
         {:db (assoc db :active-slide next-slide)
          :dispatch [:project/update
-                    (assoc-in project [:slides]
+                    (assoc-in active-project [:slides]
                       (swap slides active-slide next-slide))]}))))
 

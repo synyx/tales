@@ -5,6 +5,10 @@
     (-> e .-ctrlKey)
     (-> e .-metaKey)))
 
+(defn client-size [dom-node]
+  {:width (.-clientWidth dom-node)
+   :height (.-clientHeight dom-node)})
+
 (defn mouse-position [e]
   {:x (.-clientX e) :y (.-clientY e)})
 

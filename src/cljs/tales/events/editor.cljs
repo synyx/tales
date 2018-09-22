@@ -1,5 +1,6 @@
 (ns tales.events.editor
-  (:require [re-frame.core :refer [subscribe reg-event-db reg-event-fx]]))
+  (:require [re-frame.core :refer [reg-event-fx trim-v]]
+            [tales.interceptors :refer [active-project]]))
 
 (defn drop-nth [n coll]
   (concat
@@ -7,28 +8,29 @@
     (drop (inc n) coll)))
 
 (reg-event-fx :editor/add-slide
-  (fn [{db :db} [_ slide]]
-    (let [slug (:active-project db)
-          project (get-in db [:projects slug])
-          slides (:slides project)]
+  [trim-v active-project]
+  (fn [_ [slide active-project]]
+    (let [slides (:slides active-project)]
       {:dispatch [:project/update
-                  (assoc-in project [:slides] (conj slides slide))]})))
+                  (assoc active-project
+                    :slides (conj slides slide))]})))
 
 (reg-event-fx :editor/update-slide
-  (fn [{db :db} [_ slide]]
-    (let [slug (:active-project db)
-          project (get-in db [:projects slug])
-          slides (:slides project)
-          active-slide (:active-slide db)]
-      {:dispatch [:project/update
-                  (assoc-in project [:slides] (assoc slides active-slide slide))]})))
+  [trim-v active-project]
+  (fn [{db :db} [slide active-project]]
+    (let [slides (:slides active-project)
+          idx (:active-slide db)]
+      (if-not (nil? idx)
+        {:dispatch [:project/update
+                    (assoc active-project
+                      :slides (assoc slides idx slide))]}))))
 
 (reg-event-fx :editor/delete-active-slide
-  (fn [{db :db}]
-    (let [slug (:active-project db)
-          project (get-in db [:projects slug])
-          slides (:slides project)
-          active-slide (:active-slide db)]
-      (if-not (nil? active-slide)
+  [trim-v active-project]
+  (fn [{db :db} [active-project]]
+    (let [slides (:slides active-project)
+          idx (:active-slide db)]
+      (if-not (nil? idx)
         {:dispatch [:project/update
-                    (assoc-in project [:slides] (drop-nth active-slide slides))]}))))
+                    (assoc active-project
+                      :slides (drop-nth idx slides))]}))))

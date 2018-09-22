@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.dom :as dom]
-            [tales.geometry :refer [move normalize resize]]
+            [tales.geometry :as geometry]
             [tales.routes :as routes]
             [tales.views.preview :as preview]
             [tales.views.slide :as slide]
@@ -37,7 +37,7 @@
                           y (/ (:y drag-start) @scale)
                           dx (/ dx @scale)
                           dy (/ dy @scale)]
-                      (reset! draw-rect (normalize
+                      (reset! draw-rect (geometry/normalize-rect
                                           {:x x :y y :width dx :height dy}))))
 
         on-create-end (fn []
@@ -49,7 +49,8 @@
         on-move (fn [slide {dx :dx dy :dy}]
                   (let [dx (/ dx @scale)
                         dy (/ dy @scale)]
-                    (reset! draw-rect (move (:rect slide) dx dy))))
+                    (reset! draw-rect (geometry/move-rect
+                                        (:rect slide) dx dy))))
 
         on-move-end (fn [slide]
                       (if-let [rect @draw-rect]
@@ -60,7 +61,8 @@
         on-resize (fn [slide corner {dx :dx dy :dy}]
                     (let [dx (/ dx @scale)
                           dy (/ dy @scale)]
-                      (reset! draw-rect (resize (:rect slide) corner dx dy))))
+                      (reset! draw-rect (geometry/resize-rect
+                                          (:rect slide) corner dx dy))))
 
         on-resize-end (fn [slide]
                         (if-let [rect @draw-rect]
