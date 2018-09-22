@@ -1,4 +1,4 @@
-(ns tales.slide.core)
+(ns tales.geometry)
 
 (defn center [rect]
   {:x (+ (:x rect) (/ (:width rect) 2))

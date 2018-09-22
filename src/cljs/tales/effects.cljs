@@ -10,4 +10,4 @@
 (reg-fx :determine-image-dimensions
   (fn [{project :project file :file}]
     (image/dimensions file
-      #(dispatch [:update-project (assoc project :dimensions %)]))))
+      #(dispatch [:project/update (assoc project :dimensions %)]))))

@@ -2,11 +2,11 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.dom :as dom]
+            [tales.geometry :refer [move normalize resize]]
             [tales.routes :as routes]
-            [tales.slide.core :refer [move normalize resize]]
-            [tales.slide.rect :as slide]
-            [tales.stage.core :refer [stage]]
-            [tales.views.preview :as preview]))
+            [tales.views.preview :as preview]
+            [tales.views.slide :as slide]
+            [tales.views.stage :refer [stage]]))
 
 (defn image-upload [project]
   [:div#image-upload
@@ -15,7 +15,7 @@
    [:input {:type "file"
             :on-change #(let [file (-> % .-target .-files (aget 0))
                               data {:project project :file file}]
-                          (dispatch [:update-project-image data]))}]])
+                          (dispatch [:project/update-image data]))}]])
 
 (defn image-size []
   [:div#image-size
@@ -24,7 +24,7 @@
 
 (defn navigator []
   (let [slides (subscribe [:slides])
-        current-slide (subscribe [:current-slide])
+        current-slide (subscribe [:editor/current-slide])
         scale (subscribe [:stage/scale])
 
         svg-node (r/atom nil)
@@ -44,7 +44,7 @@
                         (if-let [rect @draw-rect]
                           (let [new-slide {:rect rect}]
                             (reset! draw-rect nil)
-                            (dispatch [:add-slide new-slide]))))
+                            (dispatch [:editor/add-slide new-slide]))))
 
         on-move (fn [slide {dx :dx dy :dy}]
                   (let [dx (/ dx @scale)
@@ -55,7 +55,7 @@
                       (if-let [rect @draw-rect]
                         (let [new-slide (assoc-in slide [:rect] rect)]
                           (reset! draw-rect nil)
-                          (dispatch [:update-slide new-slide]))))
+                          (dispatch [:editor/update-slide new-slide]))))
 
         on-resize (fn [slide corner {dx :dx dy :dy}]
                     (let [dx (/ dx @scale)
@@ -66,7 +66,7 @@
                         (if-let [rect @draw-rect]
                           (let [new-slide (assoc-in slide [:rect] rect)]
                             (reset! draw-rect nil)
-                            (dispatch [:update-slide new-slide]))))
+                            (dispatch [:editor/update-slide new-slide]))))
 
         start-create (fn [e]
                        (if (dom/ctrl-key? e)

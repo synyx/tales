@@ -2,9 +2,9 @@
   (:require [reagent.core :as reagent]
             [re-frame.core :as rf :refer [dispatch dispatch-sync subscribe]]
             [tales.effects]
-            [tales.events]
+            [tales.events.core]
+            [tales.subs.core]
             [tales.routes :as routes]
-            [tales.subs]
             [tales.views.core :as views]))
 
 (defn mount-root []

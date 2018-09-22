@@ -1,4 +1,4 @@
-(ns tales.slide.rect
+(ns tales.views.slide
   (:require [re-frame.core :refer [dispatch subscribe]]
             [tales.dom :as dom]))
 

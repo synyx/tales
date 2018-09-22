@@ -43,7 +43,7 @@
 
 (defn slides [project]
   (let [slides (subscribe [:slides])
-        current-slide (subscribe [:current-slide])
+        current-slide (subscribe [:editor/current-slide])
         preview-width 100
         preview-height 75]
     (let [current-slide @current-slide]

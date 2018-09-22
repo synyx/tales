@@ -3,7 +3,7 @@
             [reagent.core :as reagent :refer [atom]]
             [tales.views.editor :as editor]
             [tales.views.project :as project]
-            [tales.subs]))
+            [tales.core]))
 
 
 (def isClient (not (nil? (try (.-document js/window)
@@ -37,7 +37,6 @@
   (testing "contains heading in tell page"
     (with-mounted-component (project/page)
       (fn [c div]
-        (.log js/console div)
         (is (found-in #"Enter the name of your tale and press enter" div))))))
 
 (deftest test-editor-page

@@ -1,8 +1,8 @@
-(ns tales.stage.core
+(ns tales.views.stage
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.dom :as dom]
-            [tales.views.components :refer [hide-loading]]))
+            [tales.views.loader :refer [hide-loading]]))
 
 (defn- scale
   ([sxy] (str "scale(" sxy ")"))
