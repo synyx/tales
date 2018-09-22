@@ -31,7 +31,7 @@
         draw-rect (r/atom nil)
 
         on-create (fn [{drag-start :start dx :dx dy :dy}]
-                    (let [drag-start (dom/screen-point->container-point
+                    (let [drag-start (dom/screen-point->node-point
                                        drag-start @svg-node)
                           x (/ (:x drag-start) @scale)
                           y (/ (:y drag-start) @scale)

@@ -2,7 +2,8 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.dom :as dom]
-            [tales.views.loader :refer [hide-loading]]))
+            [tales.views.loader :refer [hide-loading]]
+            [tales.geometry :as geometry]))
 
 (defn- scale
   ([sxy] (str "scale(" sxy ")"))
@@ -27,16 +28,15 @@
         on-move-end (fn []
                       (reset! moving? false))
         start-move (fn [e]
-                     (let [original-position @stage-position]
-                       (.stopPropagation e)
+                     (let [original-position @stage-position
+                           on-move #(on-move original-position %)]
                        (reset! moving? true)
-                       (dom/dragging e #(on-move original-position %) on-move-end)))
+                       (dom/dragging e on-move on-move-end)
+                       (.stopPropagation e)))
         start-zoom (fn [e]
-                     (let [pos (dom/mouse-position e)
-                           container-pos (dom/screen-point->container-point pos @img-node)
-                           x (/ (:x container-pos) @stage-scale)
-                           y (/ (:y container-pos) @stage-scale)
-                           position {:x x :y y}]
+                     (let [position (-> (dom/mouse-position e)
+                                      (dom/screen-point->node-point @img-node)
+                                      (geometry/scale @stage-scale))]
                        (if (> 0 (.-deltaY e))
                          (dispatch ^:flush-dom [:stage/zoom-in position])
                          (dispatch ^:flush-dom [:stage/zoom-out position]))))

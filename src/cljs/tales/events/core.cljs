@@ -53,4 +53,3 @@
          :dispatch [:project/update
                     (assoc-in active-project [:slides]
                       (swap slides active-slide next-slide))]}))))
-

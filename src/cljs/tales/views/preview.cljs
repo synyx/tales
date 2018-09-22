@@ -37,7 +37,9 @@
                :background-color "#fff"
                :background-repeat "no-repeat"
                :background-image (str "url(" (:file-path project) ")")
-               :background-size (str scaled-img-width "px" " " scaled-img-height "px")
+               :background-size (str
+                                  scaled-img-width "px "
+                                  scaled-img-height "px")
                :background-position-x (- dx)
                :background-position-y (- dy)}}]]))
 

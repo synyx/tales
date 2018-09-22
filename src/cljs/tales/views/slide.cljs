@@ -14,16 +14,17 @@
 
         start-move (fn [e]
                      (if active?
-                       (do
-                         (.stopPropagation e)
-                         (dom/dragging e (:on-move props) (:on-move-end props)))))
+                       (let [on-move (:on-move props)
+                             on-move-end (:on-move-end props)]
+                         (dom/dragging e on-move on-move-end)
+                         (.stopPropagation e))))
 
         start-resize (fn [corner e]
                        (if active?
                          (let [on-resize (:on-resize props)
                                on-resize-end (:on-resize-end props)]
-                           (.stopPropagation e)
-                           (dom/dragging e #(on-resize corner %) on-resize-end))))]
+                           (dom/dragging e #(on-resize corner %) on-resize-end)
+                           (.stopPropagation e))))]
     [:g {:on-click #(dispatch [:activate-slide (:key props)])
          :on-double-click #(dispatch [:stage/fit-rect rect])
          :on-mouse-down start-move

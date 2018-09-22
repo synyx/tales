@@ -22,7 +22,7 @@
   (if (s/valid? ::project/project project)
     (let [slug (tales.utility/slugify (:name project))
           resource (format "/api/tales/%s" slug)]
-      (if (not (project/project? slug))
+      (if-not (project/project? slug)
         (created resource (project/save-project slug project))
         (conflict {})))
     (bad-request {:error (s/explain-str ::project/project project)})))
@@ -60,7 +60,7 @@
           (io/copy (:body request) out)
           (response
             (project/save-project slug (assoc
-                                          (project/load-project slug)
-                                          :file-path file-name))))
+                                        (project/load-project slug)
+                                         :file-path file-name))))
         (bad-request {:error (str "Invalid content-type: " content-type)}))
       (not-found {}))))
