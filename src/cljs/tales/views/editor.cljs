@@ -24,7 +24,7 @@
 
 (defn navigator []
   (let [slides (subscribe [:slides])
-        current-slide (subscribe [:editor/current-slide])
+        active-slide (subscribe [:active-slide])
         scale (subscribe [:stage/scale])
 
         svg-node (r/atom nil)
@@ -74,7 +74,7 @@
                            (.stopPropagation e)
                            (dom/dragging e on-create on-create-end))))]
     (fn []
-      (let [current-slide @current-slide]
+      (let [active-slide @active-slide]
         [stage
          [:svg {:ref #(reset! svg-node %)
                 :style {:position "absolute"
@@ -84,7 +84,7 @@
           (for [slide @slides]
             [slide/rect {:key (:index slide)
                          :rect (:rect slide)
-                         :active? (= (:index slide) current-slide)
+                         :active? (= (:index slide) active-slide)
                          :on-move #(on-move slide %)
                          :on-move-end #(on-move-end slide)
                          :on-resize #(on-resize slide %1 %2)

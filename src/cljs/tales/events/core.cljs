@@ -20,9 +20,9 @@
   (fn [db [_ active-project]]
     (assoc db :active-project active-project)))
 
-(reg-event-fx :activate-slide
-  (fn [{db :db} [_ idx]]
-    {:db (assoc-in db [:editor :current-slide] idx)}))
+(reg-event-db :activate-slide
+  (fn [db [_ idx]]
+    (assoc db :active-slide idx)))
 
 (reg-event-fx :move-to-slide
   (fn [_ [_ idx]]
@@ -35,31 +35,31 @@
     (let [slug (:active-project db)
           project (get-in db [:projects slug])
           slides (:slides project)
-          current-slide (get-in db [:editor :current-slide])]
-      (if (nil? current-slide)
+          active-slide (:active-slide db)]
+      (if (nil? active-slide)
         {:dispatch [:activate-slide 0]}
-        {:dispatch [:activate-slide (mod (+ current-slide 1) (count slides))]}))))
+        {:dispatch [:activate-slide (mod (+ active-slide 1) (count slides))]}))))
 
 (reg-event-fx :prev-slide
   (fn [{db :db} _]
     (let [slug (:active-project db)
           project (get-in db [:projects slug])
           slides (:slides project)
-          current-slide (get-in db [:editor :current-slide])]
-      (if (nil? current-slide)
+          active-slide (:active-slide db)]
+      (if (nil? active-slide)
         {:dispatch [:activate-slide 0]}
-        {:dispatch [:activate-slide (mod (- current-slide 1) (count slides))]}))))
+        {:dispatch [:activate-slide (mod (- active-slide 1) (count slides))]}))))
 
 (reg-event-fx :change-order
   (fn [{db :db} [_ delta]]
     (let [slug (:active-project db)
           project (get-in db [:projects slug])
           slides (:slides project)
-          current-slide (get-in db [:editor :current-slide])
-          next-slide (+ current-slide delta)]
+          active-slide (:active-slide db)
+          next-slide (+ active-slide delta)]
       (if (<= 0 next-slide (- (count slides) 1))
-        {:db (assoc-in db [:editor :current-slide] next-slide)
+        {:db (assoc db :active-slide next-slide)
          :dispatch [:project/update
                     (assoc-in project [:slides]
-                      (swap slides current-slide next-slide))]}))))
+                      (swap slides active-slide next-slide))]}))))
 

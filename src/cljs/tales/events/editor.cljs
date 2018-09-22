@@ -19,16 +19,16 @@
     (let [slug (:active-project db)
           project (get-in db [:projects slug])
           slides (:slides project)
-          current-slide (get-in db [:editor :current-slide])]
+          active-slide (:active-slide db)]
       {:dispatch [:project/update
-                  (assoc-in project [:slides] (assoc slides current-slide slide))]})))
+                  (assoc-in project [:slides] (assoc slides active-slide slide))]})))
 
-(reg-event-fx :editor/delete-current-slide
+(reg-event-fx :editor/delete-active-slide
   (fn [{db :db}]
     (let [slug (:active-project db)
           project (get-in db [:projects slug])
           slides (:slides project)
-          current-slide (get-in db [:editor :current-slide])]
-      (if-not (nil? current-slide)
+          active-slide (:active-slide db)]
+      (if-not (nil? active-slide)
         {:dispatch [:project/update
-                    (assoc-in project [:slides] (drop-nth current-slide slides))]}))))
+                    (assoc-in project [:slides] (drop-nth active-slide slides))]}))))

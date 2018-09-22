@@ -12,6 +12,10 @@
   (fn [db _]
     (get-in db [:projects (:active-project db)])))
 
+(reg-sub :active-slide
+  (fn [db _]
+    (:active-slide db)))
+
 (reg-sub :poster/dimensions
   :<- [:active-project]
   (fn [project _]
