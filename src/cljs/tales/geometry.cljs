@@ -42,9 +42,13 @@
 (defn resize-rect [rect corner dx dy]
   (let [delta (case corner
                 :top-left {:dx dx :dy dy :dwidth (- dx) :dheight (- dy)}
+                :top {:dx 0 :dy dy :dwidth 0 :dheight (- dy)}
                 :top-right {:dx 0 :dy dy :dwidth (+ dx) :dheight (- dy)}
+                :right {:dx 0 :dy 0 :dwidth (+ dx) :dheight 0}
                 :bottom-right {:dx 0 :dy 0 :dwidth (+ dx) :dheight (+ dy)}
-                :bottom-left {:dx dx :dy 0 :dwidth (- dx) :dheight (+ dy)})]
+                :bottom {:dx 0 :dy 0 :dwidth 0 :dheight (+ dy)}
+                :bottom-left {:dx dx :dy 0 :dwidth (- dx) :dheight (+ dy)}
+                :left {:dx dx :dy 0 :dwidth (- dx) :dheight 0})]
     (normalize-rect
       {:x (+ (:x rect) (:dx delta))
        :y (+ (:y rect) (:dy delta))
