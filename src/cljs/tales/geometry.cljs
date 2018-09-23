@@ -14,6 +14,10 @@
   {:x (* (:x point) scale)
    :y (* (:y point) scale)})
 
+(defn add-points [p1 p2]
+  {:x (+ (:x p2) (:x p1))
+   :y (+ (:y p2) (:y p1))})
+
 (defn distance [p1 p2]
   {:x (- (:x p2) (:x p1))
    :y (- (:y p2) (:y p1))})

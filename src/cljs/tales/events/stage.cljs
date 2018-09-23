@@ -4,6 +4,13 @@
             [tales.dom :as dom]
             [tales.geometry :as geometry]))
 
+(defn- zoom-around-point [position point old-zoom new-zoom]
+  (let [scale (/ (geometry/zoom->scale old-zoom)
+                (geometry/zoom->scale new-zoom))]
+    (geometry/add-points
+      (geometry/unscale position scale)
+      (geometry/unscale point (- 1 scale)))))
+
 (reg-event-fx :stage/mounted
   [trim-v active-project]
   (fn [{db :db} [dom-node active-project]]
@@ -16,31 +23,6 @@
   (fn [db]
     (assoc-in db [:stage :dom-node] nil)))
 
-(reg-event-fx :stage/zoom
-  [trim-v]
-  (fn [{db :db} [zoom position]]
-    (let [current-zoom (get-in db [:stage :zoom])
-          current-position (get-in db [:stage :position])
-          s1 (geometry/zoom->scale current-zoom)
-          s2 (geometry/zoom->scale zoom)
-          p1 (geometry/distance current-position position)
-          p2 (geometry/scale (geometry/unscale p1 s1) s2)
-          distance (geometry/distance p1 p2)]
-      {:db (assoc-in db [:stage :zoom] zoom)
-       :dispatch [:stage/move-by (- (:x distance)) (- (:y distance))]})))
-
-(reg-event-fx :stage/zoom-in
-  [trim-v]
-  (fn [{db :db} [position]]
-    (let [current-zoom (get-in db [:stage :zoom])]
-      {:dispatch [:stage/zoom (+ current-zoom 1) position]})))
-
-(reg-event-fx :stage/zoom-out
-  [trim-v]
-  (fn [{db :db} [position]]
-    (let [current-zoom (get-in db [:stage :zoom])]
-      {:dispatch [:stage/zoom (- current-zoom 1) position]})))
-
 (reg-event-db :stage/move-to
   [trim-v]
   (fn [db [x y]]
@@ -52,6 +34,61 @@
     (let [current-position (get-in db [:stage :position])
           new-position (geometry/move-point current-position dx dy)]
       (assoc-in db [:stage :position] new-position))))
+
+(reg-event-db :stage/zoom
+  [trim-v]
+  (fn [db [zoom]]
+    (assoc-in db [:stage :zoom] zoom)))
+
+(reg-event-db :stage/zoom-in
+  [trim-v]
+  (fn [db [delta]]
+    (let [delta (or delta 1)
+          current-zoom (get-in db [:stage :zoom])
+          zoom (+ current-zoom delta)]
+      (assoc-in db [:stage :zoom] zoom))))
+
+(reg-event-db :stage/zoom-out
+  [trim-v]
+  (fn [db [delta]]
+    (let [delta (or delta 1)
+          current-zoom (get-in db [:stage :zoom])
+          zoom (- current-zoom delta)]
+      (assoc-in db [:stage :zoom] zoom))))
+
+(reg-event-db :stage/zoom-around
+  [trim-v]
+  (fn [db [zoom point]]
+    (let [orig-position (get-in db [:stage :position])
+          orig-zoom (get-in db [:stage :zoom])
+          new-position (zoom-around-point orig-position point orig-zoom zoom)]
+      (-> db
+        (assoc-in [:stage :position] new-position)
+        (assoc-in [:stage :zoom] zoom)))))
+
+(reg-event-db :stage/zoom-in-around
+  [trim-v]
+  (fn [db [point delta]]
+    (let [orig-position (get-in db [:stage :position])
+          orig-zoom (get-in db [:stage :zoom])
+          delta (or delta 1)
+          zoom (+ orig-zoom delta)
+          new-position (zoom-around-point orig-position point orig-zoom zoom)]
+      (-> db
+        (assoc-in [:stage :position] new-position)
+        (assoc-in [:stage :zoom] zoom)))))
+
+(reg-event-db :stage/zoom-out-around
+  [trim-v]
+  (fn [db [point delta]]
+    (let [orig-position (get-in db [:stage :position])
+          orig-zoom (get-in db [:stage :zoom])
+          delta (or delta 1)
+          zoom (- orig-zoom delta)
+          new-position (zoom-around-point orig-position point orig-zoom zoom)]
+      (-> db
+        (assoc-in [:stage :position] new-position)
+        (assoc-in [:stage :zoom] zoom)))))
 
 (reg-event-db :stage/fit-rect
   [trim-v]

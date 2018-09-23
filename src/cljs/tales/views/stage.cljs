@@ -38,8 +38,8 @@
                                       (dom/screen-point->node-point @img-node)
                                       (geometry/scale @stage-scale))]
                        (if (> 0 (.-deltaY e))
-                         (dispatch ^:flush-dom [:stage/zoom-in position])
-                         (dispatch ^:flush-dom [:stage/zoom-out position]))))
+                         (dispatch ^:flush-dom [:stage/zoom-in-around position])
+                         (dispatch ^:flush-dom [:stage/zoom-out-around position]))))
         did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))
         will-unmount (fn [] (dispatch [:stage/unmounted]))
         render (fn []

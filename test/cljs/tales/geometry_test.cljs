@@ -19,6 +19,9 @@
     (is (= (geometry/unscale {:x 0 :y 0} 1) {:x 0 :y 0}))
     (is (= (geometry/unscale {:x 10 :y 20} 5) {:x 50 :y 100}))
     (is (= (geometry/unscale {:x 10 :y 20} 0.5) {:x 5 :y 10})))
+  (testing "add two points"
+    (is (= (geometry/add-points {:x 10 :y 20} {:x 10 :y 20}) {:x 20 :y 40}))
+    (is (= (geometry/add-points {:x 10 :y 20} {:x 70 :y 90}) {:x 80 :y 110})))
   (testing "distance between points"
     (is (= (geometry/distance {:x 10 :y 20} {:x 10 :y 20}) {:x 0 :y 0}))
     (is (= (geometry/distance {:x 10 :y 20} {:x 70 :y 90}) {:x 60 :y 70})))

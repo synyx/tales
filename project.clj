@@ -19,6 +19,7 @@
                  [reagent-utils "0.3.1"]
                  [re-frame "0.10.6"]
                  [day8.re-frame/http-fx "0.1.6"]
+                 [day8.re-frame/test "0.1.5"]
                  [secretary "1.2.3"]
                  [venantius/accountant "0.2.4"]]
 
