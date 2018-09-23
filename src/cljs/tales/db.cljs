@@ -1,7 +1,7 @@
 (ns tales.db)
 
 (def default-db
-  {:projects (list)
+  {:projects {}
    :active-page nil
    :active-project nil
    :active-slide nil
