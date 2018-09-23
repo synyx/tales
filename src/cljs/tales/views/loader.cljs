@@ -1,4 +1,4 @@
-(ns tales.views.components
+(ns tales.views.loader
   (:require [reagent.core :as r]))
 
 (defn loader [props]

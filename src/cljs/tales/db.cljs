@@ -1,9 +1,10 @@
 (ns tales.db)
 
 (def default-db
-  {:projects (list)
+  {:projects {}
    :active-page nil
    :active-project nil
-   :editor {:current-slide nil}
+   :active-slide nil
+   :editor {}
    :stage {:zoom nil
            :position nil}})

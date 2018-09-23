@@ -2,11 +2,11 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.dom :as dom]
+            [tales.geometry :as geometry]
             [tales.routes :as routes]
-            [tales.slide.core :refer [move normalize resize]]
-            [tales.slide.rect :as slide]
-            [tales.stage.core :refer [stage]]
-            [tales.views.preview :as preview]))
+            [tales.views.preview :as preview]
+            [tales.views.slide :as slide]
+            [tales.views.stage :refer [stage]]))
 
 (defn image-upload [project]
   [:div#image-upload
@@ -15,7 +15,7 @@
    [:input {:type "file"
             :on-change #(let [file (-> % .-target .-files (aget 0))
                               data {:project project :file file}]
-                          (dispatch [:update-project-image data]))}]])
+                          (dispatch [:project/update-image data]))}]])
 
 (defn image-size []
   [:div#image-size
@@ -24,49 +24,51 @@
 
 (defn navigator []
   (let [slides (subscribe [:slides])
-        current-slide (subscribe [:current-slide])
+        active-slide (subscribe [:active-slide])
         scale (subscribe [:stage/scale])
 
         svg-node (r/atom nil)
         draw-rect (r/atom nil)
 
         on-create (fn [{drag-start :start dx :dx dy :dy}]
-                    (let [drag-start (dom/screen-point->container-point
+                    (let [drag-start (dom/screen-point->node-point
                                        drag-start @svg-node)
                           x (/ (:x drag-start) @scale)
                           y (/ (:y drag-start) @scale)
                           dx (/ dx @scale)
                           dy (/ dy @scale)]
-                      (reset! draw-rect (normalize
+                      (reset! draw-rect (geometry/normalize-rect
                                           {:x x :y y :width dx :height dy}))))
 
         on-create-end (fn []
                         (if-let [rect @draw-rect]
                           (let [new-slide {:rect rect}]
                             (reset! draw-rect nil)
-                            (dispatch [:add-slide new-slide]))))
+                            (dispatch [:editor/add-slide new-slide]))))
 
         on-move (fn [slide {dx :dx dy :dy}]
                   (let [dx (/ dx @scale)
                         dy (/ dy @scale)]
-                    (reset! draw-rect (move (:rect slide) dx dy))))
+                    (reset! draw-rect (geometry/move-rect
+                                        (:rect slide) dx dy))))
 
         on-move-end (fn [slide]
                       (if-let [rect @draw-rect]
                         (let [new-slide (assoc-in slide [:rect] rect)]
                           (reset! draw-rect nil)
-                          (dispatch [:update-slide new-slide]))))
+                          (dispatch [:editor/update-slide new-slide]))))
 
         on-resize (fn [slide corner {dx :dx dy :dy}]
                     (let [dx (/ dx @scale)
                           dy (/ dy @scale)]
-                      (reset! draw-rect (resize (:rect slide) corner dx dy))))
+                      (reset! draw-rect (geometry/resize-rect
+                                          (:rect slide) corner dx dy))))
 
         on-resize-end (fn [slide]
                         (if-let [rect @draw-rect]
                           (let [new-slide (assoc-in slide [:rect] rect)]
                             (reset! draw-rect nil)
-                            (dispatch [:update-slide new-slide]))))
+                            (dispatch [:editor/update-slide new-slide]))))
 
         start-create (fn [e]
                        (if (dom/ctrl-key? e)
@@ -74,7 +76,7 @@
                            (.stopPropagation e)
                            (dom/dragging e on-create on-create-end))))]
     (fn []
-      (let [current-slide @current-slide]
+      (let [active-slide @active-slide]
         [stage
          [:svg {:ref #(reset! svg-node %)
                 :style {:position "absolute"
@@ -84,7 +86,7 @@
           (for [slide @slides]
             [slide/rect {:key (:index slide)
                          :rect (:rect slide)
-                         :active? (= (:index slide) current-slide)
+                         :active? (= (:index slide) active-slide)
                          :on-move #(on-move slide %)
                          :on-move-end #(on-move-end slide)
                          :on-resize #(on-resize slide %1 %2)

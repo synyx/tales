@@ -4,11 +4,11 @@
             [accountant.core :as accountant]))
 
 (secretary/defroute home-path "/" []
-  (dispatch [:set-active-page :home]))
+  (dispatch [:activate-page :home]))
 
 (secretary/defroute editor-path "/editor/:slug/" [slug]
-  (do (dispatch [:set-active-page :editor])
-      (dispatch [:set-active-project slug])))
+  (do (dispatch [:activate-page :editor])
+      (dispatch [:activate-project slug])))
 
 (defn init! []
   (accountant/configure-navigation! {:nav-handler #(secretary/dispatch! %)

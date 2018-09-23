@@ -30,27 +30,29 @@
               :border-style "solid"
               :border-color (if active? "#ff0000" "#333")}
       :on-click #(dispatch [:activate-slide (:index slide)])
-      :on-double-click #(dispatch [:move-to-slide (:index slide)])}
+      :on-double-click #(dispatch [:stage/fit-rect (:rect slide)])}
      [:div
       {:style {:width scaled-slide-width
                :height scaled-slide-height
                :background-color "#fff"
                :background-repeat "no-repeat"
                :background-image (str "url(" (:file-path project) ")")
-               :background-size (str scaled-img-width "px" " " scaled-img-height "px")
+               :background-size (str
+                                  scaled-img-width "px "
+                                  scaled-img-height "px")
                :background-position-x (- dx)
                :background-position-y (- dy)}}]]))
 
 (defn slides [project]
   (let [slides (subscribe [:slides])
-        current-slide (subscribe [:current-slide])
+        active-slide (subscribe [:active-slide])
         preview-width 100
         preview-height 75]
-    (let [current-slide @current-slide]
+    (let [active-slide @active-slide]
       [:div#slides-preview.slide-preview-list
        {:tabIndex 0
         :on-key-down #(case (.-key %)
-                        "Delete" (dispatch [:delete-current-slide])
+                        "Delete" (dispatch [:editor/delete-active-slide])
                         " " (dispatch [:next-slide])
                         "ArrowRight" (if (dom/ctrl-key? %)
                                        (dispatch [:change-order 1])
@@ -63,5 +65,5 @@
          ^{:key (:index item)}
          [slide {:width preview-width
                  :height preview-height
-                 :active? (= (:index item) current-slide)}
+                 :active? (= (:index item) active-slide)}
           project item])])))
