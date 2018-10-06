@@ -60,7 +60,9 @@
                                         :output-dir "target/cljsbuild/public/js/out"
                                         :source-map true
                                         :optimizations :none
-                                        :pretty-print true}}
+                                        :pretty-print true
+                                        :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
+                                        :preloads [day8.re-frame-10x.preload]}}
                        :test {:source-paths ["src/cljs" "src/cljc" "test/cljs"]
                               :compiler {:main tales.doo-runner
                                          :asset-path "/js/out"
@@ -79,7 +81,7 @@
                                              :pretty-print true}}}}
 
   :doo {:build "test"
-        :alias  {:default  [:chrome]}}
+        :alias {:default [:chrome]}}
 
   :figwheel {:http-server-root "public"
              :server-logfile false
@@ -102,7 +104,8 @@
                                   [com.cemerick/piggieback "0.2.2"]
                                   [speclj "3.3.2"]
                                   [devcards "0.2.6" :exclusions [cljsjs/react]]
-                                  [pjstadig/humane-test-output "0.8.3"]]
+                                  [pjstadig/humane-test-output "0.8.3"]
+                                  [day8.re-frame/re-frame-10x "0.3.3-react16"]]
                    :source-paths ["env/dev/clj"]
                    :plugins [[lein-figwheel "0.5.16"]
                              [lein-doo "0.1.10"]]
