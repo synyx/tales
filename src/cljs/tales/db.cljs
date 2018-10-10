@@ -6,5 +6,6 @@
    :active-project nil
    :active-slide nil
    :editor {}
-   :stage {:zoom nil
-           :position nil}})
+   :stage {:zoom 0
+           :position {:x 0 :y 0}
+           :origin {:x 0 :y 0}}})

@@ -2,15 +2,9 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.dom :as dom]
-            [tales.views.loader :refer [hide-loading]]
-            [tales.geometry :as geometry]))
-
-(defn- scale
-  ([sxy] (str "scale(" sxy ")"))
-  ([sx sy] (str "scale(" sx "," sy ")")))
-
-(defn- translate [dx dy]
-  (str "translate(" dx "px," dy "px)"))
+            [tales.geometry :as geometry]
+            [tales.util.css :as css]
+            [tales.views.loader :refer [hide-loading]]))
 
 (defn stage []
   (let [this (r/current-component)
@@ -19,6 +13,8 @@
         ready? (subscribe [:stage/ready?])
         stage-position (subscribe [:stage/position])
         stage-scale (subscribe [:stage/scale])
+        transform-origin (subscribe [:stage/transform-origin])
+        transform-matrix (subscribe [:stage/transform-matrix])
         img-node (r/atom nil)
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
@@ -38,8 +34,8 @@
                                       (dom/screen-point->node-point @img-node)
                                       (geometry/scale @stage-scale))]
                        (if (> 0 (.-deltaY e))
-                         (dispatch ^:flush-dom [:stage/zoom-in-around position])
-                         (dispatch ^:flush-dom [:stage/zoom-out-around position]))))
+                         (dispatch [:stage/zoom-in-around position])
+                         (dispatch [:stage/zoom-out-around position]))))
         did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))
         will-unmount (fn [] (dispatch [:stage/unmounted]))
         render (fn []
@@ -60,13 +56,11 @@
                                     :position "absolute"
                                     :left "50%"
                                     :top "50%"
-                                    :transform-origin "0 0 0"
-                                    :transform (str
-                                                 (scale @stage-scale)
-                                                 " "
-                                                 (translate
-                                                   (- (:x @stage-position))
-                                                   (- (:y @stage-position))))}}
+                                    :transform-origin (css/transform-origin
+                                                        (:x @transform-origin)
+                                                        (:y @transform-origin))
+                                    :transform (apply css/transform-matrix
+                                                 @transform-matrix)}}
                       [:img {:ref #(reset! img-node %)
                              :style {:position "absolute"
                                      :width "100%"
