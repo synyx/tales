@@ -5,6 +5,7 @@
             [tales.geometry :as geometry]
             [tales.util.async :refer [debounce]]
             [tales.util.css :as css]
+            [tales.util.events :as events]
             [tales.views.loader :refer [hide-loading]]))
 
 (defn- zoom [direction position]
@@ -30,17 +31,17 @@
                     (dispatch [:stage/move-to x y])))
         on-move-end (fn []
                       (reset! moving? false))
-        start-move (fn [e]
+        start-move (fn [ev]
                      (let [original-position @stage-position
                            on-move #(on-move original-position %)]
                        (reset! moving? true)
-                       (dom/dragging e on-move on-move-end)
-                       (.stopPropagation e)))
-        start-zoom (fn [e]
-                     (let [position (-> (dom/mouse-position e)
+                       (dom/dragging ev on-move on-move-end)
+                       (events/stop ev)))
+        start-zoom (fn [ev]
+                     (let [position (-> (events/client-coord ev)
                                       (dom/screen-point->node-point @img-node)
                                       (geometry/scale @stage-scale))]
-                       (if (> 0 (.-deltaY e))
+                       (if (> 0 (:y (events/wheel-delta ev)))
                          (zoom-debounced :in position)
                          (zoom-debounced :out position))))
         did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))

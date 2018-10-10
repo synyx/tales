@@ -1,6 +1,6 @@
 (ns tales.views.preview
   (:require [re-frame.core :refer [dispatch subscribe]]
-            [tales.dom :as dom]))
+            [tales.util.events :as events]))
 
 (defn- slide-scale [slide target-width target-height]
   "Calculates the scale factor to resize the slide to target-width/-height"
@@ -54,10 +54,12 @@
         :on-key-down #(case (.-key %)
                         "Delete" (dispatch [:editor/delete-active-slide])
                         " " (dispatch [:next-slide])
-                        "ArrowRight" (if (dom/ctrl-key? %)
+                        "ArrowRight" (if (or (events/ctrl-key? %)
+                                           (events/meta-key? %))
                                        (dispatch [:change-order 1])
                                        (dispatch [:next-slide]))
-                        "ArrowLeft" (if (dom/ctrl-key? %)
+                        "ArrowLeft" (if (or (events/ctrl-key? %)
+                                          (events/meta-key? %))
                                       (dispatch [:change-order -1])
                                       (dispatch [:prev-slide]))
                         nil)}

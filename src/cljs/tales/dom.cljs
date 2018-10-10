@@ -1,16 +1,9 @@
-(ns tales.dom)
-
-(defn ctrl-key? [e]
-  (or
-    (-> e .-ctrlKey)
-    (-> e .-metaKey)))
+(ns tales.dom
+  (:require [tales.util.events :as events]))
 
 (defn client-size [dom-node]
   {:width (.-clientWidth dom-node)
    :height (.-clientHeight dom-node)})
-
-(defn mouse-position [e]
-  {:x (.-clientX e) :y (.-clientY e)})
 
 (defn screen-point->node-point [pos dom-node]
   (let [rect (.getBoundingClientRect dom-node)]
@@ -18,28 +11,28 @@
      :y (- (:y pos) (.-top rect) (.-clientTop dom-node))}))
 
 (defn- drag-move-fn [drag-start on-drag]
-  (fn [e]
+  (fn [ev]
     (let [drag-start @drag-start
-          drag-end (mouse-position e)
+          drag-end (events/client-coord ev)
           dx (- (:x drag-end) (:x drag-start))
           dy (- (:y drag-end) (:y drag-start))]
-      (.preventDefault e)
+      (events/prevent ev)
       (on-drag {:start drag-start :end drag-end :dx dx :dy dy}))))
 
 (defn- drag-end-fn [drag-move drag-end on-drag-end]
-  (fn [e]
-    (.preventDefault e)
-    (.removeEventListener js/window "mousemove" drag-move)
-    (.removeEventListener js/window "mouseup" @drag-end)
+  (fn [ev]
+    (events/prevent ev)
+    (events/off "mousemove" drag-move)
+    (events/off "mouseup" @drag-end)
     (on-drag-end)))
 
 (defn dragging
-  ([e on-drag] (dragging e on-drag (fn [])))
-  ([e on-drag on-drag-end]
-   (let [drag-start (atom (mouse-position e))
+  ([ev on-drag] (dragging ev on-drag (fn [])))
+  ([ev on-drag on-drag-end]
+   (let [drag-start (atom (events/client-coord ev))
          drag-move (drag-move-fn drag-start on-drag)
          drag-end-atom (atom nil)
          drag-end (drag-end-fn drag-move drag-end-atom on-drag-end)]
      (reset! drag-end-atom drag-end)
-     (.addEventListener js/window "mousemove" drag-move)
-     (.addEventListener js/window "mouseup" drag-end))))
+     (events/on "mousemove" drag-move)
+     (events/on "mouseup" drag-end))))

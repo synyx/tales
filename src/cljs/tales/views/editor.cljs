@@ -4,6 +4,7 @@
             [tales.dom :as dom]
             [tales.geometry :as geometry]
             [tales.routes :as routes]
+            [tales.util.events :as events]
             [tales.views.preview :as preview]
             [tales.views.slide :as slide]
             [tales.views.stage :refer [stage]]))
@@ -70,11 +71,11 @@
                             (reset! draw-rect nil)
                             (dispatch [:editor/update-slide new-slide]))))
 
-        start-create (fn [e]
-                       (if (dom/ctrl-key? e)
+        start-create (fn [ev]
+                       (if (or (events/ctrl-key? ev) (events/meta-key? ev))
                          (do
-                           (.stopPropagation e)
-                           (dom/dragging e on-create on-create-end))))]
+                           (events/stop ev)
+                           (dom/dragging ev on-create on-create-end))))]
     (fn []
       (let [active-slide @active-slide]
         [stage
