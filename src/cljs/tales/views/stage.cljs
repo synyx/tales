@@ -3,8 +3,15 @@
             [re-frame.core :refer [dispatch subscribe]]
             [tales.dom :as dom]
             [tales.geometry :as geometry]
+            [tales.util.async :refer [debounce]]
             [tales.util.css :as css]
             [tales.views.loader :refer [hide-loading]]))
+
+(defn- zoom [direction position]
+  (dispatch [(case direction
+               :in :stage/zoom-in-around
+               :out :stage/zoom-out-around) position]))
+(def ^:private zoom-debounced (debounce zoom 40))
 
 (defn stage []
   (let [this (r/current-component)
@@ -34,8 +41,8 @@
                                       (dom/screen-point->node-point @img-node)
                                       (geometry/scale @stage-scale))]
                        (if (> 0 (.-deltaY e))
-                         (dispatch [:stage/zoom-in-around position])
-                         (dispatch [:stage/zoom-out-around position]))))
+                         (zoom-debounced :in position)
+                         (zoom-debounced :out position))))
         did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))
         will-unmount (fn [] (dispatch [:stage/unmounted]))
         render (fn []
