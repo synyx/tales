@@ -5,11 +5,12 @@
             [tales.events.core]
             [tales.subs.core]
             [tales.routes :as routes]
+            [tales.util.dom :as dom]
             [tales.views.core :as views]))
 
 (defn mount-root []
   (rf/clear-subscription-cache!)
-  (reagent/render [views/main-page] (.getElementById js/document "app")))
+  (reagent/render [views/main-page] (dom/element-by-id "app")))
 
 (defn init! []
   (dispatch-sync [:initialise-db])

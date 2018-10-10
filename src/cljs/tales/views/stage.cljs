@@ -1,10 +1,10 @@
 (ns tales.views.stage
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [tales.dom :as dom]
             [tales.geometry :as geometry]
             [tales.util.async :refer [debounce]]
             [tales.util.css :as css]
+            [tales.util.dom :as dom]
             [tales.util.drag :refer [dragging]]
             [tales.util.events :as events]
             [tales.views.loader :refer [hide-loading]]))
@@ -39,8 +39,9 @@
                        (dragging ev on-move on-move-end)
                        (events/stop ev)))
         start-zoom (fn [ev]
-                     (let [position (-> (events/client-coord ev)
-                                      (dom/screen-point->node-point @img-node)
+                     (let [mouse-position (events/client-coord ev)
+                           position (-> (dom/offset @img-node)
+                                      (geometry/distance mouse-position)
                                       (geometry/scale @stage-scale))]
                        (if (> 0 (:y (events/wheel-delta ev)))
                          (zoom-debounced :in position)

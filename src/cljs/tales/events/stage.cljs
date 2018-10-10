@@ -1,8 +1,8 @@
 (ns tales.events.stage
   (:require [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.interceptors :refer [active-project]]
-            [tales.dom :as dom]
             [tales.geometry :as geometry]
+            [tales.util.dom :as dom]
             [tales.util.transform :as transform]))
 
 (reg-event-db :stage/mounted
@@ -85,7 +85,7 @@
     (let [dom-node (get-in db [:stage :dom-node])
           new-position (geometry/rect-center rect)
           new-zoom (->
-                     (dom/client-size dom-node)
+                     (dom/size dom-node)
                      (geometry/rect-scale rect)
                      (geometry/scale->zoom))]
       (if dom-node
