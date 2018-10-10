@@ -4,6 +4,7 @@
             [tales.dom :as dom]
             [tales.geometry :as geometry]
             [tales.routes :as routes]
+            [tales.util.drag :refer [dragging]]
             [tales.util.events :as events]
             [tales.views.preview :as preview]
             [tales.views.slide :as slide]
@@ -75,7 +76,7 @@
                        (if (or (events/ctrl-key? ev) (events/meta-key? ev))
                          (do
                            (events/stop ev)
-                           (dom/dragging ev on-create on-create-end))))]
+                           (dragging ev on-create on-create-end))))]
     (fn []
       (let [active-slide @active-slide]
         [stage

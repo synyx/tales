@@ -5,6 +5,7 @@
             [tales.geometry :as geometry]
             [tales.util.async :refer [debounce]]
             [tales.util.css :as css]
+            [tales.util.drag :refer [dragging]]
             [tales.util.events :as events]
             [tales.views.loader :refer [hide-loading]]))
 
@@ -35,7 +36,7 @@
                      (let [original-position @stage-position
                            on-move #(on-move original-position %)]
                        (reset! moving? true)
-                       (dom/dragging ev on-move on-move-end)
+                       (dragging ev on-move on-move-end)
                        (events/stop ev)))
         start-zoom (fn [ev]
                      (let [position (-> (events/client-coord ev)
