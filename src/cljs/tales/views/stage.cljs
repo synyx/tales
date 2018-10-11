@@ -24,7 +24,6 @@
         stage-scale (subscribe [:stage/scale])
         transform-origin (subscribe [:stage/transform-origin])
         transform-matrix (subscribe [:stage/transform-matrix])
-        img-node (r/atom nil)
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
                   (let [x (- (:x original-position) (/ dx @stage-scale))
@@ -40,10 +39,13 @@
                        (events/prevent ev)
                        (events/stop ev)))
         start-zoom (fn [ev]
-                     (let [mouse-position (events/client-coord ev)
-                           position (-> (dom/offset @img-node)
-                                      (geometry/distance mouse-position)
-                                      (geometry/scale @stage-scale))]
+                     (let [dom-node (r/dom-node this)
+                           mouse-position (geometry/distance
+                                            (dom/offset dom-node)
+                                            (events/client-coord ev))
+                           position (-> mouse-position
+                                      (geometry/scale @stage-scale)
+                                      (geometry/add-points @stage-position))]
                        (if (> 0 (:y (events/wheel-delta ev)))
                          (zoom-debounced :in position)
                          (zoom-debounced :out position))))
@@ -65,15 +67,12 @@
                      [:div {:style {:width (:width @dimensions)
                                     :height (:height @dimensions)
                                     :position "absolute"
-                                    :left "50%"
-                                    :top "50%"
                                     :transform-origin (css/transform-origin
                                                         (:x @transform-origin)
                                                         (:y @transform-origin))
                                     :transform (apply css/transform-matrix
                                                  @transform-matrix)}}
-                      [:img {:ref #(reset! img-node %)
-                             :style {:position "absolute"
+                      [:img {:style {:position "absolute"
                                      :width "100%"
                                      :height "100%"}
                              :src @file-path}]]
