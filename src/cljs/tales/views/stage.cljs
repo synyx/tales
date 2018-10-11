@@ -15,6 +15,32 @@
                :out :stage/zoom-out-around) position]))
 (def ^:private zoom-debounced (debounce zoom 40))
 
+(defn debug-layer []
+  (let [dimensions (subscribe [:poster/dimensions])
+        stage-scale (subscribe [:stage/scale])
+        stage-position (subscribe [:stage/position])
+        transform-origin (subscribe [:stage/transform-origin])
+        height (:height @dimensions)
+        width (:width @dimensions)
+        radius (/ 10 @stage-scale)]
+    [:svg {:style {:position "absolute"
+                   :width "100%"
+                   :height "100%"}}
+     [:circle {:cx (:x @stage-position)
+               :cy (:y @stage-position)
+               :r radius
+               :fill "yellow"}]
+     [:circle {:cx (:x @transform-origin)
+               :cy (:y @transform-origin)
+               :r radius
+               :fill "red"}]
+     (for [x (range 0 width 100)]
+       ^{:key x}
+       [:line {:x1 x :y1 0 :x2 x :y2 height :stroke "black"}])
+     (for [y (range 0 height 100)]
+       ^{:key y}
+       [:line {:x1 0 :y1 y :x2 width :y2 y :stroke "black"}])]))
+
 (defn stage []
   (let [this (r/current-component)
         dimensions (subscribe [:poster/dimensions])
@@ -75,7 +101,8 @@
                       [:img {:style {:position "absolute"
                                      :width "100%"
                                      :height "100%"}
-                             :src @file-path}]]
+                             :src @file-path}]
+                      [debug-layer]]
                      (r/children this))]])]
     (r/create-class {:display-name "stage"
                      :component-did-mount did-mount
