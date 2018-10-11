@@ -37,6 +37,7 @@
                            on-move #(on-move original-position %)]
                        (reset! moving? true)
                        (dragging ev on-move on-move-end)
+                       (events/prevent ev)
                        (events/stop ev)))
         start-zoom (fn [ev]
                      (let [mouse-position (events/client-coord ev)

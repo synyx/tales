@@ -13,6 +13,7 @@
 (defn- drag-end-fn [drag-move drag-end on-drag-end]
   (fn [ev]
     (events/prevent ev)
+    (events/stop ev)
     (events/off "mousemove" drag-move)
     (events/off "mouseup" @drag-end)
     (on-drag-end)))
