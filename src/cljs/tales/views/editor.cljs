@@ -26,7 +26,7 @@
 
 (defn navigator []
   (let [slides (subscribe [:slides])
-        active-slide (subscribe [:active-slide])
+        active-slide (subscribe [:slide/active])
         scale (subscribe [:stage/scale])
 
         svg-node (r/atom nil)
@@ -46,7 +46,7 @@
                         (if-let [rect @draw-rect]
                           (let [new-slide {:rect rect}]
                             (reset! draw-rect nil)
-                            (dispatch [:editor/add-slide new-slide]))))
+                            (dispatch [:slide/add new-slide]))))
 
         on-move (fn [slide {dx :dx dy :dy}]
                   (let [dx (/ dx @scale)
@@ -58,7 +58,7 @@
                       (if-let [rect @draw-rect]
                         (let [new-slide (assoc-in slide [:rect] rect)]
                           (reset! draw-rect nil)
-                          (dispatch [:editor/update-slide new-slide]))))
+                          (dispatch [:slide/update new-slide]))))
 
         on-resize (fn [slide corner {dx :dx dy :dy}]
                     (let [dx (/ dx @scale)
@@ -70,7 +70,7 @@
                         (if-let [rect @draw-rect]
                           (let [new-slide (assoc-in slide [:rect] rect)]
                             (reset! draw-rect nil)
-                            (dispatch [:editor/update-slide new-slide]))))
+                            (dispatch [:slide/update new-slide]))))
 
         start-create (fn [ev]
                        (if (or (events/ctrl-key? ev) (events/meta-key? ev))

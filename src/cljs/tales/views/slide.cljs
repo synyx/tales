@@ -3,6 +3,15 @@
             [tales.util.drag :refer [dragging]]
             [tales.util.events :as events]))
 
+(def markers {:top-left {:x 0 :y 0 :cursor "nw-resize"}
+              :top {:x 1 :y 0 :cursor "n-resize"}
+              :top-right {:x 2 :y 0 :cursor "ne-resize"}
+              :right {:x 2 :y 1 :cursor "e-resize"}
+              :bottom-right {:x 2 :y 2 :cursor "se-resize"}
+              :bottom {:x 1 :y 2 :cursor "s-resize"}
+              :bottom-left {:x 0 :y 2 :cursor "sw-resize"}
+              :left {:x 0 :y 1 :cursor "w-resize"}})
+
 (defn rect [props]
   (let [scale (subscribe [:stage/scale])
         active? (:active? props)
@@ -16,29 +25,20 @@
         marker-height (/ height 3)
         color (if active? "#ff9900" "#3388ff")
 
-        markers {:top-left {:x 0 :y 0 :cursor "nw-resize"}
-                 :top {:x 1 :y 0 :cursor "n-resize"}
-                 :top-right {:x 2 :y 0 :cursor "ne-resize"}
-                 :right {:x 2 :y 1 :cursor "e-resize"}
-                 :bottom-right {:x 2 :y 2 :cursor "se-resize"}
-                 :bottom {:x 1 :y 2 :cursor "s-resize"}
-                 :bottom-left {:x 0 :y 2 :cursor "sw-resize"}
-                 :left {:x 0 :y 1 :cursor "w-resize"}}
-
-        start-move (fn [e]
+        start-move (fn [ev]
                      (if active?
                        (let [on-move (:on-move props)
                              on-move-end (:on-move-end props)]
-                         (dragging e on-move on-move-end)
-                         (events/stop e))))
+                         (dragging ev on-move on-move-end)
+                         (events/stop ev))))
 
-        start-resize (fn [corner e]
+        start-resize (fn [corner ev]
                        (if active?
                          (let [on-resize (:on-resize props)
                                on-resize-end (:on-resize-end props)]
-                           (dragging e #(on-resize corner %) on-resize-end)
-                           (events/stop e))))]
-    [:g {:on-click #(dispatch [:activate-slide (:key props)])
+                           (events/stop ev)
+                           (dragging ev #(on-resize corner %) on-resize-end))))]
+    [:g {:on-click #(dispatch [:slide/activate (:key props)])
          :on-double-click #(dispatch [:stage/fit-rect rect])
          :class (:key props)}
      [:rect {:x x

@@ -29,7 +29,7 @@
               :border-width 3
               :border-style "solid"
               :border-color (if active? "#ff0000" "#333")}
-      :on-click #(dispatch [:activate-slide (:index slide)])
+      :on-click #(dispatch [:slide/activate (:index slide)])
       :on-double-click #(dispatch [:stage/fit-rect (:rect slide)])}
      [:div
       {:style {:width scaled-slide-width
@@ -45,23 +45,23 @@
 
 (defn slides [project]
   (let [slides (subscribe [:slides])
-        active-slide (subscribe [:active-slide])
+        active-slide (subscribe [:slide/active])
         preview-width 100
         preview-height 75]
     (let [active-slide @active-slide]
       [:div#slides-preview.slide-preview-list
        {:tabIndex 0
         :on-key-down #(case (.-key %)
-                        "Delete" (dispatch [:editor/delete-active-slide])
-                        " " (dispatch [:next-slide])
+                        "Delete" (dispatch [:slide/delete active-slide])
+                        " " (dispatch [:slide/next])
                         "ArrowRight" (if (or (events/ctrl-key? %)
                                            (events/meta-key? %))
-                                       (dispatch [:change-order 1])
-                                       (dispatch [:next-slide]))
+                                       (dispatch [:slide/swap-next active-slide])
+                                       (dispatch [:slide/next]))
                         "ArrowLeft" (if (or (events/ctrl-key? %)
                                           (events/meta-key? %))
-                                      (dispatch [:change-order -1])
-                                      (dispatch [:prev-slide]))
+                                      (dispatch [:slide/swap-prev active-slide])
+                                      (dispatch [:slide/prev]))
                         nil)}
        (for [item @slides]
          ^{:key (:index item)}
