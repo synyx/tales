@@ -1,4 +1,21 @@
-(ns tales.db)
+(ns tales.db
+  (:require [cljs.spec.alpha :as s]))
+
+(defn- ^boolean real?
+  "Returns true if `x` is a real number"
+  [x] (and (number? x) (js/isFinite x)))
+
+(s/def ::x real?)
+(s/def ::y real?)
+(s/def ::point (s/keys :req-un [::x ::y]))
+
+(s/def ::zoom (s/and real?))
+(s/def ::position ::point)
+(s/def ::origin ::point)
+
+(s/def ::stage (s/keys :req-un [::zoom ::position ::origin]))
+
+(s/def ::db (s/keys :req-un [::stage]))
 
 (def default-db
   {:projects {}

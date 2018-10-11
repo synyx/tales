@@ -1,33 +1,34 @@
 (ns tales.events.stage
   (:require [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
-            [tales.interceptors :refer [active-project]]
+            [tales.interceptors :refer [active-project check-db-interceptor]]
             [tales.geometry :as geometry]
             [tales.util.dom :as dom]
             [tales.util.transform :as transform]))
 
 (reg-event-db :stage/mounted
-  [trim-v]
+  [check-db-interceptor trim-v]
   (fn [db [dom-node]]
     (assoc-in db [:stage :dom-node] dom-node)))
 
 (reg-event-db :stage/unmounted
+  [check-db-interceptor]
   (fn [db]
     (assoc-in db [:stage :dom-node] nil)))
 
 (reg-event-db :stage/move-to
-  [trim-v]
+  [check-db-interceptor trim-v]
   (fn [db [x y]]
     (assoc-in db [:stage :position] {:x x :y y})))
 
 (reg-event-db :stage/move-by
-  [trim-v]
+  [check-db-interceptor trim-v]
   (fn [db [dx dy]]
     (let [old-position (get-in db [:stage :position])
           new-position (geometry/move-point old-position dx dy)]
       (assoc-in db [:stage :position] new-position))))
 
 (reg-event-db :stage/zoom
-  [trim-v]
+  [check-db-interceptor trim-v]
   (fn [db [zoom]]
     (assoc-in db [:stage :zoom] zoom)))
 
@@ -48,7 +49,7 @@
       {:dispatch [:stage/zoom new-zoom]})))
 
 (reg-event-db :stage/zoom-around
-  [trim-v]
+  [check-db-interceptor trim-v]
   (fn [db [new-zoom point]]
     (let [old-scale (geometry/zoom->scale (get-in db [:stage :zoom]))
           old-position (get-in db [:stage :position])
@@ -80,7 +81,7 @@
       {:dispatch [:stage/zoom-around new-zoom point]})))
 
 (reg-event-db :stage/fit-rect
-  [trim-v]
+  [check-db-interceptor trim-v]
   (fn [db [rect]]
     (let [dom-node (get-in db [:stage :dom-node])
           rect-center (geometry/rect-center rect)
