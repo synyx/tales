@@ -1,10 +1,10 @@
 (ns tales.views.slide
   (:require [re-frame.core :refer [dispatch subscribe]]
-            [tales.dom :as dom]
-            [re-frame.core :as rf]))
+            [tales.util.drag :refer [dragging]]
+            [tales.util.events :as events]))
 
 (defn rect [props]
-  (let [scale (rf/subscribe [:stage/scale])
+  (let [scale (subscribe [:stage/scale])
         active? (:active? props)
         rect (:rect props)
         x (:x rect)
@@ -29,15 +29,15 @@
                      (if active?
                        (let [on-move (:on-move props)
                              on-move-end (:on-move-end props)]
-                         (dom/dragging e on-move on-move-end)
-                         (.stopPropagation e))))
+                         (dragging e on-move on-move-end)
+                         (events/stop e))))
 
         start-resize (fn [corner e]
                        (if active?
                          (let [on-resize (:on-resize props)
                                on-resize-end (:on-resize-end props)]
-                           (dom/dragging e #(on-resize corner %) on-resize-end)
-                           (.stopPropagation e))))]
+                           (dragging e #(on-resize corner %) on-resize-end)
+                           (events/stop e))))]
     [:g {:on-click #(dispatch [:activate-slide (:key props)])
          :on-double-click #(dispatch [:stage/fit-rect rect])
          :class (:key props)}

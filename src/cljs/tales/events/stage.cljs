@@ -1,8 +1,8 @@
 (ns tales.events.stage
   (:require [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.interceptors :refer [active-project]]
-            [tales.dom :as dom]
             [tales.geometry :as geometry]
+            [tales.util.dom :as dom]
             [tales.util.transform :as transform]))
 
 (reg-event-db :stage/mounted
@@ -83,14 +83,16 @@
   [trim-v]
   (fn [db [rect]]
     (let [dom-node (get-in db [:stage :dom-node])
-          new-position (geometry/rect-center rect)
-          new-zoom (->
-                     (dom/client-size dom-node)
+          rect-center (geometry/rect-center rect)
+          screen-center {:x (/ (dom/width dom-node) 2)
+                         :y (/ (dom/height dom-node) 2)}
+          new-zoom (-> (dom/size dom-node)
                      (geometry/rect-scale rect)
-                     (geometry/scale->zoom))]
-      (if dom-node
-        (-> db
-          (assoc-in [:stage :position] new-position)
-          (assoc-in [:stage :origin] new-position)
-          (assoc-in [:stage :zoom] new-zoom))
-        db))))
+                     (geometry/scale->zoom))
+          new-position (-> screen-center
+                         (geometry/scale (geometry/zoom->scale new-zoom))
+                         (geometry/distance rect-center))]
+      (-> db
+        (assoc-in [:stage :position] new-position)
+        (assoc-in [:stage :origin] rect-center)
+        (assoc-in [:stage :zoom] new-zoom)))))

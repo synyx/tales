@@ -1,9 +1,11 @@
 (ns tales.views.editor
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [tales.dom :as dom]
             [tales.geometry :as geometry]
             [tales.routes :as routes]
+            [tales.util.dom :as dom]
+            [tales.util.drag :refer [dragging]]
+            [tales.util.events :as events]
             [tales.views.preview :as preview]
             [tales.views.slide :as slide]
             [tales.views.stage :refer [stage]]))
@@ -31,8 +33,8 @@
         draw-rect (r/atom nil)
 
         on-create (fn [{drag-start :start dx :dx dy :dy}]
-                    (let [drag-start (dom/screen-point->node-point
-                                       drag-start @svg-node)
+                    (let [drag-start (-> (dom/offset @svg-node)
+                                       (geometry/distance drag-start))
                           x (/ (:x drag-start) @scale)
                           y (/ (:y drag-start) @scale)
                           dx (/ dx @scale)
@@ -70,11 +72,11 @@
                             (reset! draw-rect nil)
                             (dispatch [:editor/update-slide new-slide]))))
 
-        start-create (fn [e]
-                       (if (dom/ctrl-key? e)
+        start-create (fn [ev]
+                       (if (or (events/ctrl-key? ev) (events/meta-key? ev))
                          (do
-                           (.stopPropagation e)
-                           (dom/dragging e on-create on-create-end))))]
+                           (events/stop ev)
+                           (dragging ev on-create on-create-end))))]
     (fn []
       (let [active-slide @active-slide]
         [stage
