@@ -54,7 +54,7 @@
                                :transform-origin (css/transform-origin
                                                    (:x @transform-origin)
                                                    (:y @transform-origin))
-                               :transform (apply css/transform-matrix
+                               :transform (css/transform-matrix
                                             @transform-matrix)}}]
       (r/children (r/current-component)))))
 

@@ -21,6 +21,7 @@
                  [day8.re-frame/http-fx "0.1.6"]
                  [day8.re-frame/test "0.1.5"]
                  [secretary "1.2.3"]
+                 [thi.ng/geom "0.0.908"]
                  [venantius/accountant "0.2.4"]]
 
   :plugins [[lein-environ "1.1.0"]

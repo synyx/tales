@@ -1,5 +1,7 @@
 (ns tales.subs.stage
-  (:require [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]
+  (:require [thi.ng.geom.core :as g]
+            [thi.ng.geom.core.matrix :as gm]
+            [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]
             [tales.geometry :as geometry]
             [tales.util.transform :as transform]))
 
@@ -34,9 +36,8 @@
           scale (geometry/zoom->scale (get-in db [:stage :zoom]))
           moved-by-origin (transform/moved-by-origin origin scale)
           moved-position (geometry/add-points position moved-by-origin)]
-      [scale
-       0
-       0
-       scale
-       (* (- (:x moved-position)) scale)
-       (* (- (:y moved-position)) scale)])))
+      (-> gm/M32
+        (g/translate
+          (* (- (:x moved-position)) scale)
+          (* (- (:y moved-position)) scale))
+        (g/scale scale)))))
