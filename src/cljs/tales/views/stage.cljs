@@ -37,15 +37,32 @@
        ^{:key y}
        [:line {:x1 0 :y1 y :x2 width :y2 y :stroke "black"}])]))
 
+(defn poster []
+  (let [file-path (subscribe [:poster/file-path])]
+    [:img {:style {:position "absolute"
+                   :width "100%"
+                   :height "100%"}
+           :src @file-path}]))
+
+(defn scene []
+  (let [dimensions (subscribe [:poster/dimensions])
+        transform-matrix (subscribe [:stage/transform-matrix])
+        transform-origin (subscribe [:stage/transform-origin])]
+    (into [:div.scene {:style {:width (:width @dimensions)
+                               :height (:height @dimensions)
+                               :position "relative"
+                               :transform-origin (css/transform-origin
+                                                   (:x @transform-origin)
+                                                   (:y @transform-origin))
+                               :transform (apply css/transform-matrix
+                                            @transform-matrix)}}]
+      (r/children (r/current-component)))))
+
 (defn stage []
   (let [this (r/current-component)
-        dimensions (subscribe [:poster/dimensions])
-        file-path (subscribe [:poster/file-path])
         ready? (subscribe [:stage/ready?])
         stage-position (subscribe [:stage/position])
         stage-scale (subscribe [:stage/scale])
-        transform-origin (subscribe [:stage/transform-origin])
-        transform-matrix (subscribe [:stage/transform-matrix])
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
                   (let [x (- (:x original-position) (/ dx @stage-scale))
@@ -79,30 +96,19 @@
                     (on-resize))
         will-unmount (fn [] (events/off "resize" on-resize))
         render (fn []
-                 [:div {:on-wheel start-zoom
-                        :on-mouse-down start-move
-                        :style {:background-color "#ddd"
-                                :overflow "hidden"
-                                :width "100%"
-                                :height "100%"
-                                :position "relative"
-                                :cursor (if @moving? "grab" "pointer")}}
+                 [:div.stage {:on-wheel start-zoom
+                              :on-mouse-down start-move
+                              :style {:background-color "#ddd"
+                                      :overflow "hidden"
+                                      :width "100%"
+                                      :height "100%"
+                                      :cursor (if @moving? "grab" "pointer")}}
                   [hide-loading {:loading? (not @ready?)
                                  :background-color "#ddd"
                                  :color "#fff"}
                    (into
-                     [:div {:style {:width (:width @dimensions)
-                                    :height (:height @dimensions)
-                                    :position "absolute"
-                                    :transform-origin (css/transform-origin
-                                                        (:x @transform-origin)
-                                                        (:y @transform-origin))
-                                    :transform (apply css/transform-matrix
-                                                 @transform-matrix)}}
-                      [:img {:style {:position "absolute"
-                                     :width "100%"
-                                     :height "100%"}
-                             :src @file-path}]
+                     [scene
+                      [poster]
                       [debug-layer]]
                      (r/children this))]])]
     (r/create-class {:display-name "stage"
