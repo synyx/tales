@@ -1,8 +1,9 @@
 (ns tales.events.stage
-  (:require [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
+  (:require [thi.ng.geom.core :as g]
+            [thi.ng.geom.core.vector :as gv]
+            [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.interceptors :refer [active-project check-db-interceptor]]
-            [tales.geometry :as geometry]
-            [tales.util.transform :as transform]))
+            [tales.geometry :as geometry]))
 
 (reg-event-db :stage/set-size
   [check-db-interceptor trim-v]
@@ -11,83 +12,45 @@
 
 (reg-event-db :stage/move-to
   [check-db-interceptor trim-v]
-  (fn [db [x y]]
-    (assoc-in db [:stage :position] {:x x :y y})))
+  (fn [db [[x y]]]
+    (assoc-in db [:stage :position] [x y])))
 
-(reg-event-db :stage/move-by
+(reg-event-db :stage/set-scale
   [check-db-interceptor trim-v]
-  (fn [db [dx dy]]
-    (let [old-position (get-in db [:stage :position])
-          new-position (geometry/move-point old-position dx dy)]
-      (assoc-in db [:stage :position] new-position))))
-
-(reg-event-db :stage/zoom
-  [check-db-interceptor trim-v]
-  (fn [db [zoom]]
-    (assoc-in db [:stage :zoom] zoom)))
+  (fn [db [scale position]]
+    (let [position (or position [0 0])
+          old-position (get-in db [:stage :position])
+          old-scale (get-in db [:stage :scale])
+          s (/ scale old-scale)
+          moved-by-scale (-> (gv/vec2 position)
+                           (g/- (g/scale (gv/vec2 position) s)))
+          [x y] (-> (gv/vec2 old-position)
+                  (g/scale s)
+                  (g/+ moved-by-scale))]
+      (-> db
+        (assoc-in [:stage :scale] scale)
+        (assoc-in [:stage :position] [x y])))))
 
 (reg-event-fx :stage/zoom-in
   [trim-v]
-  (fn [{db :db} [delta]]
-    (let [delta (or delta 1)
-          old-zoom (get-in db [:stage :zoom])
-          new-zoom (+ old-zoom delta)]
-      {:dispatch [:stage/zoom new-zoom]})))
+  (fn [{db :db} [position]]
+    (let [scale (get-in db [:stage :scale])]
+      {:dispatch [:stage/set-scale (/ scale 2) position]})))
 
 (reg-event-fx :stage/zoom-out
   [trim-v]
-  (fn [{db :db} [delta]]
-    (let [delta (or delta 1)
-          old-zoom (get-in db [:stage :zoom])
-          new-zoom (- old-zoom delta)]
-      {:dispatch [:stage/zoom new-zoom]})))
-
-(reg-event-db :stage/zoom-around
-  [check-db-interceptor trim-v]
-  (fn [db [new-zoom point]]
-    (let [old-scale (geometry/zoom->scale (get-in db [:stage :zoom]))
-          old-position (get-in db [:stage :position])
-          new-scale (geometry/zoom->scale new-zoom)
-          new-position (-> old-position
-                         (transform/scale old-scale new-scale)
-                         (geometry/add-points
-                           (transform/moved-by-scale
-                             point old-scale new-scale)))]
-      (-> db
-        (assoc-in [:stage :position] new-position)
-        (assoc-in [:stage :origin] point)
-        (assoc-in [:stage :zoom] new-zoom)))))
-
-(reg-event-fx :stage/zoom-in-around
-  [trim-v]
-  (fn [{db :db} [point delta]]
-    (let [delta (or delta 1)
-          old-zoom (get-in db [:stage :zoom])
-          new-zoom (+ old-zoom delta)]
-      {:dispatch [:stage/zoom-around new-zoom point]})))
-
-(reg-event-fx :stage/zoom-out-around
-  [trim-v]
-  (fn [{db :db} [point delta]]
-    (let [delta (or delta 1)
-          old-zoom (get-in db [:stage :zoom])
-          new-zoom (- old-zoom delta)]
-      {:dispatch [:stage/zoom-around new-zoom point]})))
+  (fn [{db :db} [position]]
+    (let [scale (get-in db [:stage :scale])]
+      {:dispatch [:stage/set-scale (* scale 2) position]})))
 
 (reg-event-db :stage/fit-rect
   [check-db-interceptor trim-v]
   (fn [db [rect]]
     (let [screen-size (get-in db [:stage :size])
-          screen-center {:x (/ (first screen-size) 2)
-                         :y (/ (second screen-size) 2)}
           rect-center (geometry/rect-center rect)
-          new-zoom (-> {:width (first screen-size) :height (second screen-size)}
-                     (geometry/rect-scale rect)
-                     (geometry/scale->zoom))
-          new-position (-> screen-center
-                         (geometry/scale (geometry/zoom->scale new-zoom))
-                         (geometry/distance rect-center))]
+          new-scale (-> {:width (first screen-size)
+                         :height (second screen-size)}
+                      (geometry/rect-scale rect))]
       (-> db
-        (assoc-in [:stage :position] new-position)
-        (assoc-in [:stage :origin] rect-center)
-        (assoc-in [:stage :zoom] new-zoom)))))
+        (assoc-in [:stage :position] [(:x rect-center) (:y rect-center)])
+        (assoc-in [:stage :scale] new-scale)))))

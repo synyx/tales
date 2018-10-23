@@ -5,16 +5,13 @@
   "Returns true if `x` is a real number"
   [x] (and (number? x) (js/isFinite x)))
 
-(s/def ::x real?)
-(s/def ::y real?)
-(s/def ::point (s/keys :req-un [::x ::y]))
+(s/def ::point (s/tuple real? real?))
 
+(s/def ::scale (s/and real? pos?))
 (s/def ::size (s/tuple real? real?))
-(s/def ::zoom (s/and real?))
 (s/def ::position ::point)
-(s/def ::origin ::point)
 
-(s/def ::stage (s/keys :req-un [::size ::zoom ::position ::origin]))
+(s/def ::stage (s/keys :req-un [::scale ::size ::position]))
 
 (s/def ::db (s/keys :req-un [::stage]))
 
@@ -24,7 +21,6 @@
    :active-project nil
    :active-slide nil
    :editor {}
-   :stage {:size [0 0]
-           :zoom 0
-           :position {:x 0 :y 0}
-           :origin {:x 0 :y 0}}})
+   :stage {:scale 1
+           :size [0 0]
+           :position [0 0]}})

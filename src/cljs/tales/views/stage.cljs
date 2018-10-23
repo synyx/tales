@@ -1,5 +1,7 @@
 (ns tales.views.stage
-  (:require [reagent.core :as r]
+  (:require [thi.ng.geom.core :as g]
+            [thi.ng.geom.core.vector :as gv]
+            [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.geometry :as geometry]
             [tales.util.async :refer [debounce]]
@@ -13,23 +15,11 @@
 
 (defn debug-layer []
   (let [dimensions (subscribe [:poster/dimensions])
-        stage-scale (subscribe [:stage/scale])
-        stage-position (subscribe [:stage/position])
-        transform-origin (subscribe [:stage/transform-origin])
         height (:height @dimensions)
-        width (:width @dimensions)
-        radius (/ 10 @stage-scale)]
+        width (:width @dimensions)]
     [:svg {:style {:position "absolute"
                    :width "100%"
                    :height "100%"}}
-     [:circle {:cx (:x @stage-position)
-               :cy (:y @stage-position)
-               :r radius
-               :fill "yellow"}]
-     [:circle {:cx (:x @transform-origin)
-               :cy (:y @transform-origin)
-               :r radius
-               :fill "red"}]
      (for [x (range 0 width 100)]
        ^{:key x}
        [:line {:x1 x :y1 0 :x2 x :y2 height :stroke "black"}])
@@ -46,14 +36,11 @@
 
 (defn scene []
   (let [dimensions (subscribe [:poster/dimensions])
-        transform-matrix (subscribe [:stage/transform-matrix])
-        transform-origin (subscribe [:stage/transform-origin])]
+        transform-matrix (subscribe [:stage/transform-matrix])]
     (into [:div.scene {:style {:width (:width @dimensions)
                                :height (:height @dimensions)
                                :position "relative"
-                               :transform-origin (css/transform-origin
-                                                   (:x @transform-origin)
-                                                   (:y @transform-origin))
+                               :transform-origin "0 0"
                                :transform (css/transform-matrix
                                             @transform-matrix)}}]
       (r/children (r/current-component)))))
@@ -63,11 +50,12 @@
         ready? (subscribe [:stage/ready?])
         stage-position (subscribe [:stage/position])
         stage-scale (subscribe [:stage/scale])
+        transform-matrix (subscribe [:stage/transform-matrix])
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
-                  (let [x (- (:x original-position) (/ dx @stage-scale))
-                        y (- (:y original-position) (/ dy @stage-scale))]
-                    (dispatch [:stage/move-to x y])))
+                  (let [dxy (g/scale (gv/vec2 dx dy) @stage-scale)
+                        position (g/- (gv/vec2 original-position) dxy)]
+                    (dispatch [:stage/move-to position])))
         on-move-end (fn []
                       (reset! moving? false))
         start-move (fn [ev]
@@ -82,12 +70,14 @@
                            mouse-position (geometry/distance
                                             (dom/offset dom-node)
                                             (events/client-coord ev))
-                           position (-> mouse-position
-                                      (geometry/scale @stage-scale)
-                                      (geometry/add-points @stage-position))]
+                           position (-> @transform-matrix
+                                      (g/invert)
+                                      (g/transform-vector
+                                        [(:x mouse-position)
+                                         (:y mouse-position)]))]
                        (if (> 0 (:y (events/wheel-delta ev)))
-                         (dispatch-debounced [:stage/zoom-in-around position])
-                         (dispatch-debounced [:stage/zoom-out-around position]))))
+                         (dispatch-debounced [:stage/zoom-in position])
+                         (dispatch-debounced [:stage/zoom-out position]))))
         on-resize (fn []
                     (let [size (dom/size (r/dom-node this))]
                       (dispatch-debounced [:stage/set-size size])))
@@ -96,8 +86,8 @@
                     (on-resize))
         will-unmount (fn [] (events/off "resize" on-resize))
         render (fn []
-                 [:div.stage {:on-wheel start-zoom
-                              :on-mouse-down start-move
+                 [:div.stage {:on-mouse-down start-move
+                              :on-wheel start-zoom
                               :style {:background-color "#ddd"
                                       :overflow "hidden"
                                       :width "100%"
