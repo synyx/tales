@@ -9,11 +9,7 @@
             [tales.util.events :as events]
             [tales.views.loader :refer [hide-loading]]))
 
-(defn- zoom [direction position]
-  (dispatch [(case direction
-               :in :stage/zoom-in-around
-               :out :stage/zoom-out-around) position]))
-(def ^:private zoom-debounced (debounce zoom 40))
+(def ^:private dispatch-debounced (debounce dispatch 40))
 
 (defn debug-layer []
   (let [dimensions (subscribe [:poster/dimensions])
@@ -73,10 +69,16 @@
                                       (geometry/scale @stage-scale)
                                       (geometry/add-points @stage-position))]
                        (if (> 0 (:y (events/wheel-delta ev)))
-                         (zoom-debounced :in position)
-                         (zoom-debounced :out position))))
-        did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))
-        will-unmount (fn [] (dispatch [:stage/unmounted]))
+                         (dispatch-debounced [:stage/zoom-in-around position])
+                         (dispatch-debounced [:stage/zoom-out-around position]))))
+        on-resize (fn []
+                    (let [size (dom/size (r/dom-node this))]
+                      (dispatch-debounced [:stage/set-size size])))
+        did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)])
+                    (events/on "resize" on-resize)
+                    (on-resize))
+        will-unmount (fn [] (dispatch [:stage/unmounted])
+                       (events/off "resize" on-resize))
         render (fn []
                  [:div {:on-wheel start-zoom
                         :on-mouse-down start-move

@@ -12,6 +12,10 @@
   (fn [db _]
     (get-in db [:stage :dom-node])))
 
+(reg-sub :stage/size
+  (fn [db _]
+    (get-in db [:stage :size])))
+
 (reg-sub :stage/zoom
   (fn [db _]
     (get-in db [:stage :zoom])))

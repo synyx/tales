@@ -17,6 +17,12 @@
             (is (= @dom-node div))
             (rf/dispatch [:stage/unmounted])
             (is (nil? @dom-node)))))))
+  (testing "stage set size"
+    (rf-test/run-test-sync
+      (rf/dispatch [:initialise-db])
+      (let [size (rf/subscribe [:stage/size])]
+        (rf/dispatch [:stage/set-size [123 321]])
+        (is (= @size [123 321])))))
   (testing "stage moving"
     (rf-test/run-test-sync
       (rf/dispatch [:initialise-db])
@@ -85,21 +91,19 @@
   (testing "stage fit rect"
     (rf-test/run-test-sync
       (rf/dispatch-sync [:initialise-db])
-      (with-mounted-component [:div {:style {:width "100px" :height "100px"}}]
-        (fn [_ div]
-          (rf/dispatch [:stage/mounted div])
-          (let [zoom (rf/subscribe [:stage/zoom])
-                position (rf/subscribe [:stage/position])
-                origin (rf/subscribe [:stage/transform-origin])]
-            (rf/dispatch [:stage/fit-rect {:x 0 :y 0 :width 100 :height 100}])
-            (is (= @zoom 0))
-            (is (= @position {:x -334.5, :y 0}))
-            (is (= @origin {:x 50 :y 50}))
-            (rf/dispatch [:stage/fit-rect {:x 50 :y 50 :width 50 :height 50}])
-            (is (= @zoom 1))
-            (is (= @position {:x -117.25, :y 50}))
-            (is (= @origin {:x 75 :y 75}))
-            (rf/dispatch [:stage/fit-rect {:x 20 :y 20 :width 25 :height 25}])
-            (is (= @zoom 2))
-            (is (= @position {:x -63.625, :y 20}))
-            (is (= @origin {:x 32.5 :y 32.5}))))))))
+      (rf/dispatch [:stage/set-size [100 100]])
+      (let [zoom (rf/subscribe [:stage/zoom])
+            position (rf/subscribe [:stage/position])
+            origin (rf/subscribe [:stage/transform-origin])]
+        (rf/dispatch [:stage/fit-rect {:x 0 :y 0 :width 100 :height 100}])
+        (is (= @zoom 0))
+        (is (= @position {:x 0, :y 0}))
+        (is (= @origin {:x 50 :y 50}))
+        (rf/dispatch [:stage/fit-rect {:x 50 :y 50 :width 50 :height 50}])
+        (is (= @zoom 1))
+        (is (= @position {:x 50, :y 50}))
+        (is (= @origin {:x 75 :y 75}))
+        (rf/dispatch [:stage/fit-rect {:x 20 :y 20 :width 25 :height 25}])
+        (is (= @zoom 2))
+        (is (= @position {:x 20, :y 20}))
+        (is (= @origin {:x 32.5 :y 32.5}))))))

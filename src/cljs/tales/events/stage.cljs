@@ -15,6 +15,11 @@
   (fn [db]
     (assoc-in db [:stage :dom-node] nil)))
 
+(reg-event-db :stage/set-size
+  [check-db-interceptor trim-v]
+  (fn [db [size]]
+    (assoc-in db [:stage :size] size)))
+
 (reg-event-db :stage/move-to
   [check-db-interceptor trim-v]
   (fn [db [x y]]
@@ -83,11 +88,11 @@
 (reg-event-db :stage/fit-rect
   [check-db-interceptor trim-v]
   (fn [db [rect]]
-    (let [dom-node (get-in db [:stage :dom-node])
+    (let [screen-size (get-in db [:stage :size])
+          screen-center {:x (/ (first screen-size) 2)
+                         :y (/ (second screen-size) 2)}
           rect-center (geometry/rect-center rect)
-          screen-center {:x (/ (dom/width dom-node) 2)
-                         :y (/ (dom/height dom-node) 2)}
-          new-zoom (-> (dom/size dom-node)
+          new-zoom (-> {:width (first screen-size) :height (second screen-size)}
                      (geometry/rect-scale rect)
                      (geometry/scale->zoom))
           new-position (-> screen-center
