@@ -74,11 +74,10 @@
         on-resize (fn []
                     (let [size (dom/size (r/dom-node this))]
                       (dispatch-debounced [:stage/set-size size])))
-        did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)])
+        did-mount (fn []
                     (events/on "resize" on-resize)
                     (on-resize))
-        will-unmount (fn [] (dispatch [:stage/unmounted])
-                       (events/off "resize" on-resize))
+        will-unmount (fn [] (events/off "resize" on-resize))
         render (fn []
                  [:div {:on-wheel start-zoom
                         :on-mouse-down start-move

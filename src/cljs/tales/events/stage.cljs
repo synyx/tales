@@ -2,18 +2,7 @@
   (:require [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.interceptors :refer [active-project check-db-interceptor]]
             [tales.geometry :as geometry]
-            [tales.util.dom :as dom]
             [tales.util.transform :as transform]))
-
-(reg-event-db :stage/mounted
-  [check-db-interceptor trim-v]
-  (fn [db [dom-node]]
-    (assoc-in db [:stage :dom-node] dom-node)))
-
-(reg-event-db :stage/unmounted
-  [check-db-interceptor]
-  (fn [db]
-    (assoc-in db [:stage :dom-node] nil)))
 
 (reg-event-db :stage/set-size
   [check-db-interceptor trim-v]

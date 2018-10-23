@@ -7,16 +7,6 @@
             [tales.helper :refer [with-mounted-component]]))
 
 (deftest test-events-stage
-  (testing "stage mounting"
-    (rf-test/run-test-sync
-      (rf/dispatch [:initialise-db])
-      (with-mounted-component [:div]
-        (fn [_ div]
-          (let [dom-node (rf/subscribe [:stage/dom-node])]
-            (rf/dispatch [:stage/mounted div])
-            (is (= @dom-node div))
-            (rf/dispatch [:stage/unmounted])
-            (is (nil? @dom-node)))))))
   (testing "stage set size"
     (rf-test/run-test-sync
       (rf/dispatch [:initialise-db])

@@ -4,13 +4,8 @@
             [tales.util.transform :as transform]))
 
 (reg-sub :stage/ready?
-  (fn [db _]
-    (let [dom-node (get-in db [:stage :dom-node])]
-      (not (nil? dom-node)))))
-
-(reg-sub :stage/dom-node
-  (fn [db _]
-    (get-in db [:stage :dom-node])))
+  (fn [_ _]
+    true))
 
 (reg-sub :stage/size
   (fn [db _]
