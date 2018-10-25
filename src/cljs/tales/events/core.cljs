@@ -5,7 +5,7 @@
             [tales.interceptors :refer [active-project]]
             [tales.events.project]
             [tales.events.slide]
-            [tales.events.stage]))
+            [tales.events.view]))
 
 (reg-event-db :initialise-db
   (fn [] db/default-db))

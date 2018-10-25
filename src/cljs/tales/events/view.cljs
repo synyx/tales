@@ -1,26 +1,26 @@
-(ns tales.events.stage
+(ns tales.events.view
   (:require [thi.ng.geom.core :as g]
             [thi.ng.geom.core.vector :as gv]
             [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.interceptors :refer [active-project check-db-interceptor]]
             [tales.geometry :as geometry]))
 
-(reg-event-db :stage/set-size
+(reg-event-db :viewport/set-size
   [check-db-interceptor trim-v]
   (fn [db [size]]
-    (assoc-in db [:stage :size] size)))
+    (assoc-in db [:viewport :size] size)))
 
-(reg-event-db :stage/move-to
+(reg-event-db :camera/move-to
   [check-db-interceptor trim-v]
   (fn [db [[x y]]]
-    (assoc-in db [:stage :position] [x y])))
+    (assoc-in db [:camera :position] [x y])))
 
-(reg-event-db :stage/set-scale
+(reg-event-db :camera/set-scale
   [check-db-interceptor trim-v]
   (fn [db [scale position]]
     (let [position (or position [0 0])
-          old-position (get-in db [:stage :position])
-          old-scale (get-in db [:stage :scale])
+          old-position (get-in db [:camera :position])
+          old-scale (get-in db [:camera :scale])
           s (/ scale old-scale)
           moved-by-scale (-> (gv/vec2 position)
                            (g/- (g/scale (gv/vec2 position) s)))
@@ -28,25 +28,25 @@
                   (g/scale s)
                   (g/+ moved-by-scale))]
       (-> db
-        (assoc-in [:stage :scale] scale)
-        (assoc-in [:stage :position] [x y])))))
+        (assoc-in [:camera :position] [x y])
+        (assoc-in [:camera :scale] scale)))))
 
-(reg-event-fx :stage/zoom-in
+(reg-event-fx :camera/zoom-in
   [trim-v]
   (fn [{db :db} [position]]
-    (let [scale (get-in db [:stage :scale])]
-      {:dispatch [:stage/set-scale (/ scale 2) position]})))
+    (let [scale (get-in db [:camera :scale])]
+      {:dispatch [:camera/set-scale (/ scale 2) position]})))
 
-(reg-event-fx :stage/zoom-out
+(reg-event-fx :camera/zoom-out
   [trim-v]
   (fn [{db :db} [position]]
-    (let [scale (get-in db [:stage :scale])]
-      {:dispatch [:stage/set-scale (* scale 2) position]})))
+    (let [scale (get-in db [:camera :scale])]
+      {:dispatch [:camera/set-scale (* scale 2) position]})))
 
-(reg-event-db :stage/fit-rect
+(reg-event-db :camera/fit-rect
   [check-db-interceptor trim-v active-project]
   (fn [db [rect active-project]]
-    (let [screen-size (get-in db [:stage :size])
+    (let [screen-size (get-in db [:viewport :size])
           dimensions (:dimensions active-project)
           rect-center (geometry/rect-center rect)
           s (Math/min
@@ -57,5 +57,5 @@
                                       (g/scale s)
                                       (g/div screen-size)))]
       (-> db
-        (assoc-in [:stage :position] [(:x rect-center) (:y rect-center)])
-        (assoc-in [:stage :scale] new-scale)))))
+        (assoc-in [:camera :position] [(:x rect-center) (:y rect-center)])
+        (assoc-in [:camera :scale] new-scale)))))

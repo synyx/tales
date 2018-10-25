@@ -1,4 +1,4 @@
-(ns tales.subs.stage
+(ns tales.subs.view
   (:require [thi.ng.geom.core :as g]
             [thi.ng.geom.core.matrix :as gm]
             [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]))
@@ -7,40 +7,40 @@
   (fn [_ _]
     true))
 
-(reg-sub :stage/size
+(reg-sub :viewport/size
   (fn [db _]
-    (get-in db [:stage :size])))
+    (get-in db [:viewport :size])))
 
-(reg-sub :stage/aspect-ratio
-  :<- [:stage/size]
+(reg-sub :viewport/aspect-ratio
+  :<- [:viewport/size]
   (fn [size _]
     (reduce / size)))
 
-(reg-sub :stage/scale
+(reg-sub :camera/position
   (fn [db _]
-    (get-in db [:stage :scale])))
+    (get-in db [:camera :position])))
 
-(reg-sub :stage/position
+(reg-sub :camera/scale
   (fn [db _]
-    (get-in db [:stage :position])))
+    (get-in db [:camera :scale])))
 
-(reg-sub :stage/camera-matrix
-  :<- [:stage/position]
-  :<- [:stage/scale]
+(reg-sub :matrix/camera
+  :<- [:camera/position]
+  :<- [:camera/scale]
   (fn [[position scale] _]
     "Matrix to position the camera in the world."
     (-> gm/M32
       (g/translate position)
       (g/scale scale))))
 
-(reg-sub :stage/view-matrix
-  :<- [:stage/camera-matrix]
+(reg-sub :matrix/view
+  :<- [:matrix/camera]
   (fn [camera-matrix _]
     "Matrix to convert from world coordinates to eye coordinates."
     (g/invert camera-matrix)))
 
-(reg-sub :stage/projection-matrix
-  :<- [:stage/aspect-ratio]
+(reg-sub :matrix/projection
+  :<- [:viewport/aspect-ratio]
   :<- [:poster/dimensions]
   (fn [[aspect {width :width height :height}] _]
     "Matrix to convert from eye coordinates to clip coordinates."
@@ -51,21 +51,16 @@
         (gm/matrix44->matrix33)
         (gm/matrix32)))))
 
-(reg-sub :stage/mvp-matrix
-  :<- [:stage/view-matrix]
-  :<- [:stage/projection-matrix]
+(reg-sub :matrix/mvp
+  :<- [:matrix/view]
+  :<- [:matrix/projection]
   (fn [[view-matrix projection-matrix] _]
     "Combined matrix to convert from model coordinates to clip coordinates."
     (->> gm/M32 (g/* view-matrix) (g/* projection-matrix))))
 
-(reg-sub :stage/viewport-matrix
-  :<- [:stage/size]
-  (fn [[width height] _]
-    "Matrix to convert from clip coordinates to screen coordinates."
-    (gm/viewport-matrix width height)))
-
-(reg-sub :stage/transform-matrix
-  :<- [:stage/mvp-matrix]
-  :<- [:stage/viewport-matrix]
-  (fn [[mvp-matrix viewport-matrix] _]
-    (->> mvp-matrix (g/* viewport-matrix))))
+(reg-sub :matrix/viewport
+  :<- [:matrix/mvp]
+  :<- [:viewport/size]
+  (fn [[mvp-matrix [width height]] _]
+    "Combined matrix to convert from model coordinates to screen coordinates."
+    (->> mvp-matrix (g/* (gm/viewport-matrix width height)))))

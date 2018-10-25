@@ -36,26 +36,26 @@
 
 (defn scene []
   (let [dimensions (subscribe [:poster/dimensions])
-        transform-matrix (subscribe [:stage/transform-matrix])]
+        viewport-matrix (subscribe [:matrix/viewport])]
     (into [:div.scene {:style {:width (:width @dimensions)
                                :height (:height @dimensions)
                                :position "relative"
                                :transform-origin "0 0"
                                :transform (css/transform-matrix
-                                            @transform-matrix)}}]
+                                            @viewport-matrix)}}]
       (r/children (r/current-component)))))
 
 (defn stage []
   (let [this (r/current-component)
         ready? (subscribe [:stage/ready?])
-        stage-position (subscribe [:stage/position])
-        transform-matrix (subscribe [:stage/transform-matrix])
+        stage-position (subscribe [:camera/position])
+        viewport-matrix (subscribe [:matrix/viewport])
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
-                  (let [s (g/mag (gv/vec2 (nth @transform-matrix 0) (nth @transform-matrix 1)))
+                  (let [s (g/mag (gv/vec2 (nth @viewport-matrix 0) (nth @viewport-matrix 1)))
                         dxy (g/scale (gv/vec2 dx dy) (/ s))
                         position (g/- (gv/vec2 original-position) dxy)]
-                    (dispatch [:stage/move-to position])))
+                    (dispatch [:camera/move-to position])))
         on-move-end (fn []
                       (reset! moving? false))
         start-move (fn [ev]
@@ -70,17 +70,17 @@
                            mouse-position (geometry/distance
                                             (dom/offset dom-node)
                                             (events/client-coord ev))
-                           position (-> @transform-matrix
+                           position (-> @viewport-matrix
                                       (g/invert)
                                       (g/transform-vector
                                         [(:x mouse-position)
                                          (:y mouse-position)]))]
                        (if (> 0 (:y (events/wheel-delta ev)))
-                         (dispatch-debounced [:stage/zoom-in position])
-                         (dispatch-debounced [:stage/zoom-out position]))))
+                         (dispatch-debounced [:camera/zoom-in position])
+                         (dispatch-debounced [:camera/zoom-out position]))))
         on-resize (fn []
                     (let [size (dom/size (r/dom-node this))]
-                      (dispatch-debounced [:stage/set-size size])))
+                      (dispatch-debounced [:viewport/set-size size])))
         did-mount (fn []
                     (events/on "resize" on-resize)
                     (on-resize))
