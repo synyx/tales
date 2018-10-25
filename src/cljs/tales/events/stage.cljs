@@ -44,13 +44,18 @@
       {:dispatch [:stage/set-scale (* scale 2) position]})))
 
 (reg-event-db :stage/fit-rect
-  [check-db-interceptor trim-v]
-  (fn [db [rect]]
+  [check-db-interceptor trim-v active-project]
+  (fn [db [rect active-project]]
     (let [screen-size (get-in db [:stage :size])
+          dimensions (:dimensions active-project)
           rect-center (geometry/rect-center rect)
-          new-scale (-> {:width (first screen-size)
-                         :height (second screen-size)}
-                      (geometry/rect-scale rect))]
+          s (Math/min
+              (/ (first screen-size) (:width dimensions))
+              (/ (second screen-size) (:height dimensions)))
+          new-scale (apply Math/max (-> [(:width rect) (:height rect)]
+                                      (gv/vec2)
+                                      (g/scale s)
+                                      (g/div screen-size)))]
       (-> db
         (assoc-in [:stage :position] [(:x rect-center) (:y rect-center)])
         (assoc-in [:stage :scale] new-scale)))))

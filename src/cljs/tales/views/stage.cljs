@@ -49,11 +49,11 @@
   (let [this (r/current-component)
         ready? (subscribe [:stage/ready?])
         stage-position (subscribe [:stage/position])
-        stage-scale (subscribe [:stage/scale])
         transform-matrix (subscribe [:stage/transform-matrix])
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
-                  (let [dxy (g/scale (gv/vec2 dx dy) @stage-scale)
+                  (let [s (g/mag (gv/vec2 (nth @transform-matrix 0) (nth @transform-matrix 1)))
+                        dxy (g/scale (gv/vec2 dx dy) (/ s))
                         position (g/- (gv/vec2 original-position) dxy)]
                     (dispatch [:stage/move-to position])))
         on-move-end (fn []
