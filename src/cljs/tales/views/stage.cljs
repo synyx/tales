@@ -45,12 +45,12 @@
                                             @viewport-matrix)}}]
       (r/children (r/current-component)))))
 
-(defn stage []
+(defn viewport []
   (let [this (r/current-component)
-        ready? (subscribe [:stage/ready?])
         stage-position (subscribe [:camera/position])
         viewport-matrix (subscribe [:matrix/viewport])
         viewport-scale (subscribe [:viewport/scale])
+        viewport-size (subscribe [:viewport/size])
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
                   (let [dxy (-> (gv/vec2 dx dy)
@@ -69,14 +69,26 @@
         start-zoom (fn [ev]
                      (let [dom-node (r/dom-node this)
                            {x :x y :y} (geometry/distance
-                                            (dom/offset dom-node)
-                                            (events/client-coord ev))
+                                         (dom/offset dom-node)
+                                         (events/client-coord ev))
                            position (-> @viewport-matrix
                                       (g/invert)
                                       (g/transform-vector [x y]))]
                        (if (> 0 (:y (events/wheel-delta ev)))
                          (dispatch-debounced [:camera/zoom-in position])
-                         (dispatch-debounced [:camera/zoom-out position]))))
+                         (dispatch-debounced [:camera/zoom-out position]))))]
+    (into [:div.scene {:on-mouse-down start-move
+                       :on-wheel start-zoom
+                       :style {:background-color "#ddd"
+                               :position "relative"
+                               :overflow "hidden"
+                               :width (first @viewport-size)
+                               :height (second @viewport-size)
+                               :cursor (if @moving? "grab" "pointer")}}]
+      (r/children (r/current-component)))))
+
+(defn stage []
+  (let [this (r/current-component)
         on-resize (fn []
                     (let [size (dom/size (r/dom-node this))]
                       (dispatch-debounced [:viewport/set-size size])))
@@ -85,16 +97,13 @@
                     (on-resize))
         will-unmount (fn [] (events/off "resize" on-resize))
         render (fn []
-                 [:div.stage {:on-mouse-down start-move
-                              :on-wheel start-zoom
-                              :style {:background-color "#ddd"
-                                      :overflow "hidden"
+                 [:div.stage {:style {:background-color "#233"
+                                      :display "flex"
+                                      :align-items "center"
+                                      :justify-content "center"
                                       :width "100%"
-                                      :height "100%"
-                                      :cursor (if @moving? "grab" "pointer")}}
-                  [hide-loading {:loading? (not @ready?)
-                                 :background-color "#ddd"
-                                 :color "#fff"}
+                                      :height "100%"}}
+                  [viewport
                    (into
                      [scene
                       [poster]
