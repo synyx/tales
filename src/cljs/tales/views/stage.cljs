@@ -50,10 +50,11 @@
         ready? (subscribe [:stage/ready?])
         stage-position (subscribe [:camera/position])
         viewport-matrix (subscribe [:matrix/viewport])
+        viewport-scale (subscribe [:viewport/scale])
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
-                  (let [s (g/mag (gv/vec2 (nth @viewport-matrix 0) (nth @viewport-matrix 1)))
-                        dxy (g/scale (gv/vec2 dx dy) (/ s))
+                  (let [dxy (-> (gv/vec2 dx dy)
+                              (g/scale (/ @viewport-scale)))
                         position (g/- (gv/vec2 original-position) dxy)]
                     (dispatch [:camera/move-to position])))
         on-move-end (fn []
@@ -67,14 +68,12 @@
                        (events/stop ev)))
         start-zoom (fn [ev]
                      (let [dom-node (r/dom-node this)
-                           mouse-position (geometry/distance
+                           {x :x y :y} (geometry/distance
                                             (dom/offset dom-node)
                                             (events/client-coord ev))
                            position (-> @viewport-matrix
                                       (g/invert)
-                                      (g/transform-vector
-                                        [(:x mouse-position)
-                                         (:y mouse-position)]))]
+                                      (g/transform-vector [x y]))]
                        (if (> 0 (:y (events/wheel-delta ev)))
                          (dispatch-debounced [:camera/zoom-in position])
                          (dispatch-debounced [:camera/zoom-out position]))))

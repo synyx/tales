@@ -27,7 +27,7 @@
 (defn navigator []
   (let [slides (subscribe [:slides])
         active-slide (subscribe [:slide/active])
-        scale (subscribe [:camera/scale])
+        scale (subscribe [:viewport/scale])
 
         svg-node (r/atom nil)
         draw-rect (r/atom nil)

@@ -1,6 +1,7 @@
 (ns tales.subs.view
   (:require [thi.ng.geom.core :as g]
             [thi.ng.geom.core.matrix :as gm]
+            [thi.ng.geom.core.vector :as gv]
             [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]))
 
 (reg-sub :stage/ready?
@@ -15,6 +16,12 @@
   :<- [:viewport/size]
   (fn [size _]
     (reduce / size)))
+
+(reg-sub :viewport/scale
+  :<- [:matrix/viewport]
+  (fn [m _]
+    (-> (gv/vec2 (nth m 0) (nth m 1))
+      (g/mag))))
 
 (reg-sub :camera/position
   (fn [db _]

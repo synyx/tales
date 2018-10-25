@@ -13,7 +13,7 @@
               :left {:x 0 :y 1 :cursor "w-resize"}})
 
 (defn rect [props]
-  (let [scale (subscribe [:camera/scale])
+  (let [scale (subscribe [:viewport/scale])
         active? (:active? props)
         rect (:rect props)
         x (:x rect)
