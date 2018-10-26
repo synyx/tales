@@ -51,15 +51,21 @@
 (reg-event-db :camera/fit-rect
   [check-db-interceptor trim-v active-project]
   (fn [db [rect active-project]]
-    (let [screen-size (get-in db [:viewport :size])
-          dimensions (:dimensions active-project)
+    (let [[sw sh] (get-in db [:viewport :size])
+          aspect-ratio (or
+                         (get-in db [:camera :aspect-ratio])
+                         (get-in db [:viewport :size]))
+          aspect-factor (reduce / aspect-ratio)
+          {pw :width ph :height} (:dimensions active-project)
           rect-center (geometry/rect-center rect)
-          sx (/ (first screen-size) (:width dimensions))
-          sy (/ (second screen-size) (:height dimensions))
+          a (/ aspect-factor (/ pw ph))
+          [sx sy] (if (>= aspect-factor 1)
+                    [(/ (/ sw pw) a) (/ sh ph)]
+                    [(/ sw pw) (* (/ sh ph) a)])
           new-scale (apply Math/max (-> [(:width rect) (:height rect)]
                                       (gv/vec2)
                                       (g/scale sx sy)
-                                      (g/div screen-size)))]
+                                      (g/div [sw sh])))]
       (-> db
         (assoc-in [:camera :position] [(:x rect-center) (:y rect-center)])
         (assoc-in [:camera :scale] new-scale)))))
