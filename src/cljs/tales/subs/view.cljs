@@ -1,7 +1,8 @@
 (ns tales.subs.view
-  (:require [thi.ng.geom.core :as g]
-            [thi.ng.geom.core.matrix :as gm]
-            [thi.ng.geom.core.vector :as gv]
+  (:require [thi.ng.math.core :as m]
+            [thi.ng.geom.core :as g]
+            [thi.ng.geom.matrix :as gm]
+            [thi.ng.geom.vector :as gv]
             [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]))
 
 (reg-sub :stage/ready?
@@ -24,7 +25,7 @@
   :<- [:matrix/viewport]
   (fn [m _]
     (-> (gv/vec2 (nth m 0) (nth m 1))
-      (g/mag))))
+      (m/mag))))
 
 (reg-sub :camera/aspect-ratio
   (fn [db _]
@@ -63,7 +64,7 @@
   :<- [:matrix/camera]
   (fn [camera-matrix _]
     "Matrix to convert from world coordinates to eye coordinates."
-    (g/invert camera-matrix)))
+    (m/invert camera-matrix)))
 
 (reg-sub :matrix/projection
   :<- [:camera/aspect-factor]
@@ -85,11 +86,11 @@
   :<- [:matrix/projection]
   (fn [[view-matrix projection-matrix] _]
     "Combined matrix to convert from model coordinates to clip coordinates."
-    (->> gm/M32 (g/* view-matrix) (g/* projection-matrix))))
+    (->> gm/M32 (m/* view-matrix) (m/* projection-matrix))))
 
 (reg-sub :matrix/viewport
   :<- [:matrix/mvp]
   :<- [:viewport/size]
   (fn [[mvp-matrix [width height]] _]
     "Combined matrix to convert from model coordinates to screen coordinates."
-    (->> mvp-matrix (g/* (gm/viewport-matrix width height)))))
+    (->> mvp-matrix (m/* (gm/viewport-matrix width height)))))

@@ -1,6 +1,7 @@
 (ns tales.views.stage
-  (:require [thi.ng.geom.core :as g]
-            [thi.ng.geom.core.vector :as gv]
+  (:require [thi.ng.math.core :as m]
+            [thi.ng.geom.core :as g]
+            [thi.ng.geom.vector :as gv]
             [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.geometry :as geometry]
@@ -54,8 +55,8 @@
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
                   (let [dxy (-> (gv/vec2 dx dy)
-                              (g/scale (/ @viewport-scale)))
-                        position (g/- (gv/vec2 original-position) dxy)]
+                              (m/div @viewport-scale))
+                        position (m/- (gv/vec2 original-position) dxy)]
                     (dispatch [:camera/move-to position])))
         on-move-end (fn []
                       (reset! moving? false))
@@ -72,7 +73,7 @@
                                          (dom/offset dom-node)
                                          (events/client-coord ev))
                            position (-> @viewport-matrix
-                                      (g/invert)
+                                      (m/invert)
                                       (g/transform-vector [x y]))]
                        (if (> 0 (:y (events/wheel-delta ev)))
                          (dispatch-debounced [:camera/zoom-in position])

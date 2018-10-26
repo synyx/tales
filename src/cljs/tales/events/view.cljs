@@ -1,6 +1,6 @@
 (ns tales.events.view
-  (:require [thi.ng.geom.core :as g]
-            [thi.ng.geom.core.vector :as gv]
+  (:require [thi.ng.math.core :as m]
+            [thi.ng.geom.vector :as gv]
             [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.interceptors :refer [active-project check-db-interceptor]]
             [tales.geometry :as geometry]))
@@ -28,10 +28,10 @@
           old-scale (get-in db [:camera :scale])
           s (/ scale old-scale)
           moved-by-scale (-> (gv/vec2 position)
-                           (g/- (g/scale (gv/vec2 position) s)))
+                           (m/- (m/* (gv/vec2 position) s)))
           [x y] (-> (gv/vec2 old-position)
-                  (g/scale s)
-                  (g/+ moved-by-scale))]
+                  (m/* s)
+                  (m/+ moved-by-scale))]
       (-> db
         (assoc-in [:camera :position] [x y])
         (assoc-in [:camera :scale] scale)))))
@@ -64,8 +64,8 @@
                     [(/ sw pw) (* (/ sh ph) a)])
           new-scale (apply Math/max (-> [(:width rect) (:height rect)]
                                       (gv/vec2)
-                                      (g/scale sx sy)
-                                      (g/div [sw sh])))]
+                                      (m/* [sx sy])
+                                      (m/div [sw sh])))]
       (-> db
         (assoc-in [:camera :position] [(:x rect-center) (:y rect-center)])
         (assoc-in [:camera :scale] new-scale)))))
