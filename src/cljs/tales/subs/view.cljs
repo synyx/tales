@@ -8,14 +8,17 @@
   (fn [_ _]
     true))
 
-(reg-sub :viewport/size
+(reg-sub :viewport/original-size
   (fn [db _]
     (get-in db [:viewport :size])))
 
-(reg-sub :viewport/aspect-ratio
-  :<- [:viewport/size]
-  (fn [size _]
-    (reduce / size)))
+(reg-sub :viewport/size
+  :<- [:viewport/original-size]
+  :<- [:camera/aspect-factor]
+  (fn [[[w h] camera-aspect-factor] _]
+    (if (>= (/ (/ w h) camera-aspect-factor) 1)
+      [(* h camera-aspect-factor) h]
+      [w (/ w camera-aspect-factor)])))
 
 (reg-sub :viewport/scale
   :<- [:matrix/viewport]
@@ -23,12 +26,28 @@
     (-> (gv/vec2 (nth m 0) (nth m 1))
       (g/mag))))
 
+(reg-sub :camera/aspect-ratio
+  (fn [db _]
+    (or
+      (get-in db [:camera :aspect-ratio])
+      (get-in db [:viewport :size]))))
+
+(reg-sub :camera/aspect-factor
+  :<- [:camera/aspect-ratio]
+  (fn [[x y] _]
+    (if (not= y 0)
+      (/ x y)
+      1)))
+
 (reg-sub :camera/position
   (fn [db _]
+    "The position of the camera in world space."
     (get-in db [:camera :position])))
 
 (reg-sub :camera/scale
   (fn [db _]
+    "The scale of the camera in world space. A smaller value shrinks the view
+    of the camera and therefore magnifies the resulting view."
     (get-in db [:camera :scale])))
 
 (reg-sub :matrix/camera
@@ -47,14 +66,17 @@
     (g/invert camera-matrix)))
 
 (reg-sub :matrix/projection
-  :<- [:viewport/aspect-ratio]
+  :<- [:camera/aspect-factor]
   :<- [:poster/dimensions]
   (fn [[aspect {width :width height :height}] _]
     "Matrix to convert from eye coordinates to clip coordinates."
-    (let [aspect' (if (< aspect (/ width height))
-                    (map #(* (/ width 2) %) [-1 (- (/ aspect)) 1 (/ aspect) -1 1])
-                    (map #(* (/ height 2) %) [(- aspect) -1 aspect 1 -1 1]))]
-      (-> (apply gm/ortho aspect')
+    (let [a (/ aspect (/ width height))
+          w2 (/ width 2)
+          h2 (/ height 2)
+          [l t r b n f] (if (>= aspect 1)
+                          [(- (* w2 a)) (- h2) (* w2 a) h2 1 -1]
+                          [(- w2) (- (/ h2 a)) w2 (/ h2 a) 1 -1])]
+      (-> (gm/ortho l t r b n f)
         (gm/matrix44->matrix33)
         (gm/matrix32)))))
 

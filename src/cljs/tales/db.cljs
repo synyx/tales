@@ -7,9 +7,10 @@
 
 (s/def ::point (s/tuple real? real?))
 
+(s/def ::aspect-ratio (s/nilable (s/tuple real? real?)))
 (s/def ::position ::point)
 (s/def ::scale (s/and real? pos?))
-(s/def ::camera (s/keys :req-un [::position ::scale]))
+(s/def ::camera (s/keys :req-un [::aspect-ratio ::position ::scale]))
 
 (s/def ::size (s/tuple real? real?))
 (s/def ::viewport (s/keys :req-un [::size]))
@@ -21,6 +22,7 @@
    :active-page nil
    :active-project nil
    :active-slide nil
-   :camera {:position [0 0]
+   :camera {:aspect-ratio nil
+            :position [0 0]
             :scale 1}
    :viewport {:size [0 0]}})

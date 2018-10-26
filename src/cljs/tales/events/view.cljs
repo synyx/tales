@@ -10,6 +10,11 @@
   (fn [db [size]]
     (assoc-in db [:viewport :size] size)))
 
+(reg-event-db :camera/set-aspect-ratio
+  [check-db-interceptor trim-v]
+  (fn [db [size]]
+    (assoc-in db [:camera :aspect-ratio] size)))
+
 (reg-event-db :camera/move-to
   [check-db-interceptor trim-v]
   (fn [db [[x y]]]
@@ -49,12 +54,11 @@
     (let [screen-size (get-in db [:viewport :size])
           dimensions (:dimensions active-project)
           rect-center (geometry/rect-center rect)
-          s (Math/min
-              (/ (first screen-size) (:width dimensions))
-              (/ (second screen-size) (:height dimensions)))
+          sx (/ (first screen-size) (:width dimensions))
+          sy (/ (second screen-size) (:height dimensions))
           new-scale (apply Math/max (-> [(:width rect) (:height rect)]
                                       (gv/vec2)
-                                      (g/scale s)
+                                      (g/scale sx sy)
                                       (g/div screen-size)))]
       (-> db
         (assoc-in [:camera :position] [(:x rect-center) (:y rect-center)])
