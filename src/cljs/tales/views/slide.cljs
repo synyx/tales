@@ -13,7 +13,7 @@
               :left {:x 0 :y 1 :cursor "w-resize"}})
 
 (defn rect [props]
-  (let [scale (subscribe [:stage/scale])
+  (let [scale (subscribe [:viewport/scale])
         active? (:active? props)
         rect (:rect props)
         x (:x rect)
@@ -39,7 +39,7 @@
                            (events/stop ev)
                            (dragging ev #(on-resize corner %) on-resize-end))))]
     [:g {:on-click #(dispatch [:slide/activate (:key props)])
-         :on-double-click #(dispatch [:stage/fit-rect rect])
+         :on-double-click #(dispatch [:camera/fit-rect rect])
          :class (:key props)}
      [:rect {:x x
              :y y

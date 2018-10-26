@@ -1,5 +1,7 @@
 (ns tales.views.stage
-  (:require [reagent.core :as r]
+  (:require [thi.ng.geom.core :as g]
+            [thi.ng.geom.core.vector :as gv]
+            [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.geometry :as geometry]
             [tales.util.async :refer [debounce]]
@@ -9,31 +11,15 @@
             [tales.util.events :as events]
             [tales.views.loader :refer [hide-loading]]))
 
-(defn- zoom [direction position]
-  (dispatch [(case direction
-               :in :stage/zoom-in-around
-               :out :stage/zoom-out-around) position]))
-(def ^:private zoom-debounced (debounce zoom 40))
+(def ^:private dispatch-debounced (debounce dispatch 40))
 
 (defn debug-layer []
   (let [dimensions (subscribe [:poster/dimensions])
-        stage-scale (subscribe [:stage/scale])
-        stage-position (subscribe [:stage/position])
-        transform-origin (subscribe [:stage/transform-origin])
         height (:height @dimensions)
-        width (:width @dimensions)
-        radius (/ 10 @stage-scale)]
+        width (:width @dimensions)]
     [:svg {:style {:position "absolute"
                    :width "100%"
                    :height "100%"}}
-     [:circle {:cx (:x @stage-position)
-               :cy (:y @stage-position)
-               :r radius
-               :fill "yellow"}]
-     [:circle {:cx (:x @transform-origin)
-               :cy (:y @transform-origin)
-               :r radius
-               :fill "red"}]
      (for [x (range 0 width 100)]
        ^{:key x}
        [:line {:x1 x :y1 0 :x2 x :y2 height :stroke "black"}])
@@ -41,20 +27,36 @@
        ^{:key y}
        [:line {:x1 0 :y1 y :x2 width :y2 y :stroke "black"}])]))
 
-(defn stage []
+(defn poster []
+  (let [file-path (subscribe [:poster/file-path])]
+    [:img {:style {:position "absolute"
+                   :width "100%"
+                   :height "100%"}
+           :src @file-path}]))
+
+(defn scene []
+  (let [dimensions (subscribe [:poster/dimensions])
+        viewport-matrix (subscribe [:matrix/viewport])]
+    (into [:div.scene {:style {:width (:width @dimensions)
+                               :height (:height @dimensions)
+                               :position "relative"
+                               :transform-origin "0 0"
+                               :transform (css/transform-matrix
+                                            @viewport-matrix)}}]
+      (r/children (r/current-component)))))
+
+(defn viewport []
   (let [this (r/current-component)
-        dimensions (subscribe [:poster/dimensions])
-        file-path (subscribe [:poster/file-path])
-        ready? (subscribe [:stage/ready?])
-        stage-position (subscribe [:stage/position])
-        stage-scale (subscribe [:stage/scale])
-        transform-origin (subscribe [:stage/transform-origin])
-        transform-matrix (subscribe [:stage/transform-matrix])
+        stage-position (subscribe [:camera/position])
+        viewport-matrix (subscribe [:matrix/viewport])
+        viewport-scale (subscribe [:viewport/scale])
+        viewport-size (subscribe [:viewport/size])
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
-                  (let [x (- (:x original-position) (/ dx @stage-scale))
-                        y (- (:y original-position) (/ dy @stage-scale))]
-                    (dispatch [:stage/move-to x y])))
+                  (let [dxy (-> (gv/vec2 dx dy)
+                              (g/scale (/ @viewport-scale)))
+                        position (g/- (gv/vec2 original-position) dxy)]
+                    (dispatch [:camera/move-to position])))
         on-move-end (fn []
                       (reset! moving? false))
         start-move (fn [ev]
@@ -66,42 +68,45 @@
                        (events/stop ev)))
         start-zoom (fn [ev]
                      (let [dom-node (r/dom-node this)
-                           mouse-position (geometry/distance
-                                            (dom/offset dom-node)
-                                            (events/client-coord ev))
-                           position (-> mouse-position
-                                      (geometry/scale @stage-scale)
-                                      (geometry/add-points @stage-position))]
+                           {x :x y :y} (geometry/distance
+                                         (dom/offset dom-node)
+                                         (events/client-coord ev))
+                           position (-> @viewport-matrix
+                                      (g/invert)
+                                      (g/transform-vector [x y]))]
                        (if (> 0 (:y (events/wheel-delta ev)))
-                         (zoom-debounced :in position)
-                         (zoom-debounced :out position))))
-        did-mount (fn [] (dispatch [:stage/mounted (r/dom-node this)]))
-        will-unmount (fn [] (dispatch [:stage/unmounted]))
+                         (dispatch-debounced [:camera/zoom-in position])
+                         (dispatch-debounced [:camera/zoom-out position]))))]
+    (into [:div.scene {:on-mouse-down start-move
+                       :on-wheel start-zoom
+                       :style {:background-color "#ddd"
+                               :position "relative"
+                               :overflow "hidden"
+                               :width (first @viewport-size)
+                               :height (second @viewport-size)
+                               :cursor (if @moving? "grab" "pointer")}}]
+      (r/children (r/current-component)))))
+
+(defn stage []
+  (let [this (r/current-component)
+        on-resize (fn []
+                    (let [size (dom/size (r/dom-node this))]
+                      (dispatch-debounced [:viewport/set-size size])))
+        did-mount (fn []
+                    (events/on "resize" on-resize)
+                    (on-resize))
+        will-unmount (fn [] (events/off "resize" on-resize))
         render (fn []
-                 [:div {:on-wheel start-zoom
-                        :on-mouse-down start-move
-                        :style {:background-color "#ddd"
-                                :overflow "hidden"
-                                :width "100%"
-                                :height "100%"
-                                :position "relative"
-                                :cursor (if @moving? "grab" "pointer")}}
-                  [hide-loading {:loading? (not @ready?)
-                                 :background-color "#ddd"
-                                 :color "#fff"}
+                 [:div.stage {:style {:background-color "#233"
+                                      :display "flex"
+                                      :align-items "center"
+                                      :justify-content "center"
+                                      :width "100%"
+                                      :height "100%"}}
+                  [viewport
                    (into
-                     [:div {:style {:width (:width @dimensions)
-                                    :height (:height @dimensions)
-                                    :position "absolute"
-                                    :transform-origin (css/transform-origin
-                                                        (:x @transform-origin)
-                                                        (:y @transform-origin))
-                                    :transform (apply css/transform-matrix
-                                                 @transform-matrix)}}
-                      [:img {:style {:position "absolute"
-                                     :width "100%"
-                                     :height "100%"}
-                             :src @file-path}]
+                     [scene
+                      [poster]
                       [debug-layer]]
                      (r/children this))]])]
     (r/create-class {:display-name "stage"

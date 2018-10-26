@@ -5,24 +5,24 @@
   "Returns true if `x` is a real number"
   [x] (and (number? x) (js/isFinite x)))
 
-(s/def ::x real?)
-(s/def ::y real?)
-(s/def ::point (s/keys :req-un [::x ::y]))
+(s/def ::point (s/tuple real? real?))
 
-(s/def ::zoom (s/and real?))
+(s/def ::aspect-ratio (s/nilable (s/tuple real? real?)))
 (s/def ::position ::point)
-(s/def ::origin ::point)
+(s/def ::scale (s/and real? pos?))
+(s/def ::camera (s/keys :req-un [::aspect-ratio ::position ::scale]))
 
-(s/def ::stage (s/keys :req-un [::zoom ::position ::origin]))
+(s/def ::size (s/tuple real? real?))
+(s/def ::viewport (s/keys :req-un [::size]))
 
-(s/def ::db (s/keys :req-un [::stage]))
+(s/def ::db (s/keys :req-un [::camera ::viewport]))
 
 (def default-db
   {:projects {}
    :active-page nil
    :active-project nil
    :active-slide nil
-   :editor {}
-   :stage {:zoom 0
-           :position {:x 0 :y 0}
-           :origin {:x 0 :y 0}}})
+   :camera {:aspect-ratio nil
+            :position [0 0]
+            :scale 1}
+   :viewport {:size [0 0]}})

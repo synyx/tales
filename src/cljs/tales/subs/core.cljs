@@ -2,7 +2,7 @@
   (:require [re-frame.core :refer [reg-sub reg-sub-raw]]
             [tales.subs.project]
             [tales.subs.slide]
-            [tales.subs.stage]))
+            [tales.subs.view]))
 
 (reg-sub :active-page
   (fn [db _]
