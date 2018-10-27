@@ -3,8 +3,9 @@
             [re-frame.core :as rf :refer [dispatch dispatch-sync subscribe]]
             [tales.effects]
             [tales.events.core]
-            [tales.subs.core]
             [tales.routes :as routes]
+            [tales.subs.core]
+            [tales.ticker]
             [tales.util.dom :as dom]
             [tales.views.core :as views]))
 
