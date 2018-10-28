@@ -39,7 +39,7 @@
                            (events/stop ev)
                            (dragging ev #(on-resize corner %) on-resize-end))))]
     [:g {:on-click #(dispatch [:slide/activate (:key props)])
-         :on-double-click #(dispatch [:camera/fit-rect rect])
+         :on-double-click #(dispatch [:camera/fly-to-rect rect])
          :class (:key props)}
      [:rect {:x x
              :y y

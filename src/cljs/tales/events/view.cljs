@@ -2,6 +2,7 @@
   (:require [thi.ng.math.core :as m]
             [thi.ng.geom.vector :as gv]
             [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
+            [tales.animation :as anim]
             [tales.interceptors :refer [active-project check-db-interceptor]]
             [tales.geometry :as geometry]))
 
@@ -69,3 +70,29 @@
       (-> db
         (assoc-in [:camera :position] [(:x rect-center) (:y rect-center)])
         (assoc-in [:camera :scale] new-scale)))))
+
+(reg-event-fx :camera/fly-to-rect
+  [check-db-interceptor trim-v active-project]
+  (fn [{db :db} [rect active-project]]
+    (let [aspect-ratio (or
+                         (get-in db [:camera :aspect-ratio])
+                         (get-in db [:viewport :size]))
+          poster-rect [(get-in active-project [:dimensions :width])
+                       (get-in active-project [:dimensions :height])]
+          rect-center (geometry/rect-center rect)
+          rect [(:width rect) (:height rect)]
+          new-scale (rect-scale rect poster-rect aspect-ratio)]
+      {:animate-db [{:id :camera/position
+                     :path [:camera :position]
+                     :from (get-in db [:camera :position])
+                     :to [(:x rect-center) (:y rect-center)]
+                     :duration 2000
+                     :easing (fn [a b d]
+                               (fn [t]
+                                 [(anim/linear (first a) (first b) d t)
+                                  (anim/linear (second a) (second b) d t)]))}
+                    {:id :camera/scale
+                     :path [:camera :scale]
+                     :from (get-in db [:camera :scale])
+                     :to new-scale
+                     :duration 2000}]})))
