@@ -12,6 +12,12 @@
   "Dispatches :next-tick event at next redraw cycle."
   [] (r/next-tick (fn [] (dispatch [:next-tick]))))
 
+(defn add-handler [id handler]
+  (dispatch [:add-tick-handlers {id handler}]))
+
+(defn remove-handler [id]
+  (dispatch [:remove-tick-handlers [id]]))
+
 (reg-event-db :add-tick-handlers
   [trim-v]
   (fn [db [handlers]]
