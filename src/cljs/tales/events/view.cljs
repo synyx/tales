@@ -48,24 +48,24 @@
     (let [scale (get-in db [:camera :scale])]
       {:dispatch [:camera/set-scale (* scale 2) position]})))
 
+(defn- rect-scale [[aw ah] [bw bh] aspect-ratio]
+  (let [aspect-factor (reduce / aspect-ratio)
+        scale (if (>= aspect-factor 1)
+                [(/ (/ aw bh) aspect-factor) (/ ah bh)]
+                [(/ aw bw) (* (/ ah bw) aspect-factor)])]
+    (apply Math/max scale)))
+
 (reg-event-db :camera/fit-rect
   [check-db-interceptor trim-v active-project]
   (fn [db [rect active-project]]
-    (let [[sw sh] (get-in db [:viewport :size])
-          aspect-ratio (or
+    (let [aspect-ratio (or
                          (get-in db [:camera :aspect-ratio])
                          (get-in db [:viewport :size]))
-          aspect-factor (reduce / aspect-ratio)
-          {pw :width ph :height} (:dimensions active-project)
+          poster-rect [(get-in active-project [:dimensions :width])
+                       (get-in active-project [:dimensions :height])]
           rect-center (geometry/rect-center rect)
-          a (/ aspect-factor (/ pw ph))
-          [sx sy] (if (>= aspect-factor 1)
-                    [(/ (/ sw pw) a) (/ sh ph)]
-                    [(/ sw pw) (* (/ sh ph) a)])
-          new-scale (apply Math/max (-> [(:width rect) (:height rect)]
-                                      (gv/vec2)
-                                      (m/* [sx sy])
-                                      (m/div [sw sh])))]
+          rect [(:width rect) (:height rect)]
+          new-scale (rect-scale rect poster-rect aspect-ratio)]
       (-> db
         (assoc-in [:camera :position] [(:x rect-center) (:y rect-center)])
         (assoc-in [:camera :scale] new-scale)))))
