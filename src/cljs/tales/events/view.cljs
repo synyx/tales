@@ -81,18 +81,29 @@
                        (get-in active-project [:dimensions :height])]
           rect-center (geometry/rect-center rect)
           rect [(:width rect) (:height rect)]
-          new-scale (rect-scale rect poster-rect aspect-ratio)]
+          new-scale (rect-scale rect poster-rect aspect-ratio)
+
+          old-scale (get-in db [:camera :scale])
+          c0 (get-in db [:camera :position])
+          c1 [(:x rect-center) (:y rect-center)]
+          w0 (* (first poster-rect) old-scale)
+          w1 (* (first poster-rect) new-scale)
+          [duration easing](anim/smooth-efficient c0 w0 c1 w1 (first poster-rect) 1 1.42)]
       {:animate-db [{:id :camera/position
                      :path [:camera :position]
                      :from (get-in db [:camera :position])
                      :to [(:x rect-center) (:y rect-center)]
-                     :duration 2000
-                     :easing (fn [a b d]
+                     :duration duration
+                     :easing (fn []
                                (fn [t]
-                                 [(anim/linear (first a) (first b) d t)
-                                  (anim/linear (second a) (second b) d t)]))}
+                                 (let [[pos _] (easing t)]
+                                   pos)))}
                     {:id :camera/scale
                      :path [:camera :scale]
                      :from (get-in db [:camera :scale])
                      :to new-scale
-                     :duration 2000}]})))
+                     :duration duration
+                     :easing (fn []
+                               (fn [t]
+                                 (let [[_ scale] (easing t)]
+                                   scale)))}]})))
