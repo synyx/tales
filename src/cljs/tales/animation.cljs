@@ -47,7 +47,7 @@
 (defn- w [w0 r0 rho s]
   (/ (* w0 (cosh r0)) (cosh (+ (* rho s) r0))))
 
-(defn smooth-efficient [c0 w0 c1 w1 width V rho]
+(defn smooth-efficient [c0 w0 c1 w1 V rho]
   "Implementation of \"Smooth and efficient zooming and panning\",
   Jarke J. van Wijk and Wim A. A. Nuij, TU Eindhoven, Netherlands."
   (let [u1 (g/dist (gv/vec2 c0) c1)
@@ -61,7 +61,6 @@
                         s (Math/min (* V t) (S r0 r1 rho))
                         us (u w0 r0 rho s)
                         ws (w w0 r0 rho s)
-                        pos (m/mix (gv/vec2 c0) c1 (/ us u1))
-                        scale (/ ws width)]
-                    [pos scale]))]
+                        pos (m/mix (gv/vec2 c0) c1 (/ us u1))]
+                    [pos ws]))]
     [duration tick-fn]))

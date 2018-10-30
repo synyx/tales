@@ -68,15 +68,11 @@
 
 (reg-sub :matrix/projection
   :<- [:camera/aspect-factor]
-  :<- [:poster/dimensions]
-  (fn [[aspect {width :width height :height}] _]
+  (fn [a _]
     "Matrix to convert from eye coordinates to clip coordinates."
-    (let [a (/ aspect (/ width height))
-          w2 (/ width 2)
-          h2 (/ height 2)
-          [l t r b n f] (if (>= aspect 1)
-                          [(- (* w2 a)) (- h2) (* w2 a) h2 1 -1]
-                          [(- w2) (- (/ h2 a)) w2 (/ h2 a) 1 -1])]
+    (let [[l t r b n f] (if (>= a 1)
+                          [0 0 1 (/ a) 1 -1]
+                          [0 0 (* a) 1 1 -1])]
       (-> (gm/ortho l t r b n f)
         (gm/matrix44->matrix33)
         (gm/matrix32)))))
