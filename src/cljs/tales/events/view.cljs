@@ -3,7 +3,7 @@
             [thi.ng.geom.vector :as gv]
             [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.animation :as anim]
-            [tales.interceptors :refer [check-db-interceptor]]
+            [tales.interceptors :refer [active-project check-db-interceptor]]
             [tales.geometry :as geometry]))
 
 (reg-event-db :viewport/set-size
@@ -15,6 +15,19 @@
   [check-db-interceptor trim-v]
   (fn [db [size]]
     (assoc-in db [:camera :aspect-ratio] size)))
+
+(reg-event-fx :camera/setup
+  [trim-v active-project]
+  (fn [{db :db} [active-project]]
+    (let [poster-dimensions (:dimensions active-project)
+          viewport-size (get-in db [:viewport :size])]
+      {:db (assoc-in db [:camera :aspect-ratio] [(reduce / viewport-size) 1])
+       :dispatch [:camera/fit-rect poster-dimensions]})))
+
+(reg-event-db :camera/destroy
+  [check-db-interceptor trim-v]
+  (fn [db _]
+    (dissoc db :camera)))
 
 (reg-event-db :camera/move-to
   [check-db-interceptor trim-v]
@@ -61,9 +74,7 @@
 (reg-event-db :camera/fit-rect
   [check-db-interceptor trim-v]
   (fn [db [rect]]
-    (let [aspect-ratio (or
-                         (get-in db [:camera :aspect-ratio])
-                         (get-in db [:viewport :size]))
+    (let [aspect-ratio (get-in db [:camera :aspect-ratio])
           rect-center (geometry/rect-center rect)
           rect [(:width rect) (:height rect)]
           new-scale (rect-scale rect aspect-ratio)]
@@ -74,9 +85,7 @@
 (reg-event-fx :camera/fly-to-rect
   [check-db-interceptor trim-v]
   (fn [{db :db} [rect]]
-    (let [aspect-ratio (or
-                         (get-in db [:camera :aspect-ratio])
-                         (get-in db [:viewport :size]))
+    (let [aspect-ratio (get-in db [:camera :aspect-ratio])
           rect-center (geometry/rect-center rect)
           rect [(:width rect) (:height rect)]
           c0 (get-in db [:camera :position])

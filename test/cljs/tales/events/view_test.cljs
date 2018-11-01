@@ -10,7 +10,7 @@
   (testing "viewport set size"
     (rf-test/run-test-sync
       (rf/dispatch [:initialise-db])
-      (let [size (rf/subscribe [:viewport/size])]
+      (let [size (rf/subscribe [:viewport/original-size])]
         (rf/dispatch [:viewport/set-size [123 321]])
         (is (= @size [123 321])))))
   (testing "camera moving"
@@ -65,6 +65,7 @@
     (rf-test/run-test-sync
       (rf/dispatch-sync [:initialise-db])
       (rf/dispatch [:viewport/set-size [100 100]])
+      (rf/dispatch [:camera/set-aspect-ratio [1 1]])
       (rf/dispatch [:project/add {:slug "my-tale"
                                   :dimensions {:width 100 :height 100}}])
       (rf/dispatch [:activate-project "my-tale"])

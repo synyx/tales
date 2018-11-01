@@ -1,14 +1,31 @@
 (ns tales.subs.view
-  (:require [thi.ng.math.core :as m]
+  (:require-macros [reagent.ratom :as ratom])
+  (:require [reagent.core :as r]
+            [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]
+            [thi.ng.math.core :as m]
             [thi.ng.geom.core :as g]
             [thi.ng.geom.matrix :as gm]
-            [thi.ng.geom.vector :as gv]
-            [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]))
+            [thi.ng.geom.vector :as gv]))
 
-(reg-sub :viewport/ready?
+(reg-sub-raw :viewport/ready?
   (fn [db _]
-    (let [viewport-size (get-in db [:viewport :size])]
-      (not (nil? viewport-size)))))
+    (let [had-size? (r/atom false)
+          setup-camera #(dispatch [:camera/setup])
+          destroy-camera #(dispatch [:camera/destroy])
+          has? (fn [key m] (not (nil? (key m))))]
+      (ratom/reaction
+        (let [viewport (get @db :viewport)
+              camera (get @db :camera)
+              has-size? (has? :size viewport)
+              ready? (and has-size?
+                       (has? :position camera)
+                       (has? :scale camera)
+                       (has? :aspect-ratio camera))]
+          (if @had-size?
+            (when-not has-size? (destroy-camera))
+            (when has-size? (setup-camera)))
+          (reset! had-size? has-size?)
+          ready?)))))
 
 (reg-sub :viewport/original-size
   (fn [db _]
@@ -30,16 +47,12 @@
 
 (reg-sub :camera/aspect-ratio
   (fn [db _]
-    (or
-      (get-in db [:camera :aspect-ratio])
-      (get-in db [:viewport :size]))))
+    (get-in db [:camera :aspect-ratio])))
 
 (reg-sub :camera/aspect-factor
   :<- [:camera/aspect-ratio]
   (fn [[x y] _]
-    (if (not= y 0)
-      (/ x y)
-      1)))
+    (/ x y)))
 
 (reg-sub :camera/position
   (fn [db _]
