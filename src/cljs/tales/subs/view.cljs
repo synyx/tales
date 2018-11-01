@@ -5,9 +5,10 @@
             [thi.ng.geom.vector :as gv]
             [re-frame.core :refer [dispatch reg-sub reg-sub-raw]]))
 
-(reg-sub :stage/ready?
-  (fn [_ _]
-    true))
+(reg-sub :viewport/ready?
+  (fn [db _]
+    (let [viewport-size (get-in db [:viewport :size])]
+      (not (nil? viewport-size)))))
 
 (reg-sub :viewport/original-size
   (fn [db _]

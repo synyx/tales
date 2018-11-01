@@ -48,10 +48,10 @@
 
 (defn viewport []
   (let [this (r/current-component)
-        stage-position (subscribe [:camera/position])
-        viewport-matrix (subscribe [:matrix/viewport])
         viewport-scale (subscribe [:viewport/scale])
         viewport-size (subscribe [:viewport/size])
+        viewport-matrix (subscribe [:matrix/viewport])
+        camera-position (subscribe [:camera/position])
         moving? (r/atom false)
         on-move (fn [original-position {dx :dx dy :dy}]
                   (let [dxy (-> (gv/vec2 dx dy)
@@ -61,7 +61,7 @@
         on-move-end (fn []
                       (reset! moving? false))
         start-move (fn [ev]
-                     (let [original-position @stage-position
+                     (let [original-position @camera-position
                            on-move #(on-move original-position %)]
                        (reset! moving? true)
                        (dragging ev on-move on-move-end)
@@ -90,6 +90,7 @@
 
 (defn stage []
   (let [this (r/current-component)
+        viewport-ready (subscribe [:viewport/ready?])
         on-resize (fn []
                     (let [size (dom/size (r/dom-node this))]
                       (dispatch-debounced [:viewport/set-size size])))
@@ -104,12 +105,13 @@
                                       :justify-content "center"
                                       :width "100%"
                                       :height "100%"}}
-                  [viewport
-                   (into
-                     [scene
-                      [poster]
-                      [debug-layer]]
-                     (r/children this))]])]
+                  (if @viewport-ready
+                    [viewport
+                     (into
+                       [scene
+                        [poster]
+                        [debug-layer]]
+                       (r/children this))])])]
     (r/create-class {:display-name "stage"
                      :component-did-mount did-mount
                      :component-will-unmount will-unmount

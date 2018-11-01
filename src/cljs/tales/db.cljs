@@ -25,5 +25,5 @@
    :camera {:aspect-ratio nil
             :position [0 0]
             :scale 1}
-   :viewport {:size [0 0]}
+   :viewport {:size nil}
    :tick {:handlers {} :paused? true}})
