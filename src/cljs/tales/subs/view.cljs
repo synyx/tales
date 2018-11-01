@@ -40,9 +40,11 @@
       [w (/ w camera-aspect-factor)])))
 
 (reg-sub :viewport/scale
+  :<- [:matrix/mvp]
   :<- [:matrix/viewport]
-  (fn [m _]
-    (-> (gv/vec2 (nth m 0) (nth m 1))
+  (fn [[m1 m2] _]
+    (-> (gv/vec2 (nth m2 0) (nth m2 1))
+      (m/* (gv/vec2 (nth m1 0) (nth m1 1)))
       (m/mag))))
 
 (reg-sub :camera/aspect-ratio
@@ -99,8 +101,7 @@
     (->> gm/M32 (m/* view-matrix) (m/* projection-matrix))))
 
 (reg-sub :matrix/viewport
-  :<- [:matrix/mvp]
   :<- [:viewport/size]
-  (fn [[mvp-matrix [width height]] _]
+  (fn [[width height] _]
     "Combined matrix to convert from model coordinates to screen coordinates."
-    (->> mvp-matrix (m/* (gm/viewport-matrix width height)))))
+    (gm/viewport-matrix width height)))

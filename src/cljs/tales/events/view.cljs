@@ -34,6 +34,13 @@
   (fn [db [[x y]]]
     (assoc-in db [:camera :position] [x y])))
 
+(reg-event-db :camera/move-by
+  [check-db-interceptor trim-v]
+  (fn [db [[dx dy]]]
+    (let [[x y] (get-in db [:camera :position])]
+    (assoc-in db [:camera :position] [(- x dx)
+                                      (- y dy)]))))
+
 (reg-event-db :camera/set-scale
   [check-db-interceptor trim-v]
   (fn [db [scale position]]
