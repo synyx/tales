@@ -6,7 +6,7 @@
             [tales.subs.core]
             [tales.helper :refer [with-mounted-component]]))
 
-(deftest test-events-stage
+(deftest test-events-core
   (rf/reg-event-db :project/add
     (fn [db [_ project]]
       (assoc-in db [:projects (:slug project)] project)))

@@ -6,7 +6,7 @@
             [tales.subs.view]
             [tales.helper :refer [with-mounted-component]]))
 
-(deftest test-events-stage
+(deftest test-events-view
   (testing "viewport set size"
     (rf-test/run-test-sync
       (rf/dispatch [:initialise-db])
