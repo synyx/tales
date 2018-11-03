@@ -37,33 +37,36 @@
 
 (defn scene []
   (let [dimensions (subscribe [:poster/dimensions])
-        viewport-matrix (subscribe [:matrix/viewport])]
-    (into [:div.scene {:style {:width (:width @dimensions)
-                               :height (:height @dimensions)
-                               :position "relative"
-                               :transform-origin "0 0"
-                               :transform (css/transform-matrix
-                                            @viewport-matrix)}}]
-      (r/children (r/current-component)))))
+        viewport-matrix (subscribe [:matrix/viewport])
+        mvp-matrix (subscribe [:matrix/mvp])]
+    [:div.scene {:style {:transform-origin "0 0"
+                         :transform (css/transform-matrix
+                                      @viewport-matrix)}}
+     (into [:div.world {:style {:width (:width @dimensions)
+                                :height (:height @dimensions)
+                                :transform-origin "0 0"
+                                :transform (css/transform-matrix
+                                             @mvp-matrix)}}]
+       (r/children (r/current-component)))]))
 
 (defn viewport []
   (let [this (r/current-component)
-        stage-position (subscribe [:camera/position])
-        viewport-matrix (subscribe [:matrix/viewport])
         viewport-scale (subscribe [:viewport/scale])
         viewport-size (subscribe [:viewport/size])
-        moving? (r/atom false)
-        on-move (fn [original-position {dx :dx dy :dy}]
-                  (let [dxy (-> (gv/vec2 dx dy)
-                              (m/div @viewport-scale))
-                        position (m/- (gv/vec2 original-position) dxy)]
-                    (dispatch [:camera/move-to position])))
+        mvp-matrix (subscribe [:matrix/mvp])
+        viewport-matrix (subscribe [:matrix/viewport])
+        last-position (r/atom nil)
+        on-move (fn [{{x :x y :y} :end}]
+                  (let [[dx dy] (-> (gv/vec2 x y)
+                                  (m/- @last-position)
+                                  (m/div @viewport-scale))]
+                    (reset! last-position [x y])
+                    (dispatch [:camera/move-by [dx dy]])))
         on-move-end (fn []
-                      (reset! moving? false))
+                      (reset! last-position nil))
         start-move (fn [ev]
-                     (let [original-position @stage-position
-                           on-move #(on-move original-position %)]
-                       (reset! moving? true)
+                     (let [{x :x y :y} (events/client-coord ev)]
+                       (reset! last-position [x y])
                        (dragging ev on-move on-move-end)
                        (events/prevent ev)
                        (events/stop ev)))
@@ -73,23 +76,26 @@
                                          (dom/offset dom-node)
                                          (events/client-coord ev))
                            position (-> @viewport-matrix
+                                      (m/* @mvp-matrix)
                                       (m/invert)
                                       (g/transform-vector [x y]))]
                        (if (> 0 (:y (events/wheel-delta ev)))
                          (dispatch-debounced [:camera/zoom-in position])
                          (dispatch-debounced [:camera/zoom-out position]))))]
-    (into [:div.scene {:on-mouse-down start-move
-                       :on-wheel start-zoom
-                       :style {:background-color "#ddd"
-                               :position "relative"
-                               :overflow "hidden"
-                               :width (first @viewport-size)
-                               :height (second @viewport-size)
-                               :cursor (if @moving? "grab" "pointer")}}]
+    (into [:div.viewport {:on-mouse-down start-move
+                          :on-wheel start-zoom
+                          :style {:background-color "#ddd"
+                                  :overflow "hidden"
+                                  :width (first @viewport-size)
+                                  :height (second @viewport-size)
+                                  :cursor (if @last-position
+                                            "grab"
+                                            "pointer")}}]
       (r/children (r/current-component)))))
 
 (defn stage []
   (let [this (r/current-component)
+        viewport-ready (subscribe [:viewport/ready?])
         on-resize (fn []
                     (let [size (dom/size (r/dom-node this))]
                       (dispatch-debounced [:viewport/set-size size])))
@@ -104,12 +110,13 @@
                                       :justify-content "center"
                                       :width "100%"
                                       :height "100%"}}
-                  [viewport
-                   (into
-                     [scene
-                      [poster]
-                      [debug-layer]]
-                     (r/children this))]])]
+                  (if @viewport-ready
+                    [viewport
+                     (into
+                       [scene
+                        [poster]
+                        [debug-layer]]
+                       (r/children this))])])]
     (r/create-class {:display-name "stage"
                      :component-did-mount did-mount
                      :component-will-unmount will-unmount
