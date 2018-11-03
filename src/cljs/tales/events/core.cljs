@@ -14,8 +14,3 @@
   [trim-v]
   (fn [db [active-page]]
     (assoc db :active-page active-page)))
-
-(reg-event-db :activate-project
-  [trim-v]
-  (fn [db [active-project]]
-    (assoc db :active-project active-project)))

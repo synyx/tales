@@ -16,6 +16,5 @@
     :before (fn [context]
               (let [db (get-in context [:coeffects :db])
                     event (get-in context [:coeffects :event])
-                    slug (:active-project db)
-                    project (get-in db [:projects slug])]
+                    project (:project db)]
                 (assoc-in context [:coeffects :event] (conj event project))))))

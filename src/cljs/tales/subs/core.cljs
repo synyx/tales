@@ -8,16 +8,12 @@
   (fn [db _]
     (:active-page db)))
 
-(reg-sub :active-project
-  (fn [db _]
-    (get-in db [:projects (:active-project db)])))
-
 (reg-sub :poster/dimensions
-  :<- [:active-project]
+  :<- [:project]
   (fn [project _]
     (:dimensions project)))
 
 (reg-sub :poster/file-path
-  :<- [:active-project]
+  :<- [:project]
   (fn [project _]
     (:file-path project)))

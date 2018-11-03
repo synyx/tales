@@ -3,6 +3,7 @@
             [tales.views-test]
             [tales.geometry-test]
             [tales.events.core-test]
+            [tales.events.project-test]
             [tales.events.slide-test]
             [tales.events.view-test]))
 
@@ -10,5 +11,6 @@
   'tales.views-test
   'tales.geometry-test
   'tales.events.core-test
+  'tales.events.project-test
   'tales.events.slide-test
   'tales.events.view-test)

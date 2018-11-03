@@ -6,3 +6,7 @@
     (dispatch [:project/get-all])
     (reagent.ratom/make-reaction
       (fn [] (:projects @db)))))
+
+(reg-sub :project
+  (fn [db _]
+    (get db :project)))

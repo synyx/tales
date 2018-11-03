@@ -97,7 +97,7 @@
             [slide/rect {:rect draw-rect}])]]))))
 
 (defn page []
-  (let [project (subscribe [:active-project])]
+  (let [project (subscribe [:project])]
     [:div {:id "editor"}
      [:header
       [:h1 (:name @project)]

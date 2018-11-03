@@ -20,8 +20,8 @@
 
 (def default-db
   {:projects {}
+   :project nil
    :active-page nil
-   :active-project nil
    :active-slide nil
    :camera {:aspect-ratio nil
             :position [0 0]

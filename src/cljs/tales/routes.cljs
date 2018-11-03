@@ -8,7 +8,7 @@
 
 (secretary/defroute editor-path "/editor/:slug/" [slug]
   (do (dispatch [:activate-page :editor])
-      (dispatch [:activate-project slug])))
+      (dispatch [:project/open slug])))
 
 (defn init! []
   (accountant/configure-navigation! {:nav-handler #(secretary/dispatch! %)

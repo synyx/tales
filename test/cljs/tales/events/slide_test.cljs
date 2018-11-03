@@ -9,11 +9,11 @@
 (deftest test-events-slide
   (rf/reg-event-db :project/add
     (fn [db [_ project]]
-      (assoc-in db [:projects (:slug project)] project)))
+      (assoc db :project project)))
 
   (rf/reg-event-db :project/update
     (fn [db [_ project]]
-      (assoc-in db [:projects (:slug project)] project)))
+      (assoc db :project project)))
 
   (testing "add slide"
     (rf-test/run-test-sync
@@ -21,7 +21,6 @@
       (let [example-project {:slug "my-tale" :slides []}
             slides (rf/subscribe [:slides])]
         (rf/dispatch [:project/add example-project])
-        (rf/dispatch [:activate-project "my-tale"])
         (is (= (count @slides) 0))
         (rf/dispatch [:slide/add {:id 0}])
         (is (= (count @slides) 1))
@@ -42,7 +41,6 @@
       (let [example-project {:slug "my-tale" :slides []}
             slides (rf/subscribe [:slides])]
         (rf/dispatch [:project/add example-project])
-        (rf/dispatch [:activate-project "my-tale"])
         (is (= (count @slides) 0))
         (rf/dispatch [:slide/add {:id 0}])
         (rf/dispatch [:slide/add {:id 1}])
@@ -63,7 +61,6 @@
       (let [example-project {:slug "my-tale" :slides []}
             slides (rf/subscribe [:slides])]
         (rf/dispatch [:project/add example-project])
-        (rf/dispatch [:activate-project "my-tale"])
         (is (= (count @slides) 0))
         (rf/dispatch [:slide/add {:id 0}])
         (rf/dispatch [:slide/add {:id 1}])
@@ -80,7 +77,6 @@
       (let [example-project {:slug "my-tale"}
             active-slide (rf/subscribe [:slide/active])]
         (rf/dispatch [:project/add example-project])
-        (rf/dispatch [:activate-project "my-tale"])
         (rf/dispatch [:slide/activate 1])
         (is (= @active-slide 1)))))
 
@@ -90,7 +86,6 @@
       (let [example-project {:slug "my-tale" :slides [{} {} {}]}
             active-slide (rf/subscribe [:slide/active])]
         (rf/dispatch [:project/add example-project])
-        (rf/dispatch [:activate-project "my-tale"])
         (rf/dispatch [:slide/activate 1])
         (is (= @active-slide 1))
         (rf/dispatch [:slide/next])
@@ -109,7 +104,6 @@
             active-slide (rf/subscribe [:slide/active])
             slides (rf/subscribe [:slides])]
         (rf/dispatch [:project/add example-project])
-        (rf/dispatch [:activate-project "my-tale"])
         (is (= (:id (nth @slides 0)) 0))
         (is (= (:id (nth @slides 1)) 1))
         (is (= (:id (nth @slides 2)) 2))

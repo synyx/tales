@@ -68,7 +68,6 @@
       (rf/dispatch [:camera/set-aspect-ratio [1 1]])
       (rf/dispatch [:project/add {:slug "my-tale"
                                   :dimensions {:width 100 :height 100}}])
-      (rf/dispatch [:activate-project "my-tale"])
       (let [position (rf/subscribe [:camera/position])
             scale (rf/subscribe [:camera/scale])]
         (rf/dispatch [:camera/fit-rect {:x 0 :y 0 :width 100 :height 100}])

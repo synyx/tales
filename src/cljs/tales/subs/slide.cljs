@@ -2,7 +2,7 @@
   (:require [re-frame.core :refer [reg-sub]]))
 
 (reg-sub :slides
-  :<- [:active-project]
+  :<- [:project]
   (fn [project _]
     (doall
       (map-indexed
