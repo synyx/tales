@@ -3,7 +3,7 @@
             [thi.ng.geom.vector :as gv]
             [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.animation :as anim]
-            [tales.interceptors :refer [active-project check-db-interceptor]]
+            [tales.interceptors :refer [check-db-interceptor]]
             [tales.geometry :as geometry]))
 
 (reg-event-db :viewport/set-size
@@ -17,9 +17,9 @@
     (assoc-in db [:camera :aspect-ratio] size)))
 
 (reg-event-fx :camera/setup
-  [trim-v active-project]
-  (fn [{db :db} [active-project]]
-    (let [poster-dimensions (:dimensions active-project)
+  [trim-v]
+  (fn [{db :db} _]
+    (let [poster-dimensions (get-in db [:project :dimensions])
           viewport-size (get-in db [:viewport :size])]
       {:db (assoc-in db [:camera :aspect-ratio] [(reduce / viewport-size) 1])
        :dispatch [:camera/fit-rect poster-dimensions]})))

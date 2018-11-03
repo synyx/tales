@@ -9,12 +9,3 @@
     (throw (ex-info (str "spec check failed: " (s/explain-str a-spec db)) {}))))
 
 (def check-db-interceptor (after (partial check-and-throw :tales.db/db)))
-
-(def active-project
-  (->interceptor
-    :id :active-project
-    :before (fn [context]
-              (let [db (get-in context [:coeffects :db])
-                    event (get-in context [:coeffects :event])
-                    project (:project db)]
-                (assoc-in context [:coeffects :event] (conj event project))))))

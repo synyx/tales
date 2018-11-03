@@ -2,7 +2,6 @@
   (:require [day8.re-frame.http-fx]
             [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.db :as db]
-            [tales.interceptors :refer [active-project]]
             [tales.events.project]
             [tales.events.slide]
             [tales.events.view]))
