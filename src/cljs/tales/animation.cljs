@@ -39,6 +39,9 @@
 (defn- S [r0 r1 rho]
   (/ (- r1 r0) rho))
 
+(defn- S= [w0 w1 rho]
+  (/ (Math/abs (Math/log (/ w1 w0))) rho))
+
 (defn- u [w0 r0 rho s]
   (let [a (* w0 (cosh r0) (tanh (+ (* rho s) r0)))
         b (* w0 (sinh r0))]
@@ -47,20 +50,34 @@
 (defn- w [w0 r0 rho s]
   (/ (* w0 (cosh r0)) (cosh (+ (* rho s) r0))))
 
+(defn- w= [w0 k rho s]
+  (* w0 (Math/exp (* k rho s))))
+
 (defn smooth-efficient [c0 w0 c1 w1 V rho]
   "Implementation of \"Smooth and efficient zooming and panning\",
   Jarke J. van Wijk and Wim A. A. Nuij, TU Eindhoven, Netherlands."
-  (let [u1 (g/dist (gv/vec2 c0) c1)
-        b0 (b w0 w1 u1 rho 0)
-        b1 (b w0 w1 u1 rho 1)
-        r0 (r b0)
-        r1 (r b1)
-        duration (* 1000 (S r0 r1 rho) V)
-        tick-fn (fn [t]
-                  (let [t (/ t 1000)
-                        s (Math/min (* V t) (S r0 r1 rho))
-                        us (u w0 r0 rho s)
-                        ws (w w0 r0 rho s)
-                        pos (m/mix (gv/vec2 c0) c1 (/ us u1))]
-                    [pos ws]))]
-    [duration tick-fn]))
+  (if (= c0 c1)
+    (let [S (S= w0 w1 rho)
+          duration (* 1000 S V)
+          tick-fn (fn [t]
+                    (let [t (/ t 1000)
+                          s (Math/min (* V t) S)
+                          k (if (< w1 w0) -1 1)
+                          ws (w= w0 k rho s)]
+                      [c0 ws]))]
+      [duration tick-fn])
+    (let [u1 (g/dist (gv/vec2 c0) c1)
+          b0 (b w0 w1 u1 rho 0)
+          b1 (b w0 w1 u1 rho 1)
+          r0 (r b0)
+          r1 (r b1)
+          S (S r0 r1 rho)
+          duration (* 1000 S V)
+          tick-fn (fn [t]
+                    (let [t (/ t 1000)
+                          s (Math/min (* V t) S)
+                          us (u w0 r0 rho s)
+                          ws (w w0 r0 rho s)
+                          pos (m/mix (gv/vec2 c0) c1 (/ us u1))]
+                      [pos ws]))]
+      [duration tick-fn])))
