@@ -19,42 +19,35 @@
               has-size? (has? :size viewport)
               ready? (and has-size?
                        (has? :position camera)
-                       (has? :scale camera)
-                       (has? :aspect-ratio camera))]
+                       (has? :scale camera))]
           (if @had-size?
             (when-not has-size? (destroy-camera))
             (when has-size? (setup-camera)))
           (reset! had-size? has-size?)
           ready?)))))
 
-(reg-sub :viewport/original-size
-  (fn [db _]
-    (get-in db [:viewport :size])))
-
 (reg-sub :viewport/size
-  :<- [:viewport/original-size]
-  :<- [:camera/aspect-factor]
-  (fn [[[w h] camera-aspect-factor] _]
-    (if (>= (/ (/ w h) camera-aspect-factor) 1)
-      [(* h camera-aspect-factor) h]
-      [w (/ w camera-aspect-factor)])))
+  (fn [db _]
+    (get-in db [:viewport :size] [1 1])))
+
+(reg-sub :viewport/view-rect
+  :<- [:viewport/size]
+  (fn [size _]
+    {:pos [0 0]
+     :size size}))
+
+(reg-sub :viewport/aspect-ratio
+  :<- [:viewport/size]
+  (fn [[width height] _]
+    (/ width height)))
 
 (reg-sub :viewport/scale
   :<- [:matrix/mvp]
   :<- [:matrix/viewport]
   (fn [[m1 m2] _]
-    (-> (gv/vec2 (nth m2 0) (nth m2 1))
-      (m/* (gv/vec2 (nth m1 0) (nth m1 1)))
+    (-> (gv/vec3 (nth m2 0) (nth m2 1) (nth m2 2))
+      (m/* (gv/vec3 (nth m1 0) (nth m1 1) (nth m1 2)))
       (m/mag))))
-
-(reg-sub :camera/aspect-ratio
-  (fn [db _]
-    (get-in db [:camera :aspect-ratio])))
-
-(reg-sub :camera/aspect-factor
-  :<- [:camera/aspect-ratio]
-  (fn [[x y] _]
-    (/ x y)))
 
 (reg-sub :camera/position
   (fn [db _]
@@ -72,9 +65,9 @@
   :<- [:camera/scale]
   (fn [[position scale] _]
     "Matrix to position the camera in the world."
-    (-> gm/M32
+    (-> gm/M44
       (g/translate position)
-      (g/scale scale))))
+      (g/scale [scale scale 1]))))
 
 (reg-sub :matrix/view
   :<- [:matrix/camera]
@@ -83,22 +76,17 @@
     (m/invert camera-matrix)))
 
 (reg-sub :matrix/projection
-  :<- [:camera/aspect-factor]
+  :<- [:viewport/aspect-ratio]
   (fn [a _]
     "Matrix to convert from eye coordinates to clip coordinates."
-    (let [[l t r b n f] (if (>= a 1)
-                          [0 0 1 (/ a) 1 -1]
-                          [0 0 (* a) 1 1 -1])]
-      (-> (gm/ortho l t r b n f)
-        (gm/matrix44->matrix33)
-        (gm/matrix32)))))
+    (gm/ortho (- a) -1 a 1 -1 1)))
 
 (reg-sub :matrix/mvp
   :<- [:matrix/view]
   :<- [:matrix/projection]
   (fn [[view-matrix projection-matrix] _]
     "Combined matrix to convert from model coordinates to clip coordinates."
-    (->> gm/M32 (m/* view-matrix) (m/* projection-matrix))))
+    (m/* projection-matrix view-matrix)))
 
 (reg-sub :matrix/viewport
   :<- [:viewport/size]

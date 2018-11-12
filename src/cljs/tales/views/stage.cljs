@@ -1,8 +1,5 @@
 (ns tales.views.stage
-  (:require [thi.ng.math.core :as m]
-            [thi.ng.geom.core :as g]
-            [thi.ng.geom.vector :as gv]
-            [reagent.core :as r]
+  (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [tales.geometry :as geometry]
             [tales.util.async :refer [debounce]]
@@ -10,7 +7,10 @@
             [tales.util.dom :as dom]
             [tales.util.drag :refer [dragging]]
             [tales.util.events :as events]
-            [tales.views.loader :refer [hide-loading]]))
+            [tales.views.loader :refer [hide-loading]]
+            [thi.ng.math.core :as m]
+            [thi.ng.geom.matrix :as gm]
+            [thi.ng.geom.vector :as gv]))
 
 (def ^:private dispatch-debounced (debounce dispatch 40))
 
@@ -45,29 +45,38 @@
      (into [:div.world {:style {:width (:width @dimensions)
                                 :height (:height @dimensions)
                                 :transform-origin "0 0"
-                                :transform (css/transform-matrix
+                                :transform (css/transform-matrix3d
                                              @mvp-matrix)}}]
        (r/children (r/current-component)))]))
 
 (defn viewport []
   (let [this (r/current-component)
-        viewport-scale (subscribe [:viewport/scale])
-        viewport-size (subscribe [:viewport/size])
-        mvp-matrix (subscribe [:matrix/mvp])
-        viewport-matrix (subscribe [:matrix/viewport])
-        last-position (r/atom nil)
-        on-move (fn [{{x :x y :y} :end}]
-                  (let [[dx dy] (-> (gv/vec2 x y)
-                                  (m/- @last-position)
-                                  (m/div @viewport-scale))]
-                    (reset! last-position [x y])
-                    (dispatch [:camera/move-by [dx dy]])))
+        camera-position (subscribe [:camera/position])
+        view-matrix (subscribe [:matrix/view])
+        projection-matrix (subscribe [:matrix/projection])
+        view-rect (subscribe [:viewport/view-rect])
+        moving? (r/atom false)
+        on-move (fn [orig-position {{x1 :x y1 :y} :start {x2 :x y2 :y} :end}]
+                  (let [start (-> [x1 y1]
+                                (gm/unproject-point
+                                  @view-matrix
+                                  @projection-matrix
+                                  @view-rect))
+                        end (-> [x2 y2]
+                              (gm/unproject-point
+                                @view-matrix
+                                @projection-matrix
+                                @view-rect))
+                        dxy (m/- end start)]
+                    (dispatch [:camera/move-to (->
+                                                 (gv/vec2 orig-position)
+                                                 (m/- dxy))])))
         on-move-end (fn []
-                      (reset! last-position nil))
+                      (reset! moving? false))
         start-move (fn [ev]
-                     (let [{x :x y :y} (events/client-coord ev)]
-                       (reset! last-position [x y])
-                       (dragging ev on-move on-move-end)
+                     (let [orig-position @camera-position]
+                       (reset! moving? true)
+                       (dragging ev #(on-move orig-position %) on-move-end)
                        (events/prevent ev)
                        (events/stop ev)))
         start-zoom (fn [ev]
@@ -75,23 +84,25 @@
                            {x :x y :y} (geometry/distance
                                          (dom/offset dom-node)
                                          (events/client-coord ev))
-                           position (-> @viewport-matrix
-                                      (m/* @mvp-matrix)
-                                      (m/invert)
-                                      (g/transform-vector [x y]))]
+                           position (-> [x y 0]
+                                      (gm/unproject-point
+                                        @view-matrix
+                                        @projection-matrix
+                                        @view-rect))]
                        (if (> 0 (:y (events/wheel-delta ev)))
                          (dispatch-debounced [:camera/zoom-in position])
                          (dispatch-debounced [:camera/zoom-out position]))))]
-    (into [:div.viewport {:on-mouse-down start-move
-                          :on-wheel start-zoom
-                          :style {:background-color "#ddd"
-                                  :overflow "hidden"
-                                  :width (first @viewport-size)
-                                  :height (second @viewport-size)
-                                  :cursor (if @last-position
-                                            "grab"
-                                            "pointer")}}]
-      (r/children (r/current-component)))))
+    (fn []
+      (into [:div.viewport {:on-mouse-down start-move
+                            :on-wheel start-zoom
+                            :style {:background-color "#ddd"
+                                    :overflow "hidden"
+                                    :width (first (:size @view-rect))
+                                    :height (second (:size @view-rect))
+                                    :cursor (if @moving?
+                                              "grab"
+                                              "pointer")}}]
+        (r/children (r/current-component))))))
 
 (defn stage []
   (let [this (r/current-component)

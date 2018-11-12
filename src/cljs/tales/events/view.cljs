@@ -1,28 +1,23 @@
 (ns tales.events.view
-  (:require [thi.ng.math.core :as m]
-            [thi.ng.geom.vector :as gv]
-            [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
+  (:require [re-frame.core :refer [reg-event-db reg-event-fx trim-v]]
             [tales.animation :as anim]
             [tales.interceptors :refer [check-db-interceptor]]
-            [tales.geometry :as geometry]))
+            [tales.geometry :as geometry]
+            [thi.ng.math.core :as m]
+            [thi.ng.geom.core :as g]
+            [thi.ng.geom.matrix :as gm]
+            [thi.ng.geom.vector :as gv]))
 
 (reg-event-db :viewport/set-size
   [check-db-interceptor trim-v]
   (fn [db [size]]
     (assoc-in db [:viewport :size] size)))
 
-(reg-event-db :camera/set-aspect-ratio
-  [check-db-interceptor trim-v]
-  (fn [db [size]]
-    (assoc-in db [:camera :aspect-ratio] size)))
-
 (reg-event-fx :camera/setup
   [trim-v]
   (fn [{db :db} _]
-    (let [poster-dimensions (get-in db [:project :dimensions])
-          viewport-size (get-in db [:viewport :size])]
-      {:db (assoc-in db [:camera :aspect-ratio] [(reduce / viewport-size) 1])
-       :dispatch [:camera/fit-rect poster-dimensions]})))
+    (let [poster-dimensions (get-in db [:project :dimensions])]
+      {:dispatch [:camera/fit-rect poster-dimensions]})))
 
 (reg-event-db :camera/destroy
   [check-db-interceptor trim-v]
@@ -31,15 +26,8 @@
 
 (reg-event-db :camera/move-to
   [check-db-interceptor trim-v]
-  (fn [db [[x y]]]
-    (assoc-in db [:camera :position] [x y])))
-
-(reg-event-db :camera/move-by
-  [check-db-interceptor trim-v]
-  (fn [db [[dx dy]]]
-    (let [[x y] (get-in db [:camera :position])]
-    (assoc-in db [:camera :position] [(- x dx)
-                                      (- y dy)]))))
+  (fn [db [position]]
+    (assoc-in db [:camera :position] position)))
 
 (reg-event-db :camera/set-scale
   [check-db-interceptor trim-v]
@@ -69,22 +57,20 @@
     (let [scale (get-in db [:camera :scale])]
       {:dispatch [:camera/set-scale (* scale 2) position]})))
 
-(defn- rect-scale [[aw ah] aspect-ratio]
-  (let [aspect-factor (reduce / aspect-ratio)
-        scale (if (>= aspect-factor 1)
-                [(* ah aspect-factor) aw]
-                [ah (/ aw aspect-factor)])]
-    (if (<= (/ aw ah) aspect-factor)
-      (first scale)
-      (second scale))))
+(defn- rect-scale [[aw ah] viewport-size]
+  (let [scale (-> {:size viewport-size}
+                (gm/ortho)
+                (g/transform-vector (gv/vec3 [aw ah] 0))
+                (m/div 2))]
+    (apply Math/max scale)))
 
 (reg-event-db :camera/fit-rect
   [check-db-interceptor trim-v]
   (fn [db [rect]]
-    (let [aspect-ratio (get-in db [:camera :aspect-ratio])
+    (let [viewport-size (get-in db [:viewport :size])
           rect-center (geometry/rect-center rect)
           rect [(:width rect) (:height rect)]
-          new-scale (rect-scale rect aspect-ratio)]
+          new-scale (rect-scale rect viewport-size)]
       (-> db
         (assoc-in [:camera :position] [(:x rect-center) (:y rect-center)])
         (assoc-in [:camera :scale] new-scale)))))
@@ -92,13 +78,13 @@
 (reg-event-fx :camera/fly-to-rect
   [check-db-interceptor trim-v]
   (fn [{db :db} [rect]]
-    (let [aspect-ratio (get-in db [:camera :aspect-ratio])
+    (let [viewport-size (get-in db [:viewport :size])
           rect-center (geometry/rect-center rect)
           rect [(:width rect) (:height rect)]
           c0 (get-in db [:camera :position])
           w0 (get-in db [:camera :scale])
           c1 [(:x rect-center) (:y rect-center)]
-          w1 (rect-scale rect aspect-ratio)
+          w1 (rect-scale rect viewport-size)
           [duration easing] (anim/smooth-efficient c0 w0 c1 w1 1 1.42)]
       {:animate-db [{:id :camera/position
                      :path [:camera :position]
