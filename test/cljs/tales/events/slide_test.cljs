@@ -86,6 +86,12 @@
       (let [example-project {:slug "my-tale" :slides [{} {} {}]}
             active-slide (rf/subscribe [:slide/active])]
         (rf/dispatch [:project/add example-project])
+        (rf/dispatch [:slide/activate nil])
+        (rf/dispatch [:slide/next])
+        (is (= @active-slide 0))
+        (rf/dispatch [:slide/activate nil])
+        (rf/dispatch [:slide/prev])
+        (is (= @active-slide 2))
         (rf/dispatch [:slide/activate 1])
         (is (= @active-slide 1))
         (rf/dispatch [:slide/next])

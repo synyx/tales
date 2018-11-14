@@ -18,9 +18,12 @@
 (reg-event-fx :key/down
   [trim-v]
   (fn [{db :db} [cord]]
-    (let [action (get-in db [:keybindings :editor cord])]
+    (let [page (:active-page db)
+          action (get-in db [:keybindings page cord])]
       (when action
-        {:dispatch [action]}))))
+        (if (coll? action)
+          {:dispatch-n (vec (map #(vec [%]) action))}
+          {:dispatch [action]})))))
 
 (defonce keydown-handler
   (events/on "keydown" #(dispatch [:key/down (cord %)])))

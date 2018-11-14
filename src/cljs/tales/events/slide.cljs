@@ -9,6 +9,16 @@
 (defn- swap [v i1 i2]
   (assoc v i2 (v i1) i1 (v i2)))
 
+(defn next-slide [slides n]
+  (if n
+    (mod (inc n) (count slides))
+    0))
+
+(defn prev-slide [slides n]
+  (if n
+    (mod (dec n) (count slides))
+    (dec (count slides))))
+
 (reg-event-fx :slide/add
   [trim-v]
   (fn [{db :db} [slide]]
@@ -49,16 +59,16 @@
   (fn [{db :db} _]
     (let [project (:project db)
           slides (:slides project)
-          idx (or (:active-slide db) 0)]
-      {:dispatch [:slide/activate (mod (+ idx 1) (count slides))]})))
+          idx (:active-slide db)]
+      {:dispatch [:slide/activate (next-slide slides idx)]})))
 
 (reg-event-fx :slide/prev
   [trim-v]
   (fn [{db :db} _]
     (let [project (:project db)
           slides (:slides project)
-          idx (or (:active-slide db) 0)]
-      {:dispatch [:slide/activate (mod (- idx 1) (count slides))]})))
+          idx (:active-slide db)]
+      {:dispatch [:slide/activate (prev-slide slides idx)]})))
 
 (reg-event-fx :slide/swap
   [trim-v]
@@ -87,8 +97,27 @@
 (reg-event-fx :slide/fly-to
   [trim-v]
   (fn [{db :db} _]
-    (let [project (:project db)
-          slides (:slides project)
-          idx (:active-slide db)]
-      (if idx
+    (if-let [idx (:active-slide db)]
+      (let [project (:project db)
+            slides (:slides project)]
         {:dispatch [:camera/fly-to-rect (get-in slides [idx :rect])]}))))
+
+(reg-event-fx :slide/fly-to-next
+  [trim-v]
+  (fn [{db :db} _]
+      (let [project (:project db)
+            slides (:slides project)
+            idx (:active-slide db)
+            next-idx (next-slide slides idx)]
+        {:db (assoc db :active-slide next-idx)
+         :dispatch [:camera/fly-to-rect (get-in slides [next-idx :rect])]})))
+
+(reg-event-fx :slide/fly-to-prev
+  [trim-v]
+  (fn [{db :db} _]
+      (let [project (:project db)
+            slides (:slides project)
+            idx (:active-slide db)
+            prev-idx (prev-slide slides idx)]
+        {:db (assoc db :active-slide prev-idx)
+         :dispatch [:camera/fly-to-rect (get-in slides [prev-idx :rect])]})))
