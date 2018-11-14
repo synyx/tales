@@ -6,6 +6,7 @@
             [tales.routes :as routes]
             [tales.subs.core]
             [tales.ticker]
+            [tales.keybind]
             [tales.util.dom :as dom]
             [tales.views.core :as views]))
 

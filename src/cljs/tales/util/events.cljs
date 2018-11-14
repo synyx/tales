@@ -16,6 +16,10 @@
   "Indicates if the meta key was pressed when the event occured."
   (.-metaKey ev))
 
+(defn key-val [ev]
+  "The value of the key pressed by the user."
+  (.-key ev))
+
 (defn client-coord [ev]
   "Provides the coordinate within the client area at which the event occurred."
   {:x (.-clientX ev) :y (.-clientY ev)})
