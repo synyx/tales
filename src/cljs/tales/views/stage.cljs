@@ -14,20 +14,6 @@
 
 (def ^:private dispatch-debounced (debounce dispatch 40))
 
-(defn debug-layer []
-  (let [dimensions (subscribe [:poster/dimensions])
-        height (:height @dimensions)
-        width (:width @dimensions)]
-    [:svg {:style {:position "absolute"
-                   :width "100%"
-                   :height "100%"}}
-     (for [x (range 0 width 100)]
-       ^{:key x}
-       [:line {:x1 x :y1 0 :x2 x :y2 height :stroke "black"}])
-     (for [y (range 0 height 100)]
-       ^{:key y}
-       [:line {:x1 0 :y1 y :x2 width :y2 y :stroke "black"}])]))
-
 (defn poster []
   (let [file-path (subscribe [:poster/file-path])]
     [:img {:style {:position "absolute"
@@ -125,8 +111,7 @@
                     [viewport
                      (into
                        [scene
-                        [poster]
-                        [debug-layer]]
+                        [poster]]
                        (r/children this))])])]
     (r/create-class {:display-name "stage"
                      :component-did-mount did-mount
