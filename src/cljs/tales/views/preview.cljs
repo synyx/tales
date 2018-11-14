@@ -30,7 +30,8 @@
                        scaled-img-width (* scale (:width (:dimensions project)))
                        scaled-img-height (* scale (:height (:dimensions project)))]
                    [:div.slide-preview-list-item
-                    {:style {:width preview-width :min-width preview-width
+                    {:style {:position "relative"
+                             :width preview-width :min-width preview-width
                              :height preview-height :min-height preview-height
                              :background-color "#333"
                              :border-width 3
@@ -48,7 +49,17 @@
                                                  scaled-img-width "px "
                                                  scaled-img-height "px")
                               :background-position-x (- dx)
-                              :background-position-y (- dy)}}]]))]
+                              :background-position-y (- dy)}}]
+                    [:div {:style {:position "absolute"
+                                   :background-color "rgba(0,0,0,0.6)"
+                                   :color "#fff"
+                                   :line-height "1em"
+                                   :font-size "0.8em"
+                                   :font-style "monospace"
+                                   :left "0"
+                                   :bottom "0"
+                                   :padding "4px 4px 3px 3px"}}
+                     (inc (:index slide))]]))]
     (r/create-class {:display-name "slide"
                      :component-did-update did-update
                      :reagent-render render})))
