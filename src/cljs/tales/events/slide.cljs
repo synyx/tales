@@ -74,10 +74,12 @@
 
 (reg-event-fx :slide/swap-next
   [trim-v]
-  (fn [_ [idx]]
-    {:dispatch [:slide/swap idx (+ idx 1)]}))
+  (fn [{db :db} [idx]]
+    (let [idx (or idx (:active-slide db))]
+      {:dispatch [:slide/swap idx (+ idx 1)]})))
 
 (reg-event-fx :slide/swap-prev
   [trim-v]
-  (fn [_ [idx]]
-    {:dispatch [:slide/swap idx (- idx 1)]}))
+  (fn [{db :db} [idx]]
+    (let [idx (or idx (:active-slide db))]
+      {:dispatch [:slide/swap idx (- idx 1)]})))
