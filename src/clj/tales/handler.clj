@@ -27,6 +27,9 @@
       (context "/editor/:slug" [slug]
         (GET "/" [] (web/loading-page))
         (files "/" {:root (str (fs/file *project-dir* slug))}))
+      (context "/presenter/:slug" [slug]
+        (GET "/" [] (web/loading-page))
+        (files "/" {:root (str (fs/file *project-dir* slug))}))
       (GET "/cards" [] (web/cards-page))
       (resources "/")
       (not-found "Not Found"))))
