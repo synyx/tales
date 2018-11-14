@@ -101,7 +101,10 @@
     [:div {:id "editor"}
      [:header
       [:h1 (:name @project)]
-      [:a {:href (routes/home-path)} "Close"]]
+      [:div
+       [:a {:href (routes/presenter-path {:slug (:slug @project)})
+            :style {:padding-right "20px"}} "Tell!"]
+       [:a {:href (routes/home-path)} "Close"]]]
      [:main (cond
               (nil? (:file-path @project)) [image-upload @project]
               (nil? (:dimensions @project)) [image-size]
