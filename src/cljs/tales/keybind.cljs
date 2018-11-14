@@ -20,16 +20,7 @@
 
 (reg-event-fx :key/down
   [trim-v]
-  (fn [_ [ev]]
-    (let [action (case (cord ev)
-                   "Enter" :slide/fly-to
-                   " " :slide/next
-                   "ArrowLeft" :slide/prev
-                   "ArrowRight" :slide/next
-                   "Ctrl+ArrowLeft" :slide/swap-prev
-                   "Ctrl+ArrowRight" :slide/swap-next
-                   "Meta+ArrowLeft" :slide/swap-prev
-                   "Meta+ArrowRight" :slide/swap-next
-                   nil)]
+  (fn [{db :db} [ev]]
+    (let [action (get-in db [:keybindings :editor (cord ev)])]
       (if action
         {:dispatch [action]}))))

@@ -25,4 +25,12 @@
    :camera {:position [0 0]
             :scale 1}
    :viewport {:size nil}
-   :tick {:handlers {} :paused? true}})
+   :tick {:handlers {} :paused? true}
+   :keybindings {:editor {"Enter" :slide/fly-to
+                          " " :slide/next
+                          "ArrowLeft" :slide/prev
+                          "ArrowRight" :slide/next
+                          "Ctrl+ArrowLeft" :slide/swap-prev
+                          "Ctrl+ArrowRight" :slide/swap-next
+                          "Meta+ArrowLeft" :slide/swap-prev
+                          "Meta+ArrowRight" :slide/swap-next}}})
