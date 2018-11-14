@@ -3,9 +3,6 @@
             [re-frame.core :refer [dispatch reg-event-fx trim-v]]
             [tales.util.events :as events]))
 
-(defonce keydown-handler
-  (events/on "keydown" #(dispatch [:key/down %])))
-
 (defn cord [ev]
   (let [key (events/key-val ev)
         ctrl-key? (events/ctrl-key? ev)
@@ -20,7 +17,10 @@
 
 (reg-event-fx :key/down
   [trim-v]
-  (fn [{db :db} [ev]]
-    (let [action (get-in db [:keybindings :editor (cord ev)])]
-      (if action
+  (fn [{db :db} [cord]]
+    (let [action (get-in db [:keybindings :editor cord])]
+      (when action
         {:dispatch [action]}))))
+
+(defonce keydown-handler
+  (events/on "keydown" #(dispatch [:key/down (cord %)])))
