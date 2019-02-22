@@ -1,4 +1,4 @@
-(defproject tales "0.1.0"
+(defproject tales "_"
   :description "synyx Tales"
   :url "https://github.com/synyx/tales"
   :license {:name "Apache License 2.0"
@@ -24,9 +24,21 @@
                  [thi.ng/geom "1.0.0-RC3"]
                  [venantius/accountant "0.2.4"]]
 
-  :plugins [[lein-environ "1.1.0"]
+  :plugins [[lein-asset-minifier "0.2.7" :exclusions [org.clojure/clojure]]
             [lein-cljsbuild "1.1.7"]
-            [lein-asset-minifier "0.2.7" :exclusions [org.clojure/clojure]]]
+            [lein-environ "1.1.0"]
+            [me.arrdem/lein-git-version "2.0.8"]]
+
+  :git-version {:status-to-version
+                (fn [{:keys [tag ahead? dirty?] as :git}]
+                  (assert (re-find #"\d+\.\d+\.\d+" tag)
+                          "Tag is assumed to be in SemVer format")
+                  (if (and tag (not ahead?) (not dirty?))
+                    tag
+                    (let [[_ prefix patch] (re-find #"(\d+\.\d+)\.(\d+)" tag)
+                          patch            (Long/parseLong patch)
+                          patch+           (inc patch)]
+                      (format "%s.%d-SNAPSHOT" prefix patch+))))}
 
   :ring {:handler tales.handler/app
          :uberwar-name "tales.war"}
