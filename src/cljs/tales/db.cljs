@@ -30,6 +30,8 @@
                           " " :slide/next
                           "ArrowLeft" :slide/prev
                           "ArrowRight" :slide/next
+                          "PageUp" :slide/prev
+                          "PageDown" :slide/next
                           "Ctrl+ArrowLeft" :slide/swap-prev
                           "Ctrl+ArrowRight" :slide/swap-next
                           "Meta+ArrowLeft" :slide/swap-prev
@@ -37,4 +39,6 @@
                           "Delete" :slide/delete}
                  :presenter {" " :slide/fly-to-next
                              "ArrowLeft" :slide/fly-to-prev
-                             "ArrowRight" :slide/fly-to-next}}})
+                             "ArrowRight" :slide/fly-to-next
+                             "PageUp" :slide/fly-to-prev
+                             "PageDown" :slide/fly-to-next}}})
