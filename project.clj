@@ -1,4 +1,4 @@
-(defproject tales "0.1.0-SNAPSHOT"
+(defproject tales "0.1.0"
   :description "synyx Tales"
   :url "https://github.com/synyx/tales"
   :license {:name "Apache License 2.0"
