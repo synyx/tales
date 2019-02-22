@@ -43,7 +43,8 @@
   [trim-v]
   (fn [{db :db} [idx]]
     (let [project (:project db)
-          slides (:slides project)]
+          slides (:slides project)
+          idx (or idx (:active-slide db))]
       (if-not (nil? idx)
         {:dispatch [:project/update
                     (assoc project

@@ -33,7 +33,8 @@
                           "Ctrl+ArrowLeft" :slide/swap-prev
                           "Ctrl+ArrowRight" :slide/swap-next
                           "Meta+ArrowLeft" :slide/swap-prev
-                          "Meta+ArrowRight" :slide/swap-next}
+                          "Meta+ArrowRight" :slide/swap-next
+                          "Delete" :slide/delete}
                  :presenter {" " :slide/fly-to-next
                              "ArrowLeft" :slide/fly-to-prev
                              "ArrowRight" :slide/fly-to-next}}})
