@@ -1,4 +1,4 @@
-(defproject tales "0.1.0-SNAPSHOT"
+(defproject tales "_"
   :description "synyx Tales"
   :url "https://github.com/synyx/tales"
   :license {:name "Apache License 2.0"
@@ -7,24 +7,38 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/core.async "0.4.474"]
                  [ring-server "0.5.0"]
-                 [ring "1.6.3"]
-                 [ring/ring-defaults "0.3.1"]
+                 [ring "1.7.0"]
+                 [ring/ring-defaults "0.3.2"]
                  [ring/ring-json "0.4.0"]
                  [compojure "1.6.1"]
                  [hiccup "1.0.5"]
                  [me.raynes/fs "1.4.6"]
                  [yogthos/config "1.1.1"]
-                 [org.clojure/clojurescript "1.10.238" :scope "provided"]
-                 [reagent "0.8.0"]
+                 [org.clojure/clojurescript "1.10.339" :scope "provided"]
+                 [reagent "0.8.1"]
                  [reagent-utils "0.3.1"]
-                 [re-frame "0.10.5"]
+                 [re-frame "0.10.6"]
                  [day8.re-frame/http-fx "0.1.6"]
+                 [day8.re-frame/test "0.1.5"]
                  [secretary "1.2.3"]
+                 [thi.ng/geom "1.0.0-RC3"]
                  [venantius/accountant "0.2.4"]]
 
-  :plugins [[lein-environ "1.1.0"]
+  :plugins [[lein-asset-minifier "0.2.7" :exclusions [org.clojure/clojure]]
             [lein-cljsbuild "1.1.7"]
-            [lein-asset-minifier "0.2.7" :exclusions [org.clojure/clojure]]]
+            [lein-environ "1.1.0"]
+            [me.arrdem/lein-git-version "2.0.8"]]
+
+  :git-version {:status-to-version
+                (fn [{:keys [tag ahead? dirty?] as :git}]
+                  (assert (re-find #"\d+\.\d+\.\d+" tag)
+                          "Tag is assumed to be in SemVer format")
+                  (if (and tag (not ahead?) (not dirty?))
+                    tag
+                    (let [[_ prefix patch] (re-find #"(\d+\.\d+)\.(\d+)" tag)
+                          patch            (Long/parseLong patch)
+                          patch+           (inc patch)]
+                      (format "%s.%d-SNAPSHOT" prefix patch+))))}
 
   :ring {:handler tales.handler/app
          :uberwar-name "tales.war"}
@@ -43,14 +57,12 @@
   :test-paths ["spec/clj" "test/clj"]
   :resource-paths ["resources" "target/cljsbuild"]
 
-  :minify-assets {:assets {"resources/public/css/normalize.min.css" "resources/public/css/normalize.css"
-                           "resources/public/css/site.min.css" "resources/public/css/site.css"}}
+  :minify-assets {:assets {"resources/public/css/site.min.css" "resources/public/css/site.css"}}
 
   :cljsbuild {:builds {:min {:source-paths ["src/cljs" "src/cljc" "env/prod/cljs"]
                              :compiler {:output-to "target/cljsbuild/public/js/app.js"
                                         :output-dir "target/cljsbuild/public/js"
                                         :source-map "target/cljsbuild/public/js/app.js.map"
-                                        :externs ["externs/leaflet.ext.js"]
                                         :optimizations :advanced
                                         :pretty-print false}}
                        :app {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
@@ -61,7 +73,9 @@
                                         :output-dir "target/cljsbuild/public/js/out"
                                         :source-map true
                                         :optimizations :none
-                                        :pretty-print true}}
+                                        :pretty-print true
+                                        :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
+                                        :preloads [day8.re-frame-10x.preload]}}
                        :test {:source-paths ["src/cljs" "src/cljc" "test/cljs"]
                               :compiler {:main tales.doo-runner
                                          :asset-path "/js/out"
@@ -80,7 +94,7 @@
                                              :pretty-print true}}}}
 
   :doo {:build "test"
-        :alias  {:default  [:chrome]}}
+        :alias {:default [:chrome]}}
 
   :figwheel {:http-server-root "public"
              :server-logfile false
@@ -96,22 +110,22 @@
                                   :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :dependencies [[binaryage/devtools "0.9.10"]
                                   [ring/ring-mock "0.3.2"]
-                                  [ring/ring-devel "1.6.3"]
-                                  [prone "1.5.2"]
-                                  [figwheel-sidecar "0.5.15"]
+                                  [ring/ring-devel "1.7.0"]
+                                  [prone "1.6.1"]
+                                  [figwheel-sidecar "0.5.17"]
                                   [org.clojure/tools.nrepl "0.2.13"]
                                   [com.cemerick/piggieback "0.2.2"]
                                   [speclj "3.3.2"]
-                                  [devcards "0.2.4" :exclusions [cljsjs/react]]
-                                  [pjstadig/humane-test-output "0.8.3"]]
+                                  [devcards "0.2.6" :exclusions [cljsjs/react]]
+                                  [pjstadig/humane-test-output "0.8.3"]
+                                  [day8.re-frame/re-frame-10x "0.3.3"]]
                    :source-paths ["env/dev/clj"]
-                   :plugins [[lein-figwheel "0.5.15"]
-                             [lein-doo "0.1.8"]]
+                   :plugins [[lein-figwheel "0.5.17"]
+                             [lein-doo "0.1.10"]]
                    :injections [(require 'pjstadig.humane-test-output)
                                 (pjstadig.humane-test-output/activate!)]
                    :env {:dev true}}
-             :uberjar {:hooks [minify-assets.plugin/hooks]
-                       :source-paths ["env/prod/clj"]
+             :uberjar {:source-paths ["env/prod/clj"]
                        :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
                        :env {:production true}
                        :aot :all

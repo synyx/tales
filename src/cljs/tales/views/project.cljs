@@ -4,7 +4,7 @@
             [tales.routes :refer [editor-path]]))
 
 (defn add-project [name]
-  (dispatch [:add-project {:name name}]))
+  (dispatch [:project/add {:name name}]))
 
 (defn project-input []
   (let [val (r/atom "")
@@ -31,8 +31,8 @@
       [:a {:href (editor-path {:slug (:slug project)})}
        (:name project)]])])
 
-(defn project-page []
-  (let [projects (subscribe [:projects])]
+(defn page []
+  (let [projects (subscribe [:project/all])]
     [:div {:id "projects"}
      [:header [:h1 "tales"]]
      [:main

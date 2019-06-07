@@ -82,7 +82,7 @@ input#new-project::placeholder {
   text-align: center;
 }
 
-#editor {
+#editor, #presenter {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -96,7 +96,7 @@ input#new-project::placeholder {
   padding: 0 20px;
 }
 
-#editor > main {
+#editor > main, #presenter > main {
   width: 100%;
   flex: 1;
   display: flex;
