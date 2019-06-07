@@ -1,4 +1,5 @@
 import babel from "rollup-plugin-babel";
+import resolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
 import pkg from "./package.json";
 
@@ -14,8 +15,11 @@ export default [
       }
     ],
     plugins: [
-      commonjs(),
-      babel({ exclude: "node_modules/**" })
+        resolve({
+          dedupe: ["flyps"]
+        }),
+        commonjs(),
+        babel({ exclude: "node_modules/**" })
     ],
   },
 ];
