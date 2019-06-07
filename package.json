@@ -6,6 +6,7 @@
   "browser": "dist/tales.js",
   "scripts": {
     "build": "rollup -c",
+    "format": "prettier --write 'src/js/**/*.js'",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
     "preversion": "npm test",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
+    "prettier": "^1.18.0",
     "rollup": "^1.14.3",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-babel": "^4.3.2",
