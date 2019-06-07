@@ -1,0 +1,37 @@
+{
+  "name": "tales",
+  "version": "0.1.2",
+  "description": "synyx presentation style for everyone",
+  "main": "src/js/index.js",
+  "browser": "dist/tales.js",
+  "scripts": {
+    "build": "rollup -c",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
+    "preversion": "npm test",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:synyx/tales.git"
+  },
+  "keywords": [
+    "poster",
+    "presentation",
+    "presentation-tools",
+    "svg"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/synyx/tales/issues"
+  },
+  "homepage": "https://github.com/synyx/tales#readme",
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "rollup": "^1.14.3",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^10.0.0"
+  }
+}
