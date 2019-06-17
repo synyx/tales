@@ -1,0 +1,79 @@
+:root {
+  --text-light: #fff;
+  --text-dark: #07272b;
+}
+
+body {
+  background-color: #07272b;
+  color: var(--text-light);
+  font-family: sans-serif;
+}
+
+a {
+  color: var(--text-light);
+}
+
+#home {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 30rem;
+  margin: 0 auto;
+}
+
+#home > img {
+  margin: 2rem auto;
+  display: block;
+  height: 24rem;
+  max-width: 90%
+}
+
+input {
+  display: block;
+  margin-bottom: 4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  color: var(--text-dark);
+  border: none;
+}
+
+input:focus {
+  box-shadow: 0 0 16px #fff;
+}
+
+.tales-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.tales-list > li {
+  width: calc(100% / 3 - 2%);
+  margin-bottom: 1rem;
+  background-color: #fff;
+  border: solid 2px white;
+}
+
+.tales-list > li:hover {
+  box-shadow: 0 0 10px #fff;
+}
+
+.tales-list > li a {
+  text-decoration: none;
+  display: block;
+}
+
+.tales-list > li .title {
+  color: var(--text-dark);
+  padding: 0.5rem;
+}
+
+.tales-list > li .poster {
+  display: block;
+  max-width: 100%;
+  background-size: cover;
+  background-position: center;
+  height: 6rem;
+}

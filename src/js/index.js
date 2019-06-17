@@ -37,14 +37,34 @@ let router = () => {
 let home = withInputSignals(
   () => connect("tales"),
   tales => {
-    return h(
-      "ul",
-      tales.map(tale =>
-        h("li", [
-          h("a", { attrs: { href: `#editor/${tale.slug}` } }, tale.name),
-        ]),
+    return h("div#home", [
+      h("img", { attrs: { src: "/images/tales.svg" } }),
+      h("input", {
+        attrs: {
+          type: "text",
+          placeholder: "Enter the name of your tale",
+          autofocus: true,
+        },
+      }),
+      h(
+        "ul.tales-list",
+        tales.map(tale =>
+          h(
+            "li",
+            h("a", { attrs: { href: `/editor/${tale.slug}/` } }, [
+              h("div.poster", {
+                style: {
+                  "background-image": `url(/editor/${tale.slug}/${
+                    tale["file-path"]
+                  }`,
+                },
+              }),
+              h("div.title", tale.name),
+            ]),
+          ),
+        ),
       ),
-    );
+    ]);
   },
 );
 
