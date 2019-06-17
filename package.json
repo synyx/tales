@@ -11,7 +11,8 @@
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm test && npm run lint",
-    "test": "jest"
+    "test": "jest",
+    "watch": "rollup -c -w"
   },
   "repository": {
     "type": "git",
