@@ -1,17 +1,25 @@
-import { signal, connect, connector, withInputSignals } from "flyps";
+import {
+  effector,
+  signal,
+  trigger,
+  connect,
+  connector,
+  withInputSignals,
+} from "flyps";
 import { mount, h } from "flyps-dom-snabbdom";
 
-import { xhr } from "./xhr";
-
-const TALES_API = "http://localhost:3449/api/tales";
-let tales = signal([]);
-connector("tales", () => tales.value());
+import "./project";
+import "./xhr";
 
 let page = signal("home");
 connector("page", () => page.value());
 
 let slug = signal("slug");
 connector("slug", () => slug.value());
+
+effector("navigate", url => {
+  window.location.href = url;
+});
 
 export function findTale([tales, slug]) {
   return tales.find(tale => tale.slug === slug);
@@ -34,6 +42,15 @@ let router = () => {
   }
 };
 
+let input = signal("");
+let clear = () => input.reset("");
+let save = () => {
+  if (input.value()) {
+    trigger("projects/add", { name: input.value() });
+  }
+  clear();
+};
+
 let home = withInputSignals(
   () => connect("tales"),
   tales => {
@@ -44,6 +61,23 @@ let home = withInputSignals(
           type: "text",
           placeholder: "Enter the name of your tale",
           autofocus: true,
+          value: input.value(),
+        },
+        hook: {
+          update: (o, n) => (n.elm.value = input.value()),
+        },
+        on: {
+          keydown: e => {
+            switch (e.which) {
+              case 13: // Enter
+                save();
+                break;
+              case 27: // Escape
+                clear();
+                break;
+            }
+          },
+          input: e => input.reset(e.target.value),
         },
       }),
       h(
@@ -89,13 +123,9 @@ let app = withInputSignals(
 
 export function init() {
   router();
-  xhr({
-    url: TALES_API,
-    responseType: "json",
-    onSuccess: data => tales.reset(data),
-  });
-
   window.addEventListener("hashchange", router, false);
+
+  trigger("projects/get-all");
 
   mount(document.querySelector("#app"), () =>
     app({
