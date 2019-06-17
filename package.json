@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "description": "synyx presentation style for everyone",
   "main": "src/js/index.js",
-  "browser": "dist/tales.js",
+  "browser": "resources/public/js/tales.js",
   "scripts": {
     "build": "rollup -c",
     "format": "prettier --write 'src/js/**/*.js'",
