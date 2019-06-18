@@ -55,7 +55,7 @@ let home = withInputSignals(
   () => connect("tales"),
   tales => {
     return h("div#home", [
-      h("img", { attrs: { src: "/images/tales.svg" } }),
+      h("img.logo", { attrs: { src: "/images/tales.svg" } }),
       h("input", {
         attrs: {
           type: "text",
