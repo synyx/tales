@@ -22,10 +22,10 @@ a {
 }
 
 #home > img {
-  margin: 2rem auto;
+  margin: 4rem auto;
   display: block;
-  height: 24rem;
-  max-width: 90%
+  height: 12rem;
+  max-width: 90%;
 }
 
 input {
