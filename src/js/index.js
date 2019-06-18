@@ -88,9 +88,9 @@ let home = withInputSignals(
             h("a", { attrs: { href: `/editor/${tale.slug}/` } }, [
               h("div.poster", {
                 style: {
-                  "background-image": `url(/editor/${tale.slug}/${
-                    tale["file-path"]
-                  }`,
+                  "background-image": tale["file-path"]
+                    ? `url(/editor/${tale.slug}/${tale["file-path"]})`
+                    : "url(/images/missing-image.svg)",
                 },
               }),
               h("div.title", tale.name),
