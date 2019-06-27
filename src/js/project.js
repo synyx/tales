@@ -1,42 +1,57 @@
-import { handler, connector, signal, trigger } from "flyps";
+import { db, handler, connect, connector, withInputSignals } from "flyps";
 
-const tales = signal([]);
+export function findTale([tales, slug]) {
+  return tales.find(tale => tale.slug === slug);
+}
 
-handler("projects/get-all", () => {
-  return {
-    xhr: {
-      url: "/api/tales/",
-      responseType: "json",
-      onSuccess: data => tales.reset(data),
+connector("tales", withInputSignals(() => db, db => db.tales));
+
+connector("tale-slug", withInputSignals(() => db, db => db.activeTale));
+
+connector(
+  "tale",
+  withInputSignals(() => [connect("tales"), connect("tale-slug")], findTale),
+);
+
+handler("projects/get-all", () => ({
+  xhr: {
+    url: "/api/tales/",
+    responseType: "json",
+    onSuccess: ["projects/get-all-success"],
+    onError: ["projects/request-error"],
+  },
+}));
+
+handler("projects/get-all-success", ({ db }, eventId, projects) => ({
+  db: { ...db, tales: projects },
+}));
+
+handler("projects/add", (causes, eventId, project) => ({
+  xhr: {
+    url: "/api/tales/",
+    method: "POST",
+    data: JSON.stringify(project),
+    headers: {
+      "Content-Type": "application/json",
     },
-  };
+    responseType: "json",
+    onSuccess: ["projects/add-success"],
+    onError: ["projects/request-error"],
+  },
+}));
+
+handler("projects/add-success", ({ db }, eventId, project) => ({
+  db: {
+    ...db,
+    tales: [...db.tales.filter(tale => tale.slug != project.slug), project],
+  },
+  navigate: `/editor/${project.slug}/`,
+}));
+
+handler("projects/request-error", response => {
+  console.error(response);
 });
 
-handler("projects/add", (causes, eventId, project) => {
-  return {
-    xhr: {
-      url: "/api/tales/",
-      method: "POST",
-      data: JSON.stringify(project),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      responseType: "json",
-      onSuccess: data => trigger("projects/add-success", data),
-      onError: data => console.error(data),
-    },
-  };
-});
-
-handler("projects/add-success", (causes, eventId, project) => {
-  tales.update(tales => [
-    ...tales.filter(tale => tale.slug != project.slug),
-    project,
-  ]);
-
-  return {
-    navigate: `/editor/${project.slug}/`,
-  };
-});
-
-connector("tales", () => tales.value());
+handler("projects/activate", ({ db }, eventId, slug) => ({
+  db: { ...db, activeTale: slug },
+}));

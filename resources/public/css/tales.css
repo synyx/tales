@@ -43,7 +43,7 @@ input:focus {
   box-shadow: 0 0 16px #fff;
 }
 
-.tales-list {
+.tale-list {
   display: flex;
   justify-content: start;
   flex-wrap: wrap;
@@ -52,7 +52,7 @@ input:focus {
   padding: 0;
 }
 
-.tales-list > li {
+.tale-list > li {
   width: calc(100% / 4 - 3%);
   margin: 0 3% 3% 0;
   overflow: hidden;
@@ -61,22 +61,22 @@ input:focus {
   box-shadow: 0 2px 3px #0006;
 }
 
-.tales-list > li:hover {
+.tale-list > li:hover {
   box-shadow: 0 0 1rem #fff8;
 }
 
-.tales-list > li a {
+.tale-list > li a {
   display: block;
   text-decoration: none;
 }
 
-.tales-list > li .title {
+.tale-list > li .title {
   padding: 0.5rem;
   color: var(--text-dark);
   font-size: var(--font-size-small);
 }
 
-.tales-list > li .poster {
+.tale-list > li .poster {
   display: block;
   height: 6rem;
   background-size: cover;

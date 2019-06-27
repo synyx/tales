@@ -1,46 +1,32 @@
 import {
-  effector,
+  db,
   signal,
   trigger,
   connect,
   connector,
+  handler,
   withInputSignals,
+  triggerImmediately,
 } from "flyps";
 import { mount, h } from "flyps-dom-snabbdom";
 
 import "./project";
-import "./xhr";
 
-let page = signal("home");
-connector("page", () => page.value());
+import { editor } from "./editor/index";
+import * as router from "./router";
 
-let slug = signal("slug");
-connector("slug", () => slug.value());
+handler("initialize", () => ({
+  db: {
+    tales: [],
+    activePage: "home",
+  },
+}));
 
-effector("navigate", url => {
-  window.location.href = url;
-});
+handler("page/activate", ({ db }, eventId, page) => ({
+  db: { ...db, activePage: page },
+}));
 
-export function findTale([tales, slug]) {
-  return tales.find(tale => tale.slug === slug);
-}
-
-connector(
-  "tale",
-  withInputSignals(() => [connect("tales"), connect("slug")], findTale),
-);
-
-let router = () => {
-  let [name, ...args] = location.hash.split("/");
-  switch (name) {
-    case "#editor":
-      page.reset("editor");
-      slug.reset(args[0]);
-      break;
-    default:
-      page.reset("home");
-  }
-};
+connector("page", withInputSignals(() => db, db => db.activePage));
 
 let input = signal("");
 let clear = () => input.reset("");
@@ -51,70 +37,60 @@ let save = () => {
   clear();
 };
 
-let home = withInputSignals(
-  () => connect("tales"),
-  tales => {
-    return h("div#home", [
-      h("img.logo", { attrs: { src: "/images/tales.svg" } }),
-      h("input", {
-        attrs: {
-          type: "text",
-          placeholder: "Enter the name of your tale",
-          autofocus: true,
-          value: input.value(),
-        },
-        hook: {
-          update: (o, n) => (n.elm.value = input.value()),
-        },
-        on: {
-          keydown: e => {
-            switch (e.which) {
-              case 13: // Enter
-                save();
-                break;
-              case 27: // Escape
-                clear();
-                break;
-            }
-          },
-          input: e => input.reset(e.target.value),
+let taleItem = tale => {
+  return h(
+    "li",
+    h("a", { attrs: { href: `#editor/${tale.slug}/` } }, [
+      h("div.poster", {
+        style: {
+          "background-image": tale["file-path"]
+            ? `url(/editor/${tale.slug}/${tale["file-path"]})`
+            : "url(/images/missing-image.svg)",
         },
       }),
-      h(
-        "ul.tales-list",
-        tales.map(tale =>
-          h(
-            "li",
-            h("a", { attrs: { href: `/editor/${tale.slug}/` } }, [
-              h("div.poster", {
-                style: {
-                  "background-image": tale["file-path"]
-                    ? `url(/editor/${tale.slug}/${tale["file-path"]})`
-                    : "url(/images/missing-image.svg)",
-                },
-              }),
-              h("div.title", tale.name),
-            ]),
-          ),
-        ),
-      ),
-    ]);
-  },
+      h("div.title", tale.name),
+    ]),
+  );
+};
+
+let taleList = withInputSignals(
+  () => connect("tales"),
+  tales => h("ul.tale-list", tales.map(taleItem)),
 );
 
-let editor = withInputSignals(
-  () => connect("tale"),
-  tale => {
-    if (!tale) {
-      return h("div", "Unwritten tale…");
+let home = () => {
+  let onKeydown = e => {
+    switch (e.which) {
+      case 13: // Enter
+        save();
+        break;
+      case 27: // Escape
+        clear();
+        break;
     }
-    return h("div", [
-      h("a", { attrs: { href: "#" } }, "Back"),
-      h("h1", tale.name),
-      h("img", { attrs: { src: tale["file-path"] } }),
-    ]);
-  },
-);
+  };
+  let onInput = e => input.reset(e.target.value);
+
+  return h("div#home", [
+    h("img.logo", { attrs: { src: "/images/tales.svg" } }),
+    h("input", {
+      attrs: {
+        type: "text",
+        placeholder: "Enter the name of your tale",
+        autofocus: true,
+        value: input.value(),
+      },
+      hook: {
+        update: (o, n) => (n.elm.value = input.value()),
+      },
+      on: {
+        keydown: onKeydown,
+        input: onInput,
+      },
+    }),
+    taleList(),
+  ]);
+};
 
 let app = withInputSignals(
   () => connect("page"),
@@ -122,8 +98,9 @@ let app = withInputSignals(
 );
 
 export function init() {
-  router();
-  window.addEventListener("hashchange", router, false);
+  triggerImmediately("initialize");
+
+  router.init();
 
   trigger("projects/get-all");
 

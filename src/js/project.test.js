@@ -1,4 +1,4 @@
-import { findTale } from "./index";
+import { findTale } from "./project";
 
 describe("findTale", () => {
   it("returns tale with matching slug", () => {
