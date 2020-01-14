@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/synyx/tales/workflows/Tales%20CI/badge.svg)](https://github.com/synyx/tales/actions?query=workflow%3A%22Tales+CI%22)
+
 # Tales
 
 Professional storytelling risen to the next level - achievable for everyone!
