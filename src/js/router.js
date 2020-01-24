@@ -1,8 +1,10 @@
 import { effector, handler, trigger } from "flyps";
 
-effector("navigate", url => {
+export function navigate(url) {
   window.location.href = url;
-});
+}
+
+effector("navigate", navigate);
 
 handler("router/navigate", (causes, eventId, url) => ({
   navigate: url,
@@ -20,11 +22,9 @@ let onNavigate = url => {
   }
 };
 
+let onHashChange = () => onNavigate(window.location.hash);
+
 export function init() {
-  onNavigate(window.location.hash);
-  window.addEventListener(
-    "hashchange",
-    () => onNavigate(window.location.hash),
-    false,
-  );
+  onHashChange();
+  window.addEventListener("hashchange", onHashChange, false);
 }
