@@ -10,6 +10,7 @@ import {
 } from "flyps";
 import { mount, h } from "flyps-dom-snabbdom";
 
+import "./camera";
 import "./project";
 
 import { editor } from "./editor/index";
@@ -19,6 +20,10 @@ handler("initialize", () => ({
   db: {
     tales: [],
     activePage: "home",
+    camera: {
+      position: [0, 0, 0],
+      scale: 1,
+    },
   },
 }));
 
@@ -26,7 +31,13 @@ handler("page/activate", ({ db }, eventId, page) => ({
   db: { ...db, activePage: page },
 }));
 
-connector("page", withInputSignals(() => db, db => db.activePage));
+connector(
+  "page",
+  withInputSignals(
+    () => db,
+    db => db.activePage,
+  ),
+);
 
 let input = signal("");
 let clear = () => input.reset("");
