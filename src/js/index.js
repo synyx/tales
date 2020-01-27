@@ -115,10 +115,15 @@ export function init() {
 
   trigger("projects/get-all");
 
-  mount(document.querySelector("#app"), () =>
-    app({
-      home: home,
-      editor: editor,
-    }),
+  mount(
+    document.querySelector("#app"),
+    withInputSignals(
+      () => [connect("tale"), connect("matrix/mvp")],
+      ([tale, mvp]) =>
+        app({
+          home: home,
+          editor: () => editor(tale, mvp),
+        }),
+    ),
   );
 }
