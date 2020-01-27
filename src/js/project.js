@@ -4,9 +4,21 @@ export function findTale([tales, slug]) {
   return tales.find(tale => tale.slug === slug);
 }
 
-connector("tales", withInputSignals(() => db, db => db.tales));
+connector(
+  "tales",
+  withInputSignals(
+    () => db,
+    db => db.tales,
+  ),
+);
 
-connector("tale-slug", withInputSignals(() => db, db => db.activeTale));
+connector(
+  "tale-slug",
+  withInputSignals(
+    () => db,
+    db => db.activeTale,
+  ),
+);
 
 connector(
   "tale",
