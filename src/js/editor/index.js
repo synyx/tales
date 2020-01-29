@@ -43,9 +43,11 @@ export function editor(tale, mvp) {
   if (!tale) {
     return notFound();
   }
-  return h("div", [
-    h("a", { attrs: { href: "#" } }, "Back"),
-    h("h1", tale.name),
+  return h("div#editor", [
+    h("header", [
+      h("section.left", [h("span.title", tale.name)]),
+      h("section.right", [h("a", { attrs: { href: "#" } }, "×")]),
+    ]),
     viewport(
       mvp,
       {

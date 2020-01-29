@@ -1,7 +1,8 @@
 :root {
   --text-light: #fff;
   --text-dark: #07272b;
-  --font-size-small: 14px;
+  --font-size-small: 0.9em;
+  --font-size-medium: 1.1em;
 }
 
 body {
@@ -83,4 +84,22 @@ input:focus {
   background-position: center;
   background-color: #8883;
   background-blend-mode: screen;
+}
+
+#editor > header {
+  background-color: #000c;
+  color: var(--text-light);
+  font-size: var(--font-size-medium);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  right: 0;
+}
+
+#editor > header a {
+    text-decoration: none;
 }
