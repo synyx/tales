@@ -26,27 +26,70 @@ let fakeEvent = (ev = {}) => ({
   ...ev,
 });
 
+let matrix = (offset, scale) => {
+  let mat = mat4.create();
+  mat4.translate(mat, mat, vec3.fromValues(offset, offset, 0));
+  mat4.scale(mat, mat, vec3.fromValues(scale, scale, 1));
+  return mat;
+};
+
 describe("onWheel", () => {
   it("zooms out on negative delta", () => {
-    onWheel({ deltaY: -1 });
-    expect(flyps.trigger).toHaveBeenCalledWith("camera/zoom-out");
+    onWheel({ deltaY: -1, clientX: 0, clientY: 0 }, mat4.create());
+    expect(flyps.trigger).toHaveBeenCalledWith(
+      "camera/zoom-out",
+      vec3.fromValues(0, 0, 0),
+    );
+  });
+  it("zooms out on negative delta with anchor", () => {
+    let scale = 2,
+      offset = 10,
+      mat = matrix(offset, scale);
+
+    onWheel({ deltaY: -1, clientX: 40, clientY: 80 }, mat);
+    expect(flyps.trigger).toHaveBeenCalledWith(
+      "camera/zoom-out",
+      vec3.fromValues(15, 35, 0),
+    );
   });
   it("zooms in on positive delta", () => {
-    onWheel({ deltaY: 1 });
-    expect(flyps.trigger).toHaveBeenCalledWith("camera/zoom-in");
+    onWheel({ deltaY: 1, clientX: 0, clientY: 0 }, mat4.create());
+    expect(flyps.trigger).toHaveBeenCalledWith(
+      "camera/zoom-in",
+      vec3.fromValues(0, 0, 0),
+    );
+  });
+  it("zooms in on positive delta with anchor", () => {
+    let scale = 2,
+      offset = 10,
+      mat = matrix(offset, scale);
+
+    onWheel({ deltaY: 1, clientX: 40, clientY: 80 }, mat);
+    expect(flyps.trigger).toHaveBeenCalledWith(
+      "camera/zoom-in",
+      vec3.fromValues(15, 35, 0),
+    );
   });
 });
 
 describe("onMouseDown", () => {
   it("starts dragging", () => {
-    onMouseDown(fakeEvent({ clientX: 10, clientY: 20 }), mat4.create());
+    let scale = 2,
+      offset = 10,
+      mat = matrix(offset, scale);
 
-    listeners.mousemove(fakeEvent({ clientX: 0, clientY: 0 }));
+    onMouseDown(fakeEvent({ clientX: 10, clientY: 20 }), mat);
+
+    listeners.mousemove(fakeEvent({ clientX: 40, clientY: 80 }));
     listeners.mouseup(fakeEvent());
 
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/move-to",
-      vec3.fromValues(10, 20, 0),
+      vec3.fromValues(
+        -30 / scale - offset / scale,
+        -60 / scale - offset / scale,
+        0,
+      ),
     );
   });
 });

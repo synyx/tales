@@ -6,27 +6,29 @@ import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
 
 let isMoving = signal(false);
+let viewportOffset = [0, 0, 0];
 
-export function onWheel(ev) {
-  trigger(ev.deltaY > 0 ? "camera/zoom-in" : "camera/zoom-out");
+export function onWheel(ev, mvp) {
+  let mouse = [ev.clientX, ev.clientY, 0];
+  let anchor = vec3.transformMat4(
+    vec3.create(),
+    vec3.sub(vec3.create(), mouse, viewportOffset),
+    mat4.invert(mat4.create(), mvp),
+  );
+  trigger(ev.deltaY > 0 ? "camera/zoom-in" : "camera/zoom-out", anchor);
 }
 
 export function onMouseDown(ev, mvp) {
-  let originalPosition = mat4.getTranslation(
-    vec3.create(),
-    mat4.invert(mat4.create(), mvp),
-  );
   ev.preventDefault();
   isMoving.reset(true);
   dragging(
     ev,
     (ev, start, end) => {
-      let delta = vec3.div(
+      let newPosition = vec3.transformMat4(
         vec3.create(),
-        vec3.sub(vec3.create(), end, start),
-        mat4.getScaling(vec3.create(), mvp),
+        vec3.sub(vec3.create(), start, end),
+        mat4.invert(mat4.create(), mvp),
       );
-      let newPosition = vec3.sub(vec3.create(), originalPosition, delta);
       trigger("camera/move-to", newPosition);
     },
     () => isMoving.reset(false),
@@ -51,8 +53,14 @@ export function editor(tale, mvp) {
           cursor: isMoving.value() ? "grabbing" : "grab",
         },
         on: {
-          wheel: ev => onWheel(ev),
+          wheel: ev => onWheel(ev, mvp),
           mousedown: ev => onMouseDown(ev, mvp),
+        },
+        hook: {
+          insert: vnode => {
+            let rect = vnode.elm.getBoundingClientRect();
+            viewportOffset = [rect.left, rect.top, 0];
+          },
         },
       },
       h("img", {

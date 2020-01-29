@@ -79,12 +79,34 @@ connector(
  * handlers
  */
 
-export function zoomIn(db) {
-  return { ...db, camera: { ...db.camera, scale: db.camera.scale * 2 } };
+function setScale(db, scale, anchor) {
+  let position = db.camera.position;
+
+  if (anchor) {
+    let scaledDelta = vec3.scale(
+      vec3.create(),
+      vec3.sub(vec3.create(), db.camera.position, anchor),
+      scale / db.camera.scale,
+    );
+    position = vec3.add(vec3.create(), anchor, scaledDelta);
+  }
+
+  return {
+    ...db,
+    camera: {
+      ...db.camera,
+      scale,
+      position,
+    },
+  };
 }
 
-export function zoomOut(db) {
-  return { ...db, camera: { ...db.camera, scale: db.camera.scale / 2 } };
+export function zoomIn(db, anchor) {
+  return setScale(db, db.camera.scale * 2, anchor);
+}
+
+export function zoomOut(db, anchor) {
+  return setScale(db, db.camera.scale / 2, anchor);
 }
 
 export function moveTo(db, position) {
@@ -104,7 +126,7 @@ function dbHandler(eventId, handlerFn, interceptors) {
   );
 }
 
-dbHandler("camera/zoom-in", db => zoomIn(db));
-dbHandler("camera/zoom-out", db => zoomOut(db));
+dbHandler("camera/zoom-in", (db, id, anchor) => zoomIn(db, anchor));
+dbHandler("camera/zoom-out", (db, id, anchor) => zoomOut(db, anchor));
 dbHandler("camera/move-to", (db, id, pos) => moveTo(db, pos));
 dbHandler("camera/move-by", (db, id, delta) => moveBy(db, delta));
