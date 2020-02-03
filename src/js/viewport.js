@@ -55,9 +55,24 @@ let matrix3d = ([
   );
 };
 
-export function viewport(mvp, data = {}, children = []) {
+function scene(width, height, mvp, children = []) {
   return h(
-    "div#viewport",
+    "div.scene",
+    {
+      style: {
+        "transform-origin": "0 0",
+        transform: matrix3d(mvp),
+        width: `${width}px`,
+        height: `${height}px`,
+      },
+    },
+    children,
+  );
+}
+
+export function viewport(width, height, mvp, data = {}, children = []) {
+  return h(
+    "div.viewport",
     {
       ...data,
       style: {
@@ -67,15 +82,6 @@ export function viewport(mvp, data = {}, children = []) {
         ...data.style,
       },
     },
-    h(
-      "div#scene",
-      {
-        style: {
-          "transform-origin": "0 0",
-          transform: matrix3d(mvp),
-        },
-      },
-      children,
-    ),
+    scene(width, height, mvp, children),
   );
 }

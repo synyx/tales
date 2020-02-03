@@ -4,6 +4,7 @@ import { mat4, vec3 } from "gl-matrix";
 
 import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
+import { preview } from "./preview";
 
 let isMoving = signal(false);
 let viewportOffset = [0, 0, 0];
@@ -39,6 +40,12 @@ export function notFound() {
   return h("div", "Unwritten tale…");
 }
 
+function poster(url) {
+  return h("img", {
+    attrs: { src: url },
+  });
+}
+
 export function editor(tale, mvp) {
   if (!tale) {
     return notFound();
@@ -49,6 +56,8 @@ export function editor(tale, mvp) {
       h("section.right", [h("a", { attrs: { href: "#" } }, "×")]),
     ]),
     viewport(
+      tale.dimensions.width,
+      tale.dimensions.height,
       mvp,
       {
         style: {
@@ -65,9 +74,8 @@ export function editor(tale, mvp) {
           },
         },
       },
-      h("img", {
-        attrs: { src: `/editor/${tale.slug}/${tale["file-path"]}` },
-      }),
+      [poster(`/editor/${tale.slug}/${tale["file-path"]}`)],
     ),
+    h("footer", [h("section.left", preview(tale)), h("section.right")]),
   ]);
 }

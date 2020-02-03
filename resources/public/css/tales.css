@@ -103,3 +103,20 @@ input:focus {
 #editor > header a {
     text-decoration: none;
 }
+
+#editor > footer {
+  background-color: #000c;
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#editor > footer > .left {
+    line-height: 0;
+}
+
+#editor .preview {
+    display: inline-block;
+}
