@@ -87,7 +87,7 @@ connector(
   "matrix/viewport",
   withInputSignals(
     () => connect("db"),
-    db => getViewportMatrix(800, 600),
+    _db => getViewportMatrix(800, 600),
   ),
 );
 
@@ -134,6 +134,20 @@ export function moveBy(db, delta) {
   return moveTo(db, position);
 }
 
+export function fitRect(db, rect, viewport) {
+  let position = [rect.x + rect.width / 2, rect.y + rect.height / 2, 0];
+  let scale =
+    Math.max(
+      ...vec3.transformMat4(
+        vec3.create(),
+        [rect.width, rect.height, 0],
+        getProjectionMatrix(viewport.width / viewport.height),
+      ),
+    ) / 2;
+
+  return { ...db, camera: { ...db.camera, position, scale } };
+}
+
 function dbHandler(eventId, handlerFn, interceptors) {
   return handler(
     eventId,
@@ -146,3 +160,6 @@ dbHandler("camera/zoom-in", (db, id, anchor) => zoomIn(db, anchor));
 dbHandler("camera/zoom-out", (db, id, anchor) => zoomOut(db, anchor));
 dbHandler("camera/move-to", (db, id, pos) => moveTo(db, pos));
 dbHandler("camera/move-by", (db, id, delta) => moveBy(db, delta));
+dbHandler("camera/fit-rect", (db, id, rect) =>
+  fitRect(db, rect, { width: 800, height: 600 }),
+);
