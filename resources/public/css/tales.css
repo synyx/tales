@@ -5,10 +5,15 @@
   --font-size-medium: 1.1em;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   background-color: #365256;
   color: var(--text-light);
   font-family: sans-serif;
+  height: 100%;
 }
 
 a {
@@ -84,6 +89,14 @@ input:focus {
   background-position: center;
   background-color: #8883;
   background-blend-mode: screen;
+}
+
+#app {
+  height: 100%;
+}
+
+#editor {
+  height: 100%;
 }
 
 #editor > header {

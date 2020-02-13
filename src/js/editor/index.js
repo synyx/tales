@@ -7,34 +7,26 @@ import { viewport } from "../viewport";
 import { preview } from "./preview";
 
 let isMoving = signal(false);
-let viewportOffset = [0, 0, 0];
 
 export function onWheel(ev, projectFn) {
-  let mouse = vec3.sub(
-    vec3.create(),
-    [ev.clientX, ev.clientY, 0],
-    viewportOffset,
-  );
-  let anchor = projectFn(mouse);
-
+  let anchor = projectFn(vec3.fromValues(ev.clientX, ev.clientY, 0));
   trigger(ev.deltaY > 0 ? "camera/zoom-in" : "camera/zoom-out", anchor);
+  ev.preventDefault();
 }
 
-export function onMouseDown(ev, originalPosition, projectFn) {
-  ev.preventDefault();
-
+export function onMouseDown(ev, cameraPosition, projectFn) {
   isMoving.reset(true);
-
   dragging(
     ev,
     (ev, start, end) => {
       let delta = vec3.sub(vec3.create(), projectFn(start), projectFn(end));
-      let newPosition = vec3.add(vec3.create(), originalPosition, delta);
-
+      let newPosition = vec3.add(vec3.create(), cameraPosition, delta);
       trigger("camera/move-to", newPosition);
+      ev.preventDefault();
     },
     () => isMoving.reset(false),
   );
+  ev.preventDefault();
 }
 
 export function notFound() {
@@ -80,7 +72,7 @@ export let editor = withInputSignals(
     connect("matrix/viewport"),
     connect("camera/position"),
   ],
-  ([mvpMatrix, viewportMatrix, originalPosition], tale) => {
+  ([mvpMatrix, viewportMatrix, cameraPosition], tale) => {
     if (!tale) {
       return notFound();
     }
@@ -95,6 +87,13 @@ export let editor = withInputSignals(
         ),
       );
 
+    let elm;
+
+    let onResize = () => {
+      let {left, top, width, height } = elm.getBoundingClientRect();
+      trigger("viewport/set-rect", [left, top, width, height]);
+    };
+
     return h("div#editor", [
       h("header", [
         h("section.left", [h("span.title", tale.name)]),
@@ -103,6 +102,7 @@ export let editor = withInputSignals(
       viewport(
         tale.dimensions.width,
         tale.dimensions.height,
+        viewportMatrix,
         mvpMatrix,
         {
           style: {
@@ -110,12 +110,18 @@ export let editor = withInputSignals(
           },
           on: {
             wheel: ev => onWheel(ev, projectFn),
-            mousedown: ev => onMouseDown(ev, originalPosition, projectFn),
+            mousedown: ev => onMouseDown(ev, cameraPosition, projectFn),
           },
           hook: {
             insert: vnode => {
-              let rect = vnode.elm.getBoundingClientRect();
-              viewportOffset = [rect.left, rect.top, 0];
+              elm = vnode.elm;
+              window.addEventListener("resize", onResize);
+              onResize();
+            },
+            remove: vnode => {
+              elm = null;
+              window.removeEventListener("resize", onResize);
+              onResize();
             },
           },
         },

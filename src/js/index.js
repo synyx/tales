@@ -24,6 +24,9 @@ handler("initialize", () => ({
       position: [0, 0, 0],
       scale: 1,
     },
+    viewport: {
+      rect: [0, 0, 800, 600],
+    },
   },
 }));
 

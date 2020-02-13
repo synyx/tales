@@ -158,11 +158,12 @@ describe("camera", () => {
     expect(db.camera.position).toEqualVec3([10, 20, 0]);
   });
   it("fits landscape rect", () => {
-    let db = fitRect(
-      { camera: {} },
-      { width: 200, height: 100, x: 0, y: 0 },
-      { width: 400, height: 200 },
-    );
+    let db = fitRect({ camera: {} }, { width: 200, height: 100, x: 0, y: 0 }, [
+      0,
+      0,
+      400,
+      200,
+    ]);
     expect(db.camera.position).toEqualVec3([100, 50, 0]);
     expect(db.camera.scale).toBe(50);
   });
@@ -170,7 +171,7 @@ describe("camera", () => {
     let db = fitRect(
       { camera: {} },
       { width: 100, height: 200, x: 25, y: 50 },
-      { width: 400, height: 200 },
+      [0, 0, 400, 200],
     );
     expect(db.camera.position).toEqualVec3([75, 150, 0]);
     expect(db.camera.scale).toBe(100);

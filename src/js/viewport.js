@@ -1,85 +1,22 @@
 import { h } from "flyps-dom-snabbdom";
 
-import { getViewportMatrix } from "./camera";
+let matrix3d = mat => `matrix3d(${mat.join(",")})`;
 
-let matrix3d = ([
-  m00,
-  m01,
-  m02,
-  m03,
-  m10,
-  m11,
-  m12,
-  m13,
-  m20,
-  m21,
-  m22,
-  m23,
-  m30,
-  m31,
-  m32,
-  m33,
-]) => {
-  return (
-    "matrix3d(" +
-    m00 +
-    "," +
-    m01 +
-    "," +
-    m02 +
-    "," +
-    m03 +
-    "," +
-    m10 +
-    "," +
-    m11 +
-    "," +
-    m12 +
-    "," +
-    m13 +
-    "," +
-    m20 +
-    "," +
-    m21 +
-    "," +
-    m22 +
-    "," +
-    m23 +
-    "," +
-    m30 +
-    "," +
-    m31 +
-    "," +
-    m32 +
-    "," +
-    m33 +
-    ")"
-  );
-};
-
-function world(width, height, mvp, children = []) {
-  return h(
-    "div.world",
-    {
-      style: {
-        "transform-origin": "0 0",
-        transform: matrix3d(mvp),
-        width: `${width}px`,
-        height: `${height}px`,
-      },
-    },
-    children,
-  );
-}
-
-export function viewport(width, height, mvp, data = {}, children = []) {
+export function viewport(
+  worldWidth,
+  worldHeight,
+  viewportMatrix,
+  mvpMatrix,
+  data = {},
+  children = [],
+) {
   return h(
     "div.viewport",
     {
       ...data,
       style: {
-        width: "800px",
-        height: "600px",
+        width: "100%",
+        height: "100%",
         overflow: "hidden",
         ...data.style,
       },
@@ -89,10 +26,21 @@ export function viewport(width, height, mvp, data = {}, children = []) {
       {
         style: {
           "transform-origin": "0 0",
-          transform: matrix3d(getViewportMatrix(800, 600)),
+          transform: matrix3d(viewportMatrix),
         },
       },
-      world(width, height, mvp, children),
+      h(
+        "div.world",
+        {
+          style: {
+            "transform-origin": "0 0",
+            transform: matrix3d(mvpMatrix),
+            width: `${worldWidth}px`,
+            height: `${worldHeight}px`,
+          },
+        },
+        children,
+      ),
     ),
   );
 }

@@ -42,7 +42,7 @@ let projectFn = (offset, scale) => vec =>
 
 describe("onWheel", () => {
   it("zooms out on negative delta", () => {
-    onWheel({ deltaY: -1, clientX: 0, clientY: 0 }, vec => vec);
+    onWheel(fakeEvent({ deltaY: -1, clientX: 0, clientY: 0 }), vec => vec);
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-out",
       vec3.fromValues(0, 0, 0),
@@ -52,14 +52,14 @@ describe("onWheel", () => {
     let scale = 2,
       offset = 10;
 
-    onWheel({ deltaY: -1, clientX: 40, clientY: 80 }, projectFn(offset, scale));
+    onWheel(fakeEvent({ deltaY: -1, clientX: 40, clientY: 80 }), projectFn(offset, scale));
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-out",
       vec3.fromValues(15, 35, 0),
     );
   });
   it("zooms in on positive delta", () => {
-    onWheel({ deltaY: 1, clientX: 0, clientY: 0 }, vec => vec);
+    onWheel(fakeEvent({ deltaY: 1, clientX: 0, clientY: 0 }), vec => vec);
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-in",
       vec3.fromValues(0, 0, 0),
@@ -69,7 +69,7 @@ describe("onWheel", () => {
     let scale = 2,
       offset = 10;
 
-    onWheel({ deltaY: 1, clientX: 40, clientY: 80 }, projectFn(offset, scale));
+    onWheel(fakeEvent({ deltaY: 1, clientX: 40, clientY: 80 }), projectFn(offset, scale));
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-in",
       vec3.fromValues(15, 35, 0),

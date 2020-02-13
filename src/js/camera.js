@@ -32,9 +32,13 @@ export function getMVPMatrix(modelViewMatrix, projectionMatrix) {
   return mat4.multiply(mat4.create(), projectionMatrix, modelViewMatrix);
 }
 
-export function getViewportMatrix(width, height) {
-  let w2 = width / 2.0;
-  let h2 = height / 2.0;
+export function getViewportRect(db) {
+  return db.viewport.rect;
+}
+
+export function getViewportMatrix([_x, _y, w, h]) {
+  let w2 = w / 2.0;
+  let h2 = h / 2.0;
   let m = mat4.create();
   mat4.translate(m, m, [w2, h2, 0]);
   mat4.scale(m, m, [w2, h2, 1]);
@@ -58,6 +62,22 @@ connector(
 );
 
 connector(
+  "viewport/rect",
+  withInputSignals(
+    () => connect("db"),
+    db => getViewportRect(db),
+  ),
+);
+
+connector(
+  "viewport/aspect",
+  withInputSignals(
+    () => connect("viewport/rect"),
+    ([_x, _y, w, h]) => w / h,
+  ),
+);
+
+connector(
   "matrix/camera",
   withInputSignals(
     () => [connect("camera/position"), connect("camera/scale")],
@@ -73,7 +93,13 @@ connector(
   ),
 );
 
-connector("matrix/projection", () => getProjectionMatrix(800 / 600));
+connector(
+  "matrix/projection",
+  withInputSignals(
+    () => connect("viewport/aspect"),
+    aspect => getProjectionMatrix(aspect),
+  ),
+);
 
 connector(
   "matrix/mvp",
@@ -87,7 +113,7 @@ connector(
   "matrix/viewport",
   withInputSignals(
     () => connect("db"),
-    _db => getViewportMatrix(800, 600),
+    db => getViewportMatrix(getViewportRect(db)),
   ),
 );
 
@@ -134,18 +160,22 @@ export function moveBy(db, delta) {
   return moveTo(db, position);
 }
 
-export function fitRect(db, rect, viewport) {
+export function fitRect(db, rect, [_vx, _vy, vw, vh]) {
   let position = [rect.x + rect.width / 2, rect.y + rect.height / 2, 0];
   let scale =
     Math.max(
       ...vec3.transformMat4(
         vec3.create(),
         [rect.width, rect.height, 0],
-        getProjectionMatrix(viewport.width / viewport.height),
+        getProjectionMatrix(vw / vh),
       ),
     ) / 2;
 
   return { ...db, camera: { ...db.camera, position, scale } };
+}
+
+export function setRect(db, [vx, vy, vw, vh]) {
+  return { ...db, viewport: { ...db.viewport, rect: [vx, vy, vw, vh] } };
 }
 
 function dbHandler(eventId, handlerFn, interceptors) {
@@ -161,5 +191,6 @@ dbHandler("camera/zoom-out", (db, id, anchor) => zoomOut(db, anchor));
 dbHandler("camera/move-to", (db, id, pos) => moveTo(db, pos));
 dbHandler("camera/move-by", (db, id, delta) => moveBy(db, delta));
 dbHandler("camera/fit-rect", (db, id, rect) =>
-  fitRect(db, rect, { width: 800, height: 600 }),
+  fitRect(db, rect, db.viewport.rect),
 );
+dbHandler("viewport/set-rect", (db, id, rect) => setRect(db, rect));
