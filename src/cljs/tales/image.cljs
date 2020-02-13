@@ -13,7 +13,7 @@
   (let [width (.getAttribute svg "width")
         height (.getAttribute svg "height")]
     (if (and width height)
-      {:width width :height height}
+      {:width (js/parseInt width) :height (js/parseInt height)}
       (dimensions-from-view-box (.getAttribute svg "viewBox")))))
 
 (defn- image-dimensions [image]
