@@ -118,11 +118,11 @@ export function init() {
   mount(
     document.querySelector("#app"),
     withInputSignals(
-      () => [connect("tale"), connect("matrix/mvp")],
-      ([tale, mvp]) =>
+      () => connect("tale"),
+      tale =>
         app({
           home: home,
-          editor: () => editor(tale, mvp),
+          editor: () => editor(tale),
         }),
     ),
   );

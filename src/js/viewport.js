@@ -1,5 +1,7 @@
 import { h } from "flyps-dom-snabbdom";
 
+import { getViewportMatrix } from "./camera";
+
 let matrix3d = ([
   m00,
   m01,
@@ -55,9 +57,9 @@ let matrix3d = ([
   );
 };
 
-function scene(width, height, mvp, children = []) {
+function world(width, height, mvp, children = []) {
   return h(
-    "div.scene",
+    "div.world",
     {
       style: {
         "transform-origin": "0 0",
@@ -82,6 +84,15 @@ export function viewport(width, height, mvp, data = {}, children = []) {
         ...data.style,
       },
     },
-    scene(width, height, mvp, children),
+    h(
+      "div.scene",
+      {
+        style: {
+          "transform-origin": "0 0",
+          transform: matrix3d(getViewportMatrix(800, 600)),
+        },
+      },
+      world(width, height, mvp, children),
+    ),
   );
 }

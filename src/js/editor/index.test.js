@@ -33,9 +33,16 @@ let matrix = (offset, scale) => {
   return mat;
 };
 
+let projectFn = (offset, scale) => vec =>
+  vec3.transformMat4(
+    vec3.create(),
+    vec,
+    mat4.invert(mat4.create(), matrix(offset, scale)),
+  );
+
 describe("onWheel", () => {
   it("zooms out on negative delta", () => {
-    onWheel({ deltaY: -1, clientX: 0, clientY: 0 }, mat4.create());
+    onWheel({ deltaY: -1, clientX: 0, clientY: 0 }, vec => vec);
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-out",
       vec3.fromValues(0, 0, 0),
@@ -43,17 +50,16 @@ describe("onWheel", () => {
   });
   it("zooms out on negative delta with anchor", () => {
     let scale = 2,
-      offset = 10,
-      mat = matrix(offset, scale);
+      offset = 10;
 
-    onWheel({ deltaY: -1, clientX: 40, clientY: 80 }, mat);
+    onWheel({ deltaY: -1, clientX: 40, clientY: 80 }, projectFn(offset, scale));
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-out",
       vec3.fromValues(15, 35, 0),
     );
   });
   it("zooms in on positive delta", () => {
-    onWheel({ deltaY: 1, clientX: 0, clientY: 0 }, mat4.create());
+    onWheel({ deltaY: 1, clientX: 0, clientY: 0 }, vec => vec);
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-in",
       vec3.fromValues(0, 0, 0),
@@ -61,10 +67,9 @@ describe("onWheel", () => {
   });
   it("zooms in on positive delta with anchor", () => {
     let scale = 2,
-      offset = 10,
-      mat = matrix(offset, scale);
+      offset = 10;
 
-    onWheel({ deltaY: 1, clientX: 40, clientY: 80 }, mat);
+    onWheel({ deltaY: 1, clientX: 40, clientY: 80 }, projectFn(offset, scale));
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-in",
       vec3.fromValues(15, 35, 0),
@@ -73,23 +78,22 @@ describe("onWheel", () => {
 });
 
 describe("onMouseDown", () => {
-  it("starts dragging", () => {
-    let scale = 2,
-      offset = 10,
-      mat = matrix(offset, scale);
+  it("drags the camera", () => {
+    let scale = 1,
+      offset = 10;
 
-    onMouseDown(fakeEvent({ clientX: 10, clientY: 20 }), mat);
+    onMouseDown(
+      fakeEvent({ clientX: 10, clientY: 20 }),
+      [-1, -2, 0],
+      projectFn(offset, scale),
+    );
 
     listeners.mousemove(fakeEvent({ clientX: 40, clientY: 80 }));
     listeners.mouseup(fakeEvent());
 
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/move-to",
-      vec3.fromValues(
-        -30 / scale - offset / scale,
-        -60 / scale - offset / scale,
-        0,
-      ),
+      vec3.fromValues(10 - 40 - 1, 20 - 80 - 2, 0),
     );
   });
 });

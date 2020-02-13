@@ -79,28 +79,28 @@ describe("camera", () => {
     );
   });
   it("gets projection matrix", () => {
-    let proj = getProjectionMatrix();
+    let proj = getProjectionMatrix(1);
     expect(proj).toEqualMat4(
       // prettier-ignore
       [
-        1, 0,  0  , 0,
-        0, 1,  0  , 0,
-        0, 0, -0.5, 0,
-        0, 0, -3  , 1,
+        1, 0,  0, 0,
+        0, 1,  0, 0,
+        0, 0, -1, 0,
+        0, 0,  0, 1,
       ],
     );
   });
   it("gets model-view-projection matrix", () => {
     let mv = getModelViewMatrix(getCameraMatrix([1, 2, 3], 4));
-    let proj = getProjectionMatrix();
+    let proj = getProjectionMatrix(1);
     let mvp = getMVPMatrix(mv, proj);
     expect(mvp).toEqualMat4(
       // prettier-ignore
       [
-         0.25,  0   ,  0  , 0,
-         0   ,  0.25,  0  , 0,
-         0   ,  0   , -0.5, 0,
-        -0.25, -0.5 , -1.5, 1,
+         0.25,  0   ,  0, 0,
+         0   ,  0.25,  0, 0,
+         0   ,  0   , -1, 0,
+        -0.25, -0.5 ,  3, 1,
       ],
     );
   });

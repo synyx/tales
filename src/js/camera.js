@@ -24,13 +24,21 @@ export function getModelViewMatrix(cameraMatrix) {
   return mat4.invert(mat4.create(), cameraMatrix);
 }
 
-export function getProjectionMatrix() {
-  let n = 1;
-  return mat4.ortho(mat4.create(), -1 * n, n, -1 * n, n, 4, 8);
+export function getProjectionMatrix(aspect) {
+  return mat4.ortho(mat4.create(), -aspect, aspect, -1, 1, -1, 1);
 }
 
 export function getMVPMatrix(modelViewMatrix, projectionMatrix) {
   return mat4.multiply(mat4.create(), projectionMatrix, modelViewMatrix);
+}
+
+export function getViewportMatrix(width, height) {
+  let w2 = width / 2.0;
+  let h2 = height / 2.0;
+  let m = mat4.create();
+  mat4.translate(m, m, [w2, h2, 0]);
+  mat4.scale(m, m, [w2, h2, 1]);
+  return m;
 }
 
 connector(
@@ -65,13 +73,21 @@ connector(
   ),
 );
 
-connector("matrix/projection", () => getProjectionMatrix());
+connector("matrix/projection", () => getProjectionMatrix(800 / 600));
 
 connector(
   "matrix/mvp",
   withInputSignals(
     () => [connect("matrix/modelview"), connect("matrix/projection")],
     ([modelview, projection]) => getMVPMatrix(modelview, projection),
+  ),
+);
+
+connector(
+  "matrix/viewport",
+  withInputSignals(
+    () => connect("db"),
+    db => getViewportMatrix(800, 600),
   ),
 );
 
