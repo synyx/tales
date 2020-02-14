@@ -46,6 +46,7 @@ describe("onWheel", () => {
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-out",
       vec3.fromValues(0, 0, 0),
+      1 / 3,
     );
   });
   it("zooms out on negative delta with anchor", () => {
@@ -53,12 +54,13 @@ describe("onWheel", () => {
       offset = 10;
 
     onWheel(
-      fakeEvent({ deltaY: -1, clientX: 40, clientY: 80 }),
+      fakeEvent({ deltaY: -3, clientX: 40, clientY: 80 }),
       projectFn(offset, scale),
     );
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-out",
       vec3.fromValues(15, 35, 0),
+      1,
     );
   });
   it("zooms in on positive delta", () => {
@@ -66,6 +68,7 @@ describe("onWheel", () => {
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-in",
       vec3.fromValues(0, 0, 0),
+      1 / 3,
     );
   });
   it("zooms in on positive delta with anchor", () => {
@@ -73,12 +76,13 @@ describe("onWheel", () => {
       offset = 10;
 
     onWheel(
-      fakeEvent({ deltaY: 1, clientX: 40, clientY: 80 }),
+      fakeEvent({ deltaY: 3, clientX: 40, clientY: 80 }),
       projectFn(offset, scale),
     );
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-in",
       vec3.fromValues(15, 35, 0),
+      1,
     );
   });
 });

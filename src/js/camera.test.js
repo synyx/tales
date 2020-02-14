@@ -93,6 +93,14 @@ describe("camera", () => {
     expect(db.camera.position).toEqualVec3([10, 20, 0]);
     expect(db.camera.scale).toBe(2);
   });
+  it("zooms in with factor", () => {
+    let db = zoomIn(
+      { camera: { position: [0, 0, 0], scale: 1 } },
+      [0, 0, 0],
+      0.5,
+    );
+    expect(db.camera.scale).toBe(1.5);
+  });
   it("zooms out", () => {
     let db = zoomOut({ camera: { position: [0, 0, 0], scale: 1 } });
     expect(db.camera.scale).toBe(0.5);
@@ -114,6 +122,14 @@ describe("camera", () => {
     ]);
     expect(db.camera.position).toEqualVec3([10, 20, 0]);
     expect(db.camera.scale).toBe(0.5);
+  });
+  it("zooms out with factor", () => {
+    let db = zoomOut(
+      { camera: { position: [0, 0, 0], scale: 1 } },
+      [0, 0, 0],
+      0.25,
+    );
+    expect(db.camera.scale).toBe(0.8);
   });
   it("moves to", () => {
     let db = moveTo({ camera: { position: [0, 0, 0] } }, [10, 20, 0]);

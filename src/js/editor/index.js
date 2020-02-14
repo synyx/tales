@@ -11,7 +11,8 @@ let isMoving = signal(false);
 
 export function onWheel(ev, projectFn) {
   let anchor = projectFn(vec3.fromValues(ev.clientX, ev.clientY, 0));
-  trigger(ev.deltaY > 0 ? "camera/zoom-in" : "camera/zoom-out", anchor);
+  let delta = Math.abs(ev.deltaY / 3);
+  trigger(ev.deltaY > 0 ? "camera/zoom-in" : "camera/zoom-out", anchor, delta);
   ev.preventDefault();
 }
 
