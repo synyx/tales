@@ -6,6 +6,10 @@ import {
   getModelViewMatrix,
   getProjectionMatrix,
   getMVPMatrix,
+  getViewportAspect,
+  getViewportRect,
+  getViewportMatrix,
+  setViewportRect,
   moveBy,
   moveTo,
   zoomIn,
@@ -175,5 +179,32 @@ describe("camera", () => {
     );
     expect(db.camera.position).toEqualVec3([75, 150, 0]);
     expect(db.camera.scale).toBe(100);
+  });
+});
+
+describe("viewport", () => {
+  it("gets rect", () => {
+    let rect = getViewportRect({ viewport: { rect: [0, 1, 2, 3] } });
+    expect(vec3.exactEquals(rect, [0, 1, 2, 3])).toBe(true);
+  });
+  it("gets aspect", () => {
+    let aspect = getViewportAspect([0, 1, 2, 3]);
+    expect(aspect).toBe(2 / 3);
+  });
+  it("gets viewport matrix", () => {
+    let viewport = getViewportMatrix([1, 2, 800, 600]);
+    expect(viewport).toEqualMat4(
+      // prettier-ignore
+      [
+        400,   0, 0, 0,
+          0, 300, 0, 0,
+          0,   0, 1, 0,
+        400, 300, 0, 1,
+      ],
+    );
+  });
+  it("sets rect", () => {
+    let db = setViewportRect({ viewport: { rect: [0, 0, 0, 0] } }, [10, 20, 30, 40]);
+    expect(db.viewport.rect).toEqual([10, 20, 30, 40]);
   });
 });

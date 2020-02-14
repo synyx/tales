@@ -36,6 +36,10 @@ export function getViewportRect(db) {
   return db.viewport.rect;
 }
 
+export function getViewportAspect([_x, _y, w, h]) {
+  return w / h;
+}
+
 export function getViewportMatrix([_x, _y, w, h]) {
   let w2 = w / 2.0;
   let h2 = h / 2.0;
@@ -73,7 +77,7 @@ connector(
   "viewport/aspect",
   withInputSignals(
     () => connect("viewport/rect"),
-    ([_x, _y, w, h]) => w / h,
+    rect => getViewportAspect(rect),
   ),
 );
 
@@ -112,8 +116,8 @@ connector(
 connector(
   "matrix/viewport",
   withInputSignals(
-    () => connect("db"),
-    db => getViewportMatrix(getViewportRect(db)),
+    () => connect("viewport/rect"),
+    rect => getViewportMatrix(rect),
   ),
 );
 
@@ -174,7 +178,7 @@ export function fitRect(db, rect, [_vx, _vy, vw, vh]) {
   return { ...db, camera: { ...db.camera, position, scale } };
 }
 
-export function setRect(db, [vx, vy, vw, vh]) {
+export function setViewportRect(db, [vx, vy, vw, vh]) {
   return { ...db, viewport: { ...db.viewport, rect: [vx, vy, vw, vh] } };
 }
 
@@ -193,4 +197,4 @@ dbHandler("camera/move-by", (db, id, delta) => moveBy(db, delta));
 dbHandler("camera/fit-rect", (db, id, rect) =>
   fitRect(db, rect, db.viewport.rect),
 );
-dbHandler("viewport/set-rect", (db, id, rect) => setRect(db, rect));
+dbHandler("viewport/set-rect", (db, id, rect) => setViewportRect(db, rect));
