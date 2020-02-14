@@ -32,23 +32,6 @@ export function getMVPMatrix(modelViewMatrix, projectionMatrix) {
   return mat4.multiply(mat4.create(), projectionMatrix, modelViewMatrix);
 }
 
-export function getViewportRect(db) {
-  return db.viewport.rect;
-}
-
-export function getViewportAspect([_x, _y, w, h]) {
-  return w / h;
-}
-
-export function getViewportMatrix([_x, _y, w, h]) {
-  let w2 = w / 2.0;
-  let h2 = h / 2.0;
-  let m = mat4.create();
-  mat4.translate(m, m, [w2, h2, 0]);
-  mat4.scale(m, m, [w2, h2, 1]);
-  return m;
-}
-
 connector(
   "camera/position",
   withInputSignals(
@@ -62,22 +45,6 @@ connector(
   withInputSignals(
     () => connect("db"),
     db => getScale(db),
-  ),
-);
-
-connector(
-  "viewport/rect",
-  withInputSignals(
-    () => connect("db"),
-    db => getViewportRect(db),
-  ),
-);
-
-connector(
-  "viewport/aspect",
-  withInputSignals(
-    () => connect("viewport/rect"),
-    rect => getViewportAspect(rect),
   ),
 );
 
@@ -110,14 +77,6 @@ connector(
   withInputSignals(
     () => [connect("matrix/modelview"), connect("matrix/projection")],
     ([modelview, projection]) => getMVPMatrix(modelview, projection),
-  ),
-);
-
-connector(
-  "matrix/viewport",
-  withInputSignals(
-    () => connect("viewport/rect"),
-    rect => getViewportMatrix(rect),
   ),
 );
 
@@ -178,10 +137,6 @@ export function fitRect(db, rect, [_vx, _vy, vw, vh]) {
   return { ...db, camera: { ...db.camera, position, scale } };
 }
 
-export function setViewportRect(db, [vx, vy, vw, vh]) {
-  return { ...db, viewport: { ...db.viewport, rect: [vx, vy, vw, vh] } };
-}
-
 function dbHandler(eventId, handlerFn, interceptors) {
   return handler(
     eventId,
@@ -197,4 +152,3 @@ dbHandler("camera/move-by", (db, id, delta) => moveBy(db, delta));
 dbHandler("camera/fit-rect", (db, id, rect) =>
   fitRect(db, rect, db.viewport.rect),
 );
-dbHandler("viewport/set-rect", (db, id, rect) => setViewportRect(db, rect));

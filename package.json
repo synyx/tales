@@ -54,6 +54,9 @@
     "coverageDirectory": "<rootDir>/coverage",
     "roots": [
       "<rootDir>/src/js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
     ]
   }
 }
