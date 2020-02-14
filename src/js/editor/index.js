@@ -44,7 +44,11 @@ function layer(children) {
   return h("svg.layer", {}, children);
 }
 
-function rect(rect) {
+function rect(rect, scale) {
+  let { x, y, width, height } = rect;
+  let strokeWidth = 2.5 / scale;
+  let selected = false;
+  let color = selected ? "#ff0000" : "#07272b";
   return h(
     "g",
     {},
@@ -52,13 +56,13 @@ function rect(rect) {
       "rect",
       {
         attrs: {
-          x: rect.x,
-          y: rect.y,
-          width: rect.width,
-          height: rect.height,
-          stroke: "red",
-          "stroke-width": 2.5,
-          fill: "red",
+          x: x,
+          y: y,
+          width: width,
+          height: height,
+          stroke: color,
+          "stroke-width": strokeWidth,
+          fill: color,
           "fill-opacity": 0.2,
         },
       },
@@ -78,17 +82,23 @@ export let editor = withInputSignals(
       return notFound();
     }
 
-    let projectFn = vec =>
-      vec3.transformMat4(
-        vec3.create(),
-        vec,
-        mat4.invert(
-          mat4.create(),
-          mat4.mul(mat4.create(), viewportMatrix, mvpMatrix),
+    let elm,
+      projectFn = vec =>
+        vec3.transformMat4(
+          vec3.create(),
+          vec,
+          mat4.invert(
+            mat4.create(),
+            mat4.mul(mat4.create(), viewportMatrix, mvpMatrix),
+          ),
+        ),
+      scale = Math.max(
+        ...vec3.div(
+          vec3.create(),
+          [1, 1, 1],
+          vec3.sub(vec3.create(), projectFn([1, 1, 1]), projectFn([0, 0, 0])),
         ),
       );
-
-    let elm;
 
     let onResize = () => {
       let { left, top, width, height } = elm.getBoundingClientRect();
@@ -128,7 +138,7 @@ export let editor = withInputSignals(
         },
         [
           poster(`/editor/${tale.slug}/${tale["file-path"]}`),
-          layer((tale.slides || []).map(slide => rect(slide.rect))),
+          layer((tale.slides || []).map(slide => rect(slide.rect, scale))),
         ],
       ),
       h("footer", preview(tale)),

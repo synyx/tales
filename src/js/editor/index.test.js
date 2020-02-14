@@ -52,7 +52,10 @@ describe("onWheel", () => {
     let scale = 2,
       offset = 10;
 
-    onWheel(fakeEvent({ deltaY: -1, clientX: 40, clientY: 80 }), projectFn(offset, scale));
+    onWheel(
+      fakeEvent({ deltaY: -1, clientX: 40, clientY: 80 }),
+      projectFn(offset, scale),
+    );
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-out",
       vec3.fromValues(15, 35, 0),
@@ -69,7 +72,10 @@ describe("onWheel", () => {
     let scale = 2,
       offset = 10;
 
-    onWheel(fakeEvent({ deltaY: 1, clientX: 40, clientY: 80 }), projectFn(offset, scale));
+    onWheel(
+      fakeEvent({ deltaY: 1, clientX: 40, clientY: 80 }),
+      projectFn(offset, scale),
+    );
     expect(flyps.trigger).toHaveBeenCalledWith(
       "camera/zoom-in",
       vec3.fromValues(15, 35, 0),
