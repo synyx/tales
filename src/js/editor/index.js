@@ -90,14 +90,14 @@ export let editor = withInputSignals(
     let elm;
 
     let onResize = () => {
-      let {left, top, width, height } = elm.getBoundingClientRect();
+      let { left, top, width, height } = elm.getBoundingClientRect();
       trigger("viewport/set-rect", [left, top, width, height]);
     };
 
     return h("div#editor", [
       h("header", [
-        h("section.left", [h("span.title", tale.name)]),
-        h("section.right", [h("a", { attrs: { href: "#" } }, "×")]),
+        h("h2", tale.name),
+        h("a.icon", { attrs: { href: "#" } }, "×"),
       ]),
       viewport(
         tale.dimensions.width,
@@ -118,7 +118,7 @@ export let editor = withInputSignals(
               window.addEventListener("resize", onResize);
               onResize();
             },
-            remove: vnode => {
+            remove: () => {
               elm = null;
               window.removeEventListener("resize", onResize);
               onResize();
@@ -130,7 +130,7 @@ export let editor = withInputSignals(
           layer((tale.slides || []).map(slide => rect(slide.rect))),
         ],
       ),
-      h("footer", [h("section.left", preview(tale)), h("section.right")]),
+      h("footer", preview(tale)),
     ]);
   },
 );

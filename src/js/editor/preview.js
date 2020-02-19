@@ -27,18 +27,11 @@ export function previewItem([tw, th], tale, slide, index) {
     [tw, th],
   );
   return h(
-    "div.preview-item",
+    "li.preview",
     {
       style: {
-        position: "relative",
-        display: "inline-block",
         width: `${tw}px`,
         height: `${th}px`,
-        overflow: "hidden",
-        cursor: "pointer",
-        "border-width": "3px",
-        "border-style": "solid",
-        "border-color": "transparent",
       },
       on: {
         click: () => trigger("slide/activate", index),
@@ -54,38 +47,22 @@ export function previewItem([tw, th], tale, slide, index) {
           loading: "lazy",
         },
         style: {
-          position: "absolute",
           width: `${width}px`,
           height: `${height}px`,
           left: `${x}px`,
           top: `${y}px`,
         },
       }),
-      h(
-        "div",
-        {
-          style: {
-            position: "absolute",
-            "background-color": "#000a",
-            color: "#fff",
-            "line-height": "1em",
-            "font-size": "0.8em",
-            "font-style": "monospace",
-            left: "0px",
-            bottom: "0px",
-            padding: "4px 4px 3px 3px",
-          },
-        },
-        (index + 1).toString(),
-      ),
+      h("span.index", (index + 1).toString()),
     ],
   );
 }
 
 export function preview(tale) {
-  let tw = 100, th = 75;
+  let tw = 100,
+    th = 75;
   return h(
-    "div.preview",
+    "ol.previews",
     tale.slides.map((slide, index) =>
       previewItem([tw, th], tale, slide, index),
     ),

@@ -1,8 +1,10 @@
 :root {
+  --primary: #365256;
   --text-light: #fff;
   --text-dark: #07272b;
   --font-size-small: 0.9em;
   --font-size-medium: 1.1em;
+  --transition-fast: 200ms;
 }
 
 html {
@@ -10,7 +12,7 @@ html {
 }
 
 body {
-  background-color: #365256;
+  background-color: var(--primary);
   color: var(--text-light);
   font-family: sans-serif;
   height: 100%;
@@ -88,7 +90,6 @@ input:focus {
   background-size: cover;
   background-position: center;
   background-color: #8883;
-  background-blend-mode: screen;
 }
 
 #app {
@@ -106,15 +107,32 @@ input:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 0.2rem 1rem;
   position: fixed;
   z-index: 10;
   left: 0;
   right: 0;
 }
 
-#editor > header a {
-    text-decoration: none;
+#editor > header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+#editor > header .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: background-color var(--transition-fast);
+}
+
+#editor > header .icon:hover {
+  background-color: #fff3;
 }
 
 #editor > footer {
@@ -126,19 +144,42 @@ input:focus {
   bottom: 0;
 }
 
-#editor > footer > .left {
-    line-height: 0;
+#editor .previews {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
 }
 
 #editor .preview {
-    display: inline-block;
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 3px solid transparent;
+  cursor: pointer;
+}
+
+#editor .preview img {
+  position: absolute;
+}
+
+#editor .preview .index {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background-color: var(--primary);
+  padding: 0.1rem 0.2rem;
+  color: var(--text-light);
+  font-size: var(--font-size-small);
 }
 
 .viewport {}
 .viewport > .scene {}
 .viewport > .scene > .world {}
 .viewport > .scene > .world > * {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
