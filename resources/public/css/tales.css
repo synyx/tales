@@ -1,17 +1,17 @@
 :root {
   --primary: #365256;
-  --bg: #1c2425;
-  --bg-1: #2d3233;
-  --bg-2: #393d3e;
-  --bg-3: #46494a;
-  --text-light: #eee;
-  --text-medium: #aaafb0;
-  --text-dark: #07272b;
-  --shadow-dark: #0005;
+  --bg: #c0cbcc;
+  --bg-1: #fff;
+  --bg-2: #dee4e4;
+  --bg-3: #c0cbcc;
+  --text-light: #07272b;
+  --text-medium: #5c6465;
+  --text-dark: #eee;
+  --shadow-dark: #0002;
 
   --header-bg: var(--bg-1);
   --input: var(--bg-2);
-  --input-focus: var(--bg-3);
+  --input-focus: var(--bg-1);
 
   --font-size-small: 0.9em;
   --font-size-medium: 1.1em;
@@ -21,18 +21,18 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --primary: #365256;
-    --bg: #c0cbcc;
-    --bg-1: #fff;
-    --bg-2: #dee4e4;
-    --bg-3: #c0cbcc;
-    --text-light: #07272b;
-    --text-medium: #5c6465;
-    --text-dark: #eee;
-    --shadow-dark: #0002;
+    --bg: #1c2425;
+    --bg-1: #2d3233;
+    --bg-2: #393d3e;
+    --bg-3: #46494a;
+    --text-light: #eee;
+    --text-medium: #aaafb0;
+    --text-dark: #07272b;
+    --shadow-dark: #0005;
 
     --header-bg: var(--bg-1);
     --input: var(--bg-2);
-    --input-focus: var(--bg-1);
+    --input-focus: var(--bg-3);
   }
 }
 
