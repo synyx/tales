@@ -162,7 +162,7 @@ input:focus {
   color: var(--text-light);
   font-size: var(--font-size-medium);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding: 0.2rem 1rem;
   position: fixed;
@@ -183,11 +183,18 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2em;
-  height: 2em;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-right: 0.5rem;
+  padding: 0.5rem;
   border-radius: 50%;
   text-decoration: none;
   transition: background-color var(--transition-fast);
+}
+
+#editor > header .icon > svg {
+  height: 100%;
+  stroke: var(--text-light);
 }
 
 #editor > header .icon:hover {
@@ -243,4 +250,13 @@ input:focus {
   position: absolute;
   width: 100%;
   height: 100%;
+}
+
+/* Icon-specific styles and animations */
+svg.chevron {
+  transition: transform var(--transition-fast);
+  transform-origin: center;
+}
+.icon:hover > svg.chevron {
+  transform: scaleY(0.8);
 }

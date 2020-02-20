@@ -5,6 +5,7 @@ import { mat4, vec3 } from "gl-matrix";
 import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
 import { preview } from "./preview";
+import { chevronLeft } from "../icons";
 
 let isMoving = signal(false);
 
@@ -96,8 +97,8 @@ export let editor = withInputSignals(
 
     return h("div#editor", [
       h("header", [
+        h("a.icon", { attrs: { href: "#" } }, chevronLeft()),
         h("h2", tale.name),
-        h("a.icon", { attrs: { href: "#" } }, "×"),
       ]),
       viewport(
         tale.dimensions.width,
