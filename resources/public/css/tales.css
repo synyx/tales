@@ -228,6 +228,7 @@ input:focus {
   flex: 0 0 auto;
   margin: 5px;
   cursor: pointer;
+  outline: solid 1px var(--primary);
 }
 
 #editor .preview.active {
@@ -259,6 +260,16 @@ input:focus {
   color: var(--text-light);
   font-size: var(--font-size-small);
   opacity: 0.8;
+}
+
+#editor .slide-bounds {
+  stroke: var(--primary);
+  fill: var(--primary);
+}
+
+#editor .slide-bounds.active {
+  stroke: var(--highlight);
+  fill: var(--highlight);
 }
 
 .viewport {}

@@ -1,4 +1,4 @@
-import { trigger } from "flyps";
+import { connect, trigger, withInputSignals } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 
 export function previewRect(
@@ -19,7 +19,7 @@ export function previewRect(
   };
 }
 
-export function previewItem([tw, th], tale, slide, index) {
+export function previewItem([tw, th], tale, slide, index, active) {
   let imgSrc = `/editor/${tale.slug}/${tale["file-path"]}`;
   let { width, height, x, y } = previewRect(
     slide.rect,
@@ -32,6 +32,9 @@ export function previewItem([tw, th], tale, slide, index) {
       style: {
         width: `${tw}px`,
         height: `${th}px`,
+      },
+      class: {
+        active: active,
       },
       on: {
         click: () => trigger("slide/activate", index),
@@ -58,13 +61,16 @@ export function previewItem([tw, th], tale, slide, index) {
   );
 }
 
-export function preview(tale) {
-  let tw = 100,
-    th = 75;
-  return h(
-    "ol.previews",
-    tale.slides.map((slide, index) =>
-      previewItem([tw, th], tale, slide, index),
-    ),
-  );
-}
+export const preview = withInputSignals(
+  () => connect("slide/active"),
+  (activeSlide, tale) => {
+    let tw = 100,
+      th = 75;
+    return h(
+      "ol.previews",
+      tale.slides.map((slide, index) =>
+        previewItem([tw, th], tale, slide, index, index === activeSlide),
+      ),
+    );
+  },
+);

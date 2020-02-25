@@ -27,6 +27,7 @@ handler("initialize", () => ({
     viewport: {
       rect: [0, 0, 800, 600],
     },
+    editor: {},
   },
 }));
 

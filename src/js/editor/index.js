@@ -1,4 +1,11 @@
-import { connect, signal, trigger, withInputSignals } from "flyps";
+import {
+  connect,
+  signal,
+  trigger,
+  withInputSignals,
+  handler,
+  connector,
+} from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
@@ -31,6 +38,30 @@ export function onMouseDown(ev, cameraPosition, projectFn) {
   ev.preventDefault();
 }
 
+/**
+ * connectors
+ */
+
+connector(
+  "editor/active-slide",
+  withInputSignals(
+    () => connect("db"),
+    db => db.editor.activeSlide,
+  ),
+);
+
+/**
+ * handlers
+ */
+
+handler("slide/activate", ({ db }, _, slideIndex) => ({
+  db: { ...db, editor: { ...db.editor, activeSlide: slideIndex } },
+}));
+
+/**
+ * views
+ */
+
 export function notFound() {
   return h("div", "Unwritten tale…");
 }
@@ -45,14 +76,15 @@ function layer(children) {
   return h("svg.layer", {}, children);
 }
 
-function rect(rect, scale) {
-  let { x, y, width, height } = rect;
+function slideBounds(slide, scale, index, active) {
+  let { x, y, width, height } = slide.rect;
   let strokeWidth = 2.5 / scale;
-  let selected = false;
-  let color = selected ? "#ff0000" : "#07272b";
   return h(
-    "g",
-    {},
+    "g.slide-bounds",
+    {
+      on: { click: () => trigger("slide/activate", index) },
+      class: { active: active },
+    },
     h(
       "rect",
       {
@@ -61,9 +93,7 @@ function rect(rect, scale) {
           y: y,
           width: width,
           height: height,
-          stroke: color,
           "stroke-width": strokeWidth,
-          fill: color,
           "fill-opacity": 0.2,
         },
       },
@@ -77,8 +107,9 @@ export let editor = withInputSignals(
     connect("matrix/mvp"),
     connect("matrix/viewport"),
     connect("camera/position"),
+    connect("slide/active"),
   ],
-  ([mvpMatrix, viewportMatrix, cameraPosition], tale) => {
+  ([mvpMatrix, viewportMatrix, cameraPosition, activeSlide], tale) => {
     if (!tale) {
       return notFound();
     }
@@ -139,7 +170,11 @@ export let editor = withInputSignals(
         },
         [
           poster(`/editor/${tale.slug}/${tale["file-path"]}`),
-          layer((tale.slides || []).map(slide => rect(slide.rect, scale))),
+          layer(
+            (tale.slides || []).map((slide, index) =>
+              slideBounds(slide, scale, index, index === activeSlide),
+            ),
+          ),
         ],
       ),
       h("footer", preview(tale)),
