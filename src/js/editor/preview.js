@@ -62,7 +62,7 @@ export function previewItem([tw, th], tale, slide, index, active) {
 }
 
 export const preview = withInputSignals(
-  () => connect("slide/active"),
+  () => connect("editor/active-slide"),
   (activeSlide, tale) => {
     let tw = 100,
       th = 75;

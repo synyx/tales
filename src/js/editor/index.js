@@ -107,7 +107,7 @@ export let editor = withInputSignals(
     connect("matrix/mvp"),
     connect("matrix/viewport"),
     connect("camera/position"),
-    connect("slide/active"),
+    connect("editor/active-slide"),
   ],
   ([mvpMatrix, viewportMatrix, cameraPosition, activeSlide], tale) => {
     if (!tale) {
