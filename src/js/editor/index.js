@@ -87,18 +87,83 @@ function layer(children) {
   return h("svg.layer", {}, children);
 }
 
+// prettier-ignore
+let slideMarkers = [
+  ["top-left",     { x: 0, y: 0, cursor: "nw-resize" }],
+  ["top",          { x: 1, y: 0, cursor: "n-resize" }],
+  ["top-right",    { x: 2, y: 0, cursor: "ne-resize" }],
+  ["right",        { x: 2, y: 1, cursor: "e-resize" }],
+  ["bottom-right", { x: 2, y: 2, cursor: "se-resize" }],
+  ["bottom",       { x: 1, y: 2, cursor: "s-resize" }],
+  ["bottom-left",  { x: 0, y: 2, cursor: "sw-resize" }],
+  ["left",         { x: 0, y: 1, cursor: "w-resize" }],
+];
+
 function slideBounds(slide, scale, index, active) {
   let { x, y, width, height } = slide.rect;
+  let markerWidth = width / 3;
+  let markerHeight = height / 3;
   let strokeWidth = 2.5 / scale;
+
+  let startMove = ev => {
+    dragging(
+      ev,
+      () => {},
+      () => {},
+    );
+    ev.stopPropagation();
+  };
+  let startResize = (position, ev) => {
+    dragging(
+      ev,
+      () => {},
+      () => {},
+    );
+    ev.stopPropagation();
+  };
+
+  let markers = active
+    ? [
+        h("rect", {
+          attrs: {
+            x: x + markerWidth,
+            y: y + markerHeight,
+            width: markerWidth,
+            height: markerHeight,
+            "fill-opacity": 0.0,
+            cursor: "move",
+          },
+          on: {
+            mousedown: startMove,
+          },
+        }),
+        ...slideMarkers.map(([position, options]) =>
+          h("rect", {
+            id: position,
+            attrs: {
+              x: x + options.x * markerWidth,
+              y: y + options.y * markerHeight,
+              width: markerWidth,
+              height: markerHeight,
+              "fill-opacity": 0.0,
+              cursor: options.cursor,
+            },
+            on: {
+              mousedown: ev => startResize(position, ev),
+            },
+          }),
+        ),
+      ]
+    : [];
+
   return h(
     "g.slide-bounds",
     {
       on: { click: () => trigger("slide/activate", index) },
       class: { active: active },
     },
-    h(
-      "rect",
-      {
+    [
+      h("rect.frame", {
         attrs: {
           x: x,
           y: y,
@@ -107,9 +172,9 @@ function slideBounds(slide, scale, index, active) {
           "stroke-width": strokeWidth,
           "fill-opacity": 0.2,
         },
-      },
-      [],
-    ),
+      }),
+      ...markers,
+    ],
   );
 }
 

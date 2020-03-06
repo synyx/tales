@@ -262,12 +262,12 @@ input:focus {
   opacity: 0.8;
 }
 
-#editor .slide-bounds {
+#editor .slide-bounds > .frame {
   stroke: var(--primary);
   fill: var(--primary);
 }
 
-#editor .slide-bounds.active {
+#editor .slide-bounds.active > .frame {
   stroke: var(--highlight);
   fill: var(--highlight);
 }
