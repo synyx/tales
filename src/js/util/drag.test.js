@@ -15,7 +15,6 @@ beforeEach(() => {
 });
 
 let fakeEvent = (ev = {}) => ({
-  preventDefault: jest.fn(),
   stopPropagation: jest.fn(),
   ...ev,
 });
@@ -27,10 +26,12 @@ describe("dragging", () => {
     expect(window.addEventListener).toHaveBeenCalledWith(
       "mousemove",
       expect.anything(),
+      { passive: true },
     );
     expect(window.addEventListener).toHaveBeenCalledWith(
       "mouseup",
       expect.anything(),
+      { passive: true },
     );
   });
   it("removes added event listeners", () => {
@@ -49,10 +50,12 @@ describe("dragging", () => {
     expect(window.removeEventListener).toHaveBeenCalledWith(
       "mousemove",
       mousemoveCb,
+      { passive: true },
     );
     expect(window.removeEventListener).toHaveBeenCalledWith(
       "mouseup",
       mouseupCb,
+      { passive: true },
     );
   });
   it("notifies about change and end of dragging", () => {
@@ -63,13 +66,11 @@ describe("dragging", () => {
 
     let event1 = fakeEvent({ clientX: 30, clientY: 40 });
     listeners.mousemove(event1);
-    expect(event1.preventDefault).toHaveBeenCalled();
     expect(event1.stopPropagation).toHaveBeenCalled();
     expect(dragChange).toHaveBeenCalledWith(event1, [10, 20, 0], [30, 40, 0]);
 
     let event2 = fakeEvent({ clientX: 50, clientY: 60 });
     listeners.mouseup(event2);
-    expect(event2.preventDefault).toHaveBeenCalled();
     expect(event2.stopPropagation).toHaveBeenCalled();
     expect(dragEnd).toHaveBeenCalledWith(event2, [10, 20, 0], [50, 60, 0]);
   });

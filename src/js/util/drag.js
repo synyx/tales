@@ -7,8 +7,8 @@ let eventPosition = ev => [ev.clientX, ev.clientY, 0];
  */
 export let dragging = (ev, onDragChange, onDragEnd) => {
   let dragStart = eventPosition(ev);
+  let options = { passive: true };
   let mousemove = ev => {
-    ev.preventDefault();
     ev.stopPropagation();
 
     if (onDragChange) {
@@ -16,16 +16,15 @@ export let dragging = (ev, onDragChange, onDragEnd) => {
     }
   };
   let mouseup = ev => {
-    ev.preventDefault();
     ev.stopPropagation();
 
     if (onDragEnd) {
       onDragEnd(ev, dragStart, eventPosition(ev));
     }
 
-    window.removeEventListener("mousemove", mousemove);
-    window.removeEventListener("mouseup", mouseup);
+    window.removeEventListener("mousemove", mousemove, options);
+    window.removeEventListener("mouseup", mouseup, options);
   };
-  window.addEventListener("mousemove", mousemove);
-  window.addEventListener("mouseup", mouseup);
+  window.addEventListener("mousemove", mousemove, options);
+  window.addEventListener("mouseup", mouseup, options);
 };
