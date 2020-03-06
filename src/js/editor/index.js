@@ -16,26 +16,37 @@ import { chevronLeft } from "../icons";
 
 let isMoving = signal(false);
 
+function preventNextClickEvent() {
+  window.addEventListener("click", ev => ev.stopPropagation(), {
+    capture: true,
+    once: true,
+  });
+}
+
 export function onWheel(ev, projectFn) {
   let anchor = projectFn(vec3.fromValues(ev.clientX, ev.clientY, 0));
   let delta = Math.abs(ev.deltaY / 3);
   trigger(ev.deltaY > 0 ? "camera/zoom-in" : "camera/zoom-out", anchor, delta);
-  ev.preventDefault();
 }
 
 export function onMouseDown(ev, cameraPosition, projectFn) {
   isMoving.reset(true);
+  ev.preventDefault();
+  ev.stopPropagation();
   dragging(
     ev,
     (ev, start, end) => {
       let delta = vec3.sub(vec3.create(), projectFn(start), projectFn(end));
       let newPosition = vec3.add(vec3.create(), cameraPosition, delta);
       trigger("camera/move-to", newPosition);
-      ev.preventDefault();
     },
-    () => isMoving.reset(false),
+    (ev, start, end) => {
+      isMoving.reset(false);
+      if (!vec3.exactEquals(start, end)) {
+        preventNextClickEvent();
+      }
+    },
   );
-  ev.preventDefault();
 }
 
 /**
