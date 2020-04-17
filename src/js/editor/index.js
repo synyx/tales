@@ -15,11 +15,72 @@ import { preview } from "./preview";
 import { chevronLeft } from "../icons";
 
 let isMoving = signal(false);
+let drawRect = signal(null);
 
 function preventNextClickEvent() {
   window.addEventListener("click", ev => ev.stopPropagation(), {
     capture: true,
     once: true,
+  });
+}
+
+function normalizeRect(rect) {
+  let p1 = [rect.x, rect.y, 0];
+  let p2 = [p1[0] + rect.width, p1[1] + rect.height, 0];
+  let [x1, y1, _z1] = p1;
+  let [x2, y2, _z2] = p2;
+  return {
+    x: Math.min(x1, x2),
+    y: Math.min(y1, y2),
+    width: Math.abs(x2 - x1),
+    height: Math.abs(y2 - y1),
+  };
+}
+
+function moveRect(rect, delta) {
+  let p1 = [rect.x, rect.y, 0];
+  let p2 = vec3.add(vec3.create(), p1, delta);
+  return { ...rect, x: p2[0], y: p2[1] };
+}
+
+function resizeRect(rect, position, [dx, dy, _dz]) {
+  let p1 = [rect.x, rect.y, 0];
+  let p2 = [p1[0] + rect.width, p1[1] + rect.height, 0];
+  switch (position) {
+    case "top-left":
+      p1[0] += dx;
+      p1[1] += dy;
+      break;
+    case "top":
+      p1[1] += dy;
+      break;
+    case "top-right":
+      p1[1] += dy;
+      p2[0] += dx;
+      break;
+    case "right":
+      p2[0] += dx;
+      break;
+    case "bottom-right":
+      p2[0] += dx;
+      p2[1] += dy;
+      break;
+    case "bottom":
+      p2[1] += dy;
+      break;
+    case "bottom-left":
+      p1[0] += dx;
+      p2[1] += dy;
+      break;
+    case "left":
+      p1[0] += dx;
+      break;
+  }
+  return normalizeRect({
+    x: p1[0],
+    y: p1[1],
+    width: p2[0] - p1[0],
+    height: p2[1] - p1[1],
   });
 }
 
@@ -99,25 +160,22 @@ let slideMarkers = [
   ["left",         { x: 0, y: 1, cursor: "w-resize" }],
 ];
 
-function slideBounds(slide, scale, index, active) {
-  let { x, y, width, height } = slide.rect;
+function slideBounds(rect, scale, index, options = {}) {
+  let { active, onMove, onMoveEnd, onResize, onResizeEnd } = options;
+  let { x, y, width, height } = rect;
   let markerWidth = width / 3;
   let markerHeight = height / 3;
   let strokeWidth = 2.5 / scale;
 
   let startMove = ev => {
-    dragging(
-      ev,
-      () => {},
-      () => {},
-    );
+    dragging(ev, onMove, onMoveEnd);
     ev.stopPropagation();
   };
-  let startResize = (position, ev) => {
+  let startResize = (ev, position) => {
     dragging(
       ev,
-      () => {},
-      () => {},
+      (ev, ...args) => onResize(ev, position, ...args),
+      (ev, ...args) => onResizeEnd(ev, position, ...args),
     );
     ev.stopPropagation();
   };
@@ -134,7 +192,7 @@ function slideBounds(slide, scale, index, active) {
             cursor: "move",
           },
           on: {
-            mousedown: startMove,
+            mousedown: ev => startMove(ev),
           },
         }),
         ...slideMarkers.map(([position, options]) =>
@@ -149,7 +207,7 @@ function slideBounds(slide, scale, index, active) {
               cursor: options.cursor,
             },
             on: {
-              mousedown: ev => startResize(position, ev),
+              mousedown: ev => startResize(ev, position),
             },
           }),
         ),
@@ -208,9 +266,34 @@ export let editor = withInputSignals(
         ),
       );
 
-    let onResize = () => {
+    let onWindowResize = () => {
       let { left, top, width, height } = elm.getBoundingClientRect();
       trigger("viewport/set-rect", [left, top, width, height]);
+    };
+
+    let onCreate = (ev, slide) => console.log("create", ev, slide);
+    let onCreateEnd = (ev, slide) => console.log("create-end", ev, slide);
+    let onMove = (ev, slide, start, end) => {
+      let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
+      let rect = moveRect(slide.rect, delta);
+      drawRect.reset(rect);
+    };
+    let onMoveEnd = (ev, slide, start, end) => {
+      let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
+      let rect = moveRect(slide.rect, delta);
+      drawRect.reset(null);
+      trigger("slide/update", { ...slide, rect });
+    };
+    let onResize = (ev, slide, position, start, end) => {
+      let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
+      let rect = resizeRect(slide.rect, position, delta);
+      drawRect.reset(rect);
+    };
+    let onResizeEnd = (ev, slide, position, start, end) => {
+      let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
+      let rect = resizeRect(slide.rect, position, delta);
+      drawRect.reset(null);
+      trigger("slide/update", { ...slide, rect });
     };
 
     return h("div#editor", [
@@ -234,23 +317,30 @@ export let editor = withInputSignals(
           hook: {
             insert: vnode => {
               elm = vnode.elm;
-              window.addEventListener("resize", onResize);
-              onResize();
+              window.addEventListener("resize", onWindowResize);
+              onWindowResize();
             },
             remove: () => {
               elm = null;
-              window.removeEventListener("resize", onResize);
-              onResize();
+              window.removeEventListener("resize", onWindowResize);
+              onWindowResize();
             },
           },
         },
         [
           poster(`/editor/${tale.slug}/${tale["file-path"]}`),
-          layer(
-            (tale.slides || []).map((slide, index) =>
-              slideBounds(slide, scale, index, index === activeSlide),
+          layer([
+            ...(tale.slides || []).map((slide, index) =>
+              slideBounds(slide.rect, scale, index, {
+                active: index === activeSlide,
+                onMove: (ev, start, end) => onMove(ev, slide, start, end),
+                onMoveEnd: (ev, start, end) => onMoveEnd(ev, slide, start, end),
+                onResize: (ev, position, start, end) => onResize(ev, slide, position, start, end),
+                onResizeEnd: (ev, position, start, end) => onResizeEnd(ev, slide, position, start, end),
+              }),
             ),
-          ),
+            ...(drawRect.value() ? [slideBounds(drawRect.value(), scale)] : []),
+          ]),
         ],
       ),
       h("footer", preview(tale)),
