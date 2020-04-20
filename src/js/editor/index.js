@@ -144,8 +144,8 @@ function poster(url) {
   });
 }
 
-function layer(children) {
-  return h("svg.layer", {}, children);
+function layer(data, children) {
+  return h("svg.layer", data, children);
 }
 
 // prettier-ignore
@@ -271,8 +271,37 @@ export let editor = withInputSignals(
       trigger("viewport/set-rect", [left, top, width, height]);
     };
 
-    let onCreate = (ev, slide) => console.log("create", ev, slide);
-    let onCreateEnd = (ev, slide) => console.log("create-end", ev, slide);
+    let startCreate = ev => {
+      if (ev.ctrlKey || ev.metaKey) {
+        dragging(ev, onCreate, onCreateEnd);
+        ev.stopPropagation();
+        preventNextClickEvent();
+      }
+    };
+
+    let onCreate = (ev, start, end) => {
+      let p1 = projectFn(start);
+      let p2 = projectFn(end);
+      let rect = normalizeRect({
+        x: p1[0],
+        y: p1[1],
+        width: p2[0] - p1[0],
+        height: p2[1] - p1[1],
+      });
+      drawRect.reset(rect);
+    };
+    let onCreateEnd = (ev, start, end) => {
+      let p1 = projectFn(start);
+      let p2 = projectFn(end);
+      let rect = normalizeRect({
+        x: p1[0],
+        y: p1[1],
+        width: p2[0] - p1[0],
+        height: p2[1] - p1[1],
+      });
+      drawRect.reset(null);
+      trigger("slide/add", { rect });
+    };
     let onMove = (ev, slide, start, end) => {
       let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
       let rect = moveRect(slide.rect, delta);
@@ -329,18 +358,30 @@ export let editor = withInputSignals(
         },
         [
           poster(`/editor/${tale.slug}/${tale["file-path"]}`),
-          layer([
-            ...(tale.slides || []).map((slide, index) =>
-              slideBounds(slide.rect, scale, index, {
-                active: index === activeSlide,
-                onMove: (ev, start, end) => onMove(ev, slide, start, end),
-                onMoveEnd: (ev, start, end) => onMoveEnd(ev, slide, start, end),
-                onResize: (ev, position, start, end) => onResize(ev, slide, position, start, end),
-                onResizeEnd: (ev, position, start, end) => onResizeEnd(ev, slide, position, start, end),
-              }),
-            ),
-            ...(drawRect.value() ? [slideBounds(drawRect.value(), scale)] : []),
-          ]),
+          layer(
+            {
+              on: {
+                mousedown: startCreate,
+              },
+            },
+            [
+              ...(tale.slides || []).map((slide, index) =>
+                slideBounds(slide.rect, scale, index, {
+                  active: index === activeSlide,
+                  onMove: (ev, start, end) => onMove(ev, slide, start, end),
+                  onMoveEnd: (ev, start, end) =>
+                    onMoveEnd(ev, slide, start, end),
+                  onResize: (ev, position, start, end) =>
+                    onResize(ev, slide, position, start, end),
+                  onResizeEnd: (ev, position, start, end) =>
+                    onResizeEnd(ev, slide, position, start, end),
+                }),
+              ),
+              ...(drawRect.value()
+                ? [slideBounds(drawRect.value(), scale)]
+                : []),
+            ],
+          ),
         ],
       ),
       h("footer", preview(tale)),
