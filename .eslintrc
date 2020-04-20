@@ -17,6 +17,6 @@
   "rules": {
     "max-len": ["error", 80],
     "no-console": ["error", { "allow": ["warn", "error"] }],
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }]
   }
 }
