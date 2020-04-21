@@ -9,10 +9,11 @@ import {
 import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
+import { chevronLeft } from "../icons";
+import { findTale } from "../project";
 import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
 import { preview } from "./preview";
-import { chevronLeft } from "../icons";
 
 let isMoving = signal(false);
 let drawRect = signal(null);
@@ -129,6 +130,23 @@ connector(
 handler("slide/activate", ({ db }, _, slideIndex) => ({
   db: { ...db, editor: { ...db.editor, activeSlide: slideIndex } },
 }));
+
+handler("slide/add", ({ db }, _, slide) => {
+  let tale = findTale([db.tales, db.activeTale]);
+  let slides = [...tale.slides, slide];
+  return {
+    trigger: ["projects/update", { ...tale, slides }],
+  };
+});
+
+handler("slide/update", ({ db }, _, slide) => {
+  let tale = findTale([db.tales, db.activeTale]);
+  let slides = [...tale.slides];
+  slides[db.editor.activeSlide] = slide;
+  return {
+    trigger: ["projects/update", { ...tale, slides }],
+  };
+});
 
 /**
  * views
