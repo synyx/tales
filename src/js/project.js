@@ -47,17 +47,31 @@ handler("projects/add", (causes, eventId, project) => ({
       "Content-Type": "application/json",
     },
     responseType: "json",
-    onSuccess: ["projects/add-success"],
+    onSuccess: ["projects/request-success"],
     onError: ["projects/request-error"],
   },
 }));
 
-handler("projects/add-success", ({ db }, eventId, project) => ({
+handler("projects/update", (causes, eventId, project) => ({
+  xhr: {
+    url: "/api/tales/" + project.slug,
+    method: "PUT",
+    data: JSON.stringify(project),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    responseType: "json",
+    onSuccess: ["projects/request-success"],
+    onError: ["projects/request-error"],
+  },
+}));
+
+handler("projects/request-success", ({ db }, eventId, project) => ({
   db: {
     ...db,
     tales: [...db.tales.filter(tale => tale.slug != project.slug), project],
   },
-  navigate: `/editor/${project.slug}/`,
+  navigate: `#editor/${project.slug}/`,
 }));
 
 handler("projects/request-error", response => {
