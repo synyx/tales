@@ -9,7 +9,7 @@ import {
 import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
-import { chevronLeft } from "../icons";
+import { chevronLeft, chevronRight } from "../icons";
 import { findTale } from "../project";
 import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
@@ -345,8 +345,18 @@ export let editor = withInputSignals(
 
     return h("div#editor", [
       h("header", [
-        h("a.icon", { attrs: { href: "#" } }, chevronLeft()),
-        h("h2", tale.name),
+        h("section.left", [
+          h("a.icon", { attrs: { href: "#" } }, chevronLeft()),
+          h("h2", tale.name),
+        ]),
+        h("section.right", [
+          h("h2", "Tell"),
+          h(
+            "a.icon",
+            { attrs: { href: `#presenter/${tale.slug}/` } },
+            chevronRight(),
+          ),
+        ]),
       ]),
       viewport(
         tale.dimensions.width,
