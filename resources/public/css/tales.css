@@ -155,6 +155,10 @@ input:focus {
   height: 100%;
 }
 
+#presenter {
+  height: 100%;
+}
+
 #editor {
   height: 100%;
 }

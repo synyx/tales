@@ -380,7 +380,6 @@ export let editor = withInputSignals(
             remove: () => {
               elm = null;
               window.removeEventListener("resize", onWindowResize);
-              onWindowResize();
             },
           },
         },

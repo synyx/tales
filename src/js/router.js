@@ -17,6 +17,10 @@ let onNavigate = url => {
       trigger("page/activate", "editor");
       trigger("projects/activate", args[0]);
       break;
+    case "#presenter":
+      trigger("page/activate", "presenter");
+      trigger("projects/activate", args[0]);
+      break;
     default:
       trigger("page/activate", "home");
   }

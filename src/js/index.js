@@ -14,6 +14,7 @@ import "./camera";
 import "./project";
 
 import { editor } from "./editor/index";
+import { presenter } from "./presenter/index";
 import * as router from "./router";
 
 handler("initialize", () => ({
@@ -127,6 +128,7 @@ export function init() {
         app({
           home: home,
           editor: () => editor(tale),
+          presenter: () => presenter(tale),
         }),
     ),
   );

@@ -27,6 +27,12 @@ describe("router", () => {
     expect(trigger).toHaveBeenCalledWith("page/activate", "editor");
     expect(trigger).toHaveBeenCalledWith("projects/activate", "example");
   });
+  it("handles #presenter location hash", () => {
+    window.location.hash = "#presenter/example";
+    init();
+    expect(trigger).toHaveBeenCalledWith("page/activate", "presenter");
+    expect(trigger).toHaveBeenCalledWith("projects/activate", "example");
+  });
   it("handles hash changes", () => {
     window.location.hash = "";
     init();
