@@ -12,6 +12,7 @@ import { mount, h } from "flyps-dom-snabbdom";
 
 import "./camera";
 import "./project";
+import "./slide";
 
 import { editor } from "./editor/index";
 import { presenter } from "./presenter/index";
