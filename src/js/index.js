@@ -32,6 +32,28 @@ handler("initialize", () => ({
   },
 }));
 
+handler("key-pressed", ({ db }, eventId, ev) => {
+  let presenting = db.activePage === "presenter";
+  let key = ev.key || ev.keyCode;
+  switch (key) {
+    case "Enter":
+      ev.preventDefault();
+      ev.stopPropagation();
+      trigger("slide/focus-current");
+      break;
+    case "ArrowLeft":
+      ev.preventDefault();
+      ev.stopPropagation();
+      trigger(presenting ? "slide/fly-to-prev" : "slide/activate-prev");
+      break;
+    case "ArrowRight":
+      ev.preventDefault();
+      ev.stopPropagation();
+      trigger(presenting ? "slide/fly-to-next" : "slide/activate-next");
+      break;
+  }
+});
+
 handler("page/activate", ({ db }, eventId, page) => ({
   db: { ...db, activePage: page },
 }));
@@ -43,6 +65,8 @@ connector(
     db => db.activePage,
   ),
 );
+
+window.addEventListener("keydown", ev => trigger("key-pressed", ev));
 
 let input = signal("");
 let clear = () => input.reset("");
