@@ -1,9 +1,62 @@
-import { activate, add, update } from "./slide";
+import {
+  activate,
+  activatePrev,
+  activateNext,
+  focusCurrent,
+  add,
+  update,
+} from "./slide";
 
 describe("slide", () => {
   it("activates slide", () => {
     let db = activate({}, 42);
     expect(db.editor.activeSlide).toBe(42);
+  });
+  it("activates prev slide", () => {
+    let db = activatePrev({
+      tales: [{ slug: "foo", slides: [{}, {}, {}] }],
+      activeTale: "foo",
+      editor: { activeSlide: 1 },
+    });
+    expect(db.editor.activeSlide).toBe(0);
+  });
+  it("activates last after first slide", () => {
+    let db = activatePrev({
+      tales: [{ slug: "foo", slides: [{}, {}, {}] }],
+      activeTale: "foo",
+      editor: { activeSlide: 0 },
+    });
+    expect(db.editor.activeSlide).toBe(2);
+  });
+  it("activates next slide", () => {
+    let db = activateNext({
+      tales: [{ slug: "foo", slides: [{}, {}, {}] }],
+      activeTale: "foo",
+      editor: { activeSlide: 1 },
+    });
+    expect(db.editor.activeSlide).toBe(2);
+  });
+  it("activates first after last slide", () => {
+    let db = activateNext({
+      tales: [{ slug: "foo", slides: [{}, {}, {}] }],
+      activeTale: "foo",
+      editor: { activeSlide: 2 },
+    });
+    expect(db.editor.activeSlide).toBe(0);
+  });
+  it("focuses on current slide", () => {
+    let rect = { x: 10, y: 20, width: 100, height: 200 };
+    let effects = focusCurrent({
+      tales: [
+        {
+          slug: "foo",
+          slides: [{ rect }],
+        },
+      ],
+      activeTale: "foo",
+      editor: { activeSlide: 0 },
+    });
+    expect(effects.trigger).toEqual(["camera/fit-rect", rect]);
   });
   it("adds slide", () => {
     let db = {
