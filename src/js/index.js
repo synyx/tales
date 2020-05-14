@@ -10,6 +10,7 @@ import {
 } from "flyps";
 import { mount, h } from "flyps-dom-snabbdom";
 
+import "./animation";
 import "./camera";
 import "./project";
 import "./slide";
