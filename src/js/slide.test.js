@@ -2,7 +2,10 @@ import {
   activate,
   activatePrev,
   activateNext,
+  flyToPrev,
+  flyToNext,
   focusCurrent,
+  flyToCurrent,
   add,
   update,
 } from "./slide";
@@ -44,6 +47,46 @@ describe("slide", () => {
     });
     expect(db.editor.activeSlide).toBe(0);
   });
+  it("flys to prev slide", () => {
+    let rect = { x: 10, y: 20, width: 100, height: 200 };
+    let { db, trigger } = flyToPrev({
+      tales: [{ slug: "foo", slides: [{ rect }, {}, {}] }],
+      activeTale: "foo",
+      editor: { activeSlide: 1 },
+    });
+    expect(db.editor.activeSlide).toBe(0);
+    expect(trigger).toEqual(["camera/fly-to-rect", rect]);
+  });
+  it("flys to last after first slide", () => {
+    let rect = { x: 10, y: 20, width: 100, height: 200 };
+    let { db, trigger } = flyToPrev({
+      tales: [{ slug: "foo", slides: [{}, {}, { rect }] }],
+      activeTale: "foo",
+      editor: { activeSlide: 0 },
+    });
+    expect(db.editor.activeSlide).toBe(2);
+    expect(trigger).toEqual(["camera/fly-to-rect", rect]);
+  });
+  it("flys to next slide", () => {
+    let rect = { x: 10, y: 20, width: 100, height: 200 };
+    let { db, trigger } = flyToNext({
+      tales: [{ slug: "foo", slides: [{}, {}, { rect }] }],
+      activeTale: "foo",
+      editor: { activeSlide: 1 },
+    });
+    expect(db.editor.activeSlide).toBe(2);
+    expect(trigger).toEqual(["camera/fly-to-rect", rect]);
+  });
+  it("flys to first after last slide", () => {
+    let rect = { x: 10, y: 20, width: 100, height: 200 };
+    let { db, trigger } = flyToNext({
+      tales: [{ slug: "foo", slides: [{ rect }, {}, {}] }],
+      activeTale: "foo",
+      editor: { activeSlide: 2 },
+    });
+    expect(db.editor.activeSlide).toBe(0);
+    expect(trigger).toEqual(["camera/fly-to-rect", rect]);
+  });
   it("focuses on current slide", () => {
     let rect = { x: 10, y: 20, width: 100, height: 200 };
     let effects = focusCurrent({
@@ -57,6 +100,20 @@ describe("slide", () => {
       editor: { activeSlide: 0 },
     });
     expect(effects.trigger).toEqual(["camera/fit-rect", rect]);
+  });
+  it("fly to current slide", () => {
+    let rect = { x: 10, y: 20, width: 100, height: 200 };
+    let effects = flyToCurrent({
+      tales: [
+        {
+          slug: "foo",
+          slides: [{ rect }],
+        },
+      ],
+      activeTale: "foo",
+      editor: { activeSlide: 0 },
+    });
+    expect(effects.trigger).toEqual(["camera/fly-to-rect", rect]);
   });
   it("adds slide", () => {
     let db = {

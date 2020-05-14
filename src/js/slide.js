@@ -2,6 +2,14 @@ import { handler } from "flyps";
 
 import { findTale } from "./project";
 
+function prevSlide(slides, index) {
+  return ((index || 0) + slides.length - 1) % slides.length;
+}
+
+function nextSlide(slides, index) {
+  return ((index || 0) + slides.length + 1) % slides.length;
+}
+
 /**
  * handlers
  */
@@ -12,18 +20,30 @@ export function activate(db, index) {
 
 export function activatePrev(db) {
   let tale = findTale([db.tales, db.activeTale]);
-  let index =
-    ((db.editor.activeSlide || 0) + tale.slides.length - 1) %
-    tale.slides.length;
+  let index = prevSlide(tale.slides, db.editor.activeSlide);
   return activate(db, index);
 }
 
 export function activateNext(db) {
   let tale = findTale([db.tales, db.activeTale]);
-  let index =
-    ((db.editor.activeSlide || 0) + tale.slides.length + 1) %
-    tale.slides.length;
+  let index = nextSlide(tale.slides, db.editor.activeSlide);
   return activate(db, index);
+}
+
+export function flyToPrev(db) {
+  let newDb = activatePrev(db);
+  return {
+    ...flyToCurrent(newDb),
+    db: newDb,
+  };
+}
+
+export function flyToNext(db) {
+  let newDb = activateNext(db);
+  return {
+    ...flyToCurrent(newDb),
+    db: newDb,
+  };
 }
 
 export function focusCurrent(db) {
@@ -31,6 +51,14 @@ export function focusCurrent(db) {
   let slide = tale.slides[db.editor.activeSlide];
   return {
     trigger: ["camera/fit-rect", slide.rect],
+  };
+}
+
+export function flyToCurrent(db) {
+  let tale = findTale([db.tales, db.activeTale]);
+  let slide = tale.slides[db.editor.activeSlide];
+  return {
+    trigger: ["camera/fly-to-rect", slide.rect],
   };
 }
 
@@ -62,6 +90,8 @@ function dbHandler(eventId, handlerFn, interceptors) {
 dbHandler("slide/activate", (db, _, slideIndex) => activate(db, slideIndex));
 dbHandler("slide/activate-prev", db => activatePrev(db));
 dbHandler("slide/activate-next", db => activateNext(db));
+handler("slide/fly-to-prev", ({ db }) => flyToPrev(db));
+handler("slide/fly-to-next", ({ db }) => flyToNext(db));
 handler("slide/focus-current", ({ db }) => focusCurrent(db));
 handler("slide/add", ({ db }, _, slide) => add(db, slide));
 handler("slide/update", ({ db }, _, slide) => update(db, slide));
