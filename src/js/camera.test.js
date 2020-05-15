@@ -1,5 +1,7 @@
 import {
+  cameraAnimator,
   fitRect,
+  flyToRect,
   getPosition,
   getScale,
   getCameraMatrix,
@@ -140,13 +142,12 @@ describe("camera", () => {
     expect(db.camera.position).toEqualVec3([10, 20, 0]);
   });
   it("fits landscape rect", () => {
-    let db = fitRect({ camera: {} }, { width: 200, height: 100, x: 0, y: 0 }, [
-      0,
-      0,
-      400,
-      200,
-    ]);
-    expect(db.camera.position).toEqualVec3([100, 50, 0]);
+    let db = fitRect(
+      { camera: {} },
+      { width: 200, height: 100, x: 25, y: 50 },
+      [0, 0, 400, 200],
+    );
+    expect(db.camera.position).toEqualVec3([125, 100, 0]);
     expect(db.camera.scale).toBe(50);
   });
   it("fits portait rect", () => {
@@ -157,5 +158,42 @@ describe("camera", () => {
     );
     expect(db.camera.position).toEqualVec3([75, 150, 0]);
     expect(db.camera.scale).toBe(100);
+  });
+  it("flies to rect", () => {
+    let effects = flyToRect(
+      { camera: { position: [0, 0, 0], scale: 1 } },
+      { width: 100, height: 100, x: -50, y: 100 },
+      [0, 0, 100, 100],
+    );
+    let [animationId, animationFn] = effects.animation;
+    expect(animationId).toBe("camera");
+    expect(animationFn).toEqual(expect.any(Function));
+    expect(animationFn(1000)).toBeTruthy();
+    expect(animationFn(1150)).toBeTruthy();
+    expect(animationFn(1299)).toBeTruthy();
+    expect(animationFn(1300)).toBeFalsy();
+  });
+});
+
+describe("camera animator", () => {
+  it("moves from source to target during animation", () => {
+    let source = { position: [10, 20, 0], scale: 8 };
+    let target = { position: [20, 40, 0], scale: 12 };
+    let fn = cameraAnimator(source, target);
+    {
+      let db = fn({}, 0);
+      expect(db.camera.position).toEqual(source.position);
+      expect(db.camera.scale).toEqual(source.scale);
+    }
+    {
+      let db = fn({}, 0.5);
+      expect(db.camera.position).toEqual([15, 30, 0]);
+      expect(db.camera.scale).toEqual(10);
+    }
+    {
+      let db = fn({}, 1);
+      expect(db.camera.position).toEqual(target.position);
+      expect(db.camera.scale).toEqual(target.scale);
+    }
   });
 });

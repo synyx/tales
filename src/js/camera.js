@@ -1,5 +1,7 @@
-import { connector, connect, handler, withInputSignals } from "flyps";
+import { db, connector, connect, handler, withInputSignals } from "flyps";
 import { mat4, vec3 } from "gl-matrix";
+
+import { dbAnimator } from "./animation";
 
 /**
  * connectors
@@ -137,6 +139,39 @@ export function fitRect(db, rect, [_vx, _vy, vw, vh]) {
   return { ...db, camera: { ...db.camera, position, scale } };
 }
 
+export function cameraAnimator(source, target) {
+  let [x1, y1, _z1] = source.position;
+  let [x2, y2, _z2] = target.position;
+  let s1 = source.scale;
+  let s2 = target.scale;
+  return (db, progress) => {
+    let [x, y, s] = vec3.lerp(
+      vec3.create(),
+      [x1, y1, s1],
+      [x2, y2, s2],
+      progress,
+    );
+    return {
+      ...db,
+      camera: {
+        ...db.camera,
+        position: [x, y, 0],
+        scale: s,
+      },
+    };
+  };
+}
+
+export function flyToRect(db, rect, viewport) {
+  let target = fitRect(db, rect, viewport);
+  let distance = vec3.dist(db.camera.position, target.camera.position);
+  let duration = distance * 2;
+  let fn = cameraAnimator(db.camera, target.camera);
+  return {
+    animation: ["camera", dbAnimator(fn, duration)],
+  };
+}
+
 function dbHandler(eventId, handlerFn, interceptors) {
   return handler(
     eventId,
@@ -155,4 +190,7 @@ dbHandler("camera/move-to", (db, id, pos) => moveTo(db, pos));
 dbHandler("camera/move-by", (db, id, delta) => moveBy(db, delta));
 dbHandler("camera/fit-rect", (db, id, rect) =>
   fitRect(db, rect, db.viewport.rect),
+);
+handler("camera/fly-to-rect", ({ db }, id, rect) =>
+  flyToRect(db, rect, db.viewport.rect),
 );
