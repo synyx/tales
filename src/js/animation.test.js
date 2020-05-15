@@ -4,7 +4,7 @@ import { animationQueue, animate, animator, dbAnimator } from "./animation";
 
 /* global global */
 
-let ticker = (function() {
+let ticker = (function () {
   let fns = [];
   return {
     dispatch(fn) {
