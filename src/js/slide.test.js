@@ -8,6 +8,7 @@ import {
   flyToCurrent,
   add,
   update,
+  deleteCurrent,
 } from "./slide";
 
 describe("slide", () => {
@@ -144,6 +145,23 @@ describe("slide", () => {
     expect(effects.trigger).toEqual([
       "projects/update",
       { slug: "test-1", slides: [{ id: 1 }, { id: 2, value: 42 }] },
+    ]);
+  });
+  it("deletes slide", () => {
+    let db = {
+      tales: [
+        { slug: "test-1", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] },
+        { slug: "test-2", slides: [] },
+      ],
+      activeTale: "test-1",
+      editor: {
+        activeSlide: 1,
+      },
+    };
+    let effects = deleteCurrent(db);
+    expect(effects.trigger).toEqual([
+      "projects/update",
+      { slug: "test-1", slides: [{ id: 1 }, { id: 3 }] },
     ]);
   });
 });

@@ -79,6 +79,15 @@ export function update(db, slide) {
   };
 }
 
+export function deleteCurrent(db) {
+  let tale = findTale([db.tales, db.activeTale]);
+  let slides = [...tale.slides];
+  slides.splice(db.editor.activeSlide, 1);
+  return {
+    trigger: ["projects/update", { ...tale, slides }],
+  };
+}
+
 function dbHandler(eventId, handlerFn, interceptors) {
   return handler(
     eventId,
@@ -95,3 +104,4 @@ handler("slide/fly-to-next", ({ db }) => flyToNext(db));
 handler("slide/focus-current", ({ db }) => focusCurrent(db));
 handler("slide/add", ({ db }, _, slide) => add(db, slide));
 handler("slide/update", ({ db }, _, slide) => update(db, slide));
+handler("slide/delete-current", ({ db }) => deleteCurrent(db));
