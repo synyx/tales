@@ -1,4 +1,4 @@
-import { db, connector, connect, handler, withInputSignals } from "flyps";
+import { connector, connect, handler, withInputSignals } from "flyps";
 import { mat4, vec3 } from "gl-matrix";
 
 import { dbAnimator } from "./animation";

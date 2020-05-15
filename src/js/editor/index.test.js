@@ -3,6 +3,8 @@ import { mat4, vec3 } from "gl-matrix";
 
 import { onWheel, onMouseDown } from "./index";
 
+/* eslint no-import-assign: off */
+
 flyps.trigger = jest.fn();
 
 let listeners = {};
