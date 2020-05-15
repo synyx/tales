@@ -55,6 +55,27 @@ handler("key-pressed", ({ db }, eventId, ev) => {
       ev.stopPropagation();
       trigger("slide/focus-current");
       break;
+    case "Delete":
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!presenting) {
+        trigger("slide/delete-current");
+      }
+      break;
+    case "Shift+ArrowLeft":
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!presenting) {
+        trigger("slide/swap-prev");
+      }
+      break;
+    case "Shift+ArrowRight":
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!presenting) {
+        trigger("slide/swap-next");
+      }
+      break;
     case "ArrowLeft":
       ev.preventDefault();
       ev.stopPropagation();
