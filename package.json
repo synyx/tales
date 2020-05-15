@@ -1,0 +1,62 @@
+{
+  "name": "tales",
+  "version": "0.1.2",
+  "description": "synyx presentation style for everyone",
+  "main": "src/js/index.js",
+  "browser": "resources/public/js/tales.js",
+  "scripts": {
+    "build": "rollup -c",
+    "format": "prettier --write 'src/js/**/*.js'",
+    "lint": "eslint src/js",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm test && npm run lint",
+    "test": "jest",
+    "watch": "rollup -c -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:synyx/tales.git"
+  },
+  "keywords": [
+    "poster",
+    "presentation",
+    "presentation-tools",
+    "svg"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/synyx/tales/issues"
+  },
+  "homepage": "https://github.com/synyx/tales#readme",
+  "devDependencies": {
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-jest": "^23.6.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "flyps": "^0.6.5",
+    "flyps-dom-snabbdom": "^0.1.4",
+    "gl-matrix": "^3.1.0",
+    "jest": "^24.9.0",
+    "prettier": "^1.19.1",
+    "rollup": "^1.29.0",
+    "rollup-plugin-babel": "^4.3.3"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/js/**/*.js",
+      "!src/js/**/*.test.js"
+    ],
+    "coverageDirectory": "<rootDir>/coverage",
+    "roots": [
+      "<rootDir>/src/js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ]
+  }
+}

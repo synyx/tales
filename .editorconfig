@@ -1,0 +1,15 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Please don't escape the project root. The settings here are only for the
+# current project and editors that are compatible (using a plug-in).
+root = true
+
+[*]
+end_of_line = lf
+
+[*.js]
+charset = utf-8
+
+[*.{js,css,json}]
+indent_style = space
+indent_size = 2
