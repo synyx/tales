@@ -30,6 +30,36 @@ export function activateNext(db) {
   return activate(db, index);
 }
 
+function arraySwap(array, idx1, idx2) {
+  let a = [...array];
+  [a[idx1], a[idx2]] = [a[idx2], a[idx1]];
+  return a;
+}
+
+export function swap(db, idx1, idx2) {
+  let tale = findTale([db.tales, db.activeTale]);
+  let count = tale.slides.length - 1;
+  if (0 <= idx1 && idx1 <= count && 0 <= idx2 && idx2 <= count) {
+    return {
+      db: { ...db, editor: { ...db.editor, activeSlide: idx2 } },
+      trigger: [
+        "projects/update",
+        { ...tale, slides: arraySwap(tale.slides, idx1, idx2) },
+      ],
+    };
+  }
+}
+
+export function swapPrev(db) {
+  let idx = db.editor.activeSlide;
+  return swap(db, idx, idx - 1);
+}
+
+export function swapNext(db) {
+  let idx = db.editor.activeSlide;
+  return swap(db, idx, idx + 1);
+}
+
 export function flyToPrev(db) {
   let newDb = activatePrev(db);
   return {
@@ -99,6 +129,8 @@ function dbHandler(eventId, handlerFn, interceptors) {
 dbHandler("slide/activate", (db, _, slideIndex) => activate(db, slideIndex));
 dbHandler("slide/activate-prev", db => activatePrev(db));
 dbHandler("slide/activate-next", db => activateNext(db));
+handler("slide/swap-prev", ({ db }) => swapPrev(db));
+handler("slide/swap-next", ({ db }) => swapNext(db));
 handler("slide/fly-to-prev", ({ db }) => flyToPrev(db));
 handler("slide/fly-to-next", ({ db }) => flyToNext(db));
 handler("slide/focus-current", ({ db }) => focusCurrent(db));

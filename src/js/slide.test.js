@@ -2,6 +2,9 @@ import {
   activate,
   activatePrev,
   activateNext,
+  swap,
+  swapPrev,
+  swapNext,
   flyToPrev,
   flyToNext,
   focusCurrent,
@@ -47,6 +50,54 @@ describe("slide", () => {
       editor: { activeSlide: 2 },
     });
     expect(db.editor.activeSlide).toBe(0);
+  });
+  it("swaps slides", () => {
+    let initialDb = {
+      tales: [{ slug: "foo", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] }],
+      activeTale: "foo",
+    };
+    let { db, trigger } = swap(initialDb, 0, 2);
+    expect(db.editor.activeSlide).toBe(2);
+    expect(trigger).toEqual([
+      "projects/update",
+      { slug: "foo", slides: [{ id: 3 }, { id: 2 }, { id: 1 }] },
+    ]);
+  });
+  it("handles invalid indices when swapping slides", () => {
+    let initialDb = {
+      tales: [{ slug: "foo", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] }],
+      activeTale: "foo",
+    };
+    expect(swap(initialDb, 2, 3)).toBeUndefined();
+    expect(swap(initialDb, 3, 2)).toBeUndefined();
+    expect(swap(initialDb, 0, -1)).toBeUndefined();
+    expect(swap(initialDb, -1, 0)).toBeUndefined();
+  });
+  it("swaps current slide with prev", () => {
+    let initialDb = {
+      tales: [{ slug: "foo", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] }],
+      activeTale: "foo",
+      editor: { activeSlide: 1 },
+    };
+    let { db, trigger } = swapPrev(initialDb);
+    expect(db.editor.activeSlide).toBe(0);
+    expect(trigger).toEqual([
+      "projects/update",
+      { slug: "foo", slides: [{ id: 2 }, { id: 1 }, { id: 3 }] },
+    ]);
+  });
+  it("swaps current slide with next", () => {
+    let initialDb = {
+      tales: [{ slug: "foo", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] }],
+      activeTale: "foo",
+      editor: { activeSlide: 1 },
+    };
+    let { db, trigger } = swapNext(initialDb);
+    expect(db.editor.activeSlide).toBe(2);
+    expect(trigger).toEqual([
+      "projects/update",
+      { slug: "foo", slides: [{ id: 1 }, { id: 3 }, { id: 2 }] },
+    ]);
   });
   it("flys to prev slide", () => {
     let rect = { x: 10, y: 20, width: 100, height: 200 };
