@@ -34,9 +34,21 @@ handler("initialize", () => ({
   },
 }));
 
+function cord(ev) {
+  return [
+    ev.altKey ? "Alt" : null,
+    ev.ctrlKey ? "Ctrl" : null,
+    ev.shiftKey ? "Shift" : null,
+    ev.metaKey ? "Meta" : null,
+    ev.key || ev.keyCode,
+  ]
+    .filter(ev => !!ev)
+    .join("+");
+}
+
 handler("key-pressed", ({ db }, eventId, ev) => {
   let presenting = db.activePage === "presenter";
-  let key = ev.key || ev.keyCode;
+  let key = cord(ev);
   switch (key) {
     case "Enter":
       ev.preventDefault();
