@@ -1,5 +1,5 @@
 PKG := synyx.de/tales
-CMDS := tales-server
+CMD := tales-server
 
 VERSION ?= $(shell git describe --tags --abbrev=0 2> /dev/null)
 GIT_SHA := $(shell git rev-parse HEAD)
@@ -17,17 +17,30 @@ endif
 
 BINDIR=bin/
 PKGDIR=pkg/
-TARGETS=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMDS}))
+TARGET=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMD}))
 
-.PHONY: all build clean
+.PHONY: all build clean coverage lint test ${TARGET}
 
 all: build
 
-build: ${TARGETS}
+build: ${TARGET}
 
-bin/%:
+${TARGET}:
 	@echo "Building $@..."
 	go build $(GOFLAGS) -o $@ $(PKG)/cmd/$(subst $(SUFFIX),,$(@:bin/%=%))
 
+coverage:
+	@echo "Running unit tests with coverage..."
+	go test -coverprofile=coverage.out ./pkg/...
+	go tool cover -html=coverage.out
+
+lint:
+	go vet ./...
+	golint -set_exit_status ./...
+
+test:
+	@echo "Running unit tests..."
+	go test ./pkg/...
+
 clean:
-	rm -f ${TARGETS}
+	rm -f ${TARGET}
