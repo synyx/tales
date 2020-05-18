@@ -1,5 +1,5 @@
 PKG := synyx.de/tales
-CMD := tales-server
+CMDS := tales-server tales-migrate
 
 VERSION ?= $(shell git describe --tags --abbrev=0 2> /dev/null)
 GIT_SHA := $(shell git rev-parse HEAD)
@@ -17,19 +17,21 @@ endif
 
 BINDIR=bin/
 PKGDIR=pkg/
-TARGET=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMD}))
+TARGETS=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMDS}))
 
-.PHONY: all build clean coverage lint test ${TARGET}
+.PHONY: all build clean coverage lint test
 
 all: build
 
-build: ${TARGET}
+build: ${TARGETS}
 
-${TARGET}:
+bin/%: pkg/**/*.go
 	@echo "Building $@..."
 	go build $(GOFLAGS) -o $@ $(PKG)/cmd/$(subst $(SUFFIX),,$(@:bin/%=%))
 
-coverage:
+coverage: coverage.out
+
+coverage.out: pkg/**/*_test.go
 	@echo "Running unit tests with coverage..."
 	go test -coverprofile=coverage.out ./pkg/...
 	go tool cover -html=coverage.out
@@ -43,4 +45,4 @@ test:
 	go test ./pkg/...
 
 clean:
-	rm -f ${TARGET}
+	rm -f ${TARGETS}
