@@ -24,10 +24,11 @@ func main() {
 
 	shutdownTimeout := 5 * time.Second
 	projectDir := defaultProjectDir()
+	resourcesDir := "./resources/public"
 	log.Printf("Project directory is at \"%s\"", projectDir)
 
 	server := http.Server{
-		Handler:      web.NewServer(projectDir),
+		Handler:      web.NewServer(projectDir, resourcesDir),
 		Addr:         "127.0.0.1:3000",
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
