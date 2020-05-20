@@ -16,5 +16,6 @@ pom.xml.asc
 node_modules/
 dist/
 coverage/
+coverage.html
 coverage.out
 bin/

@@ -29,12 +29,14 @@ bin/%: pkg/**/*.go
 	@echo "Building $@..."
 	go build $(GOFLAGS) -o $@ $(PKG)/cmd/$(subst $(SUFFIX),,$(@:bin/%=%))
 
-coverage: coverage.out
+coverage: coverage.html
+
+coverage.html: coverage.out
+	go tool cover -html=coverage.out -o coverage.html
 
 coverage.out: pkg/**/*_test.go
 	@echo "Running unit tests with coverage..."
 	go test -coverprofile=coverage.out ./pkg/...
-	go tool cover -html=coverage.out
 
 lint:
 	go vet ./...
@@ -45,4 +47,4 @@ test:
 	go test ./pkg/...
 
 clean:
-	rm -f ${TARGETS}
+	rm -f coverage.out coverage.html ${TARGETS}
