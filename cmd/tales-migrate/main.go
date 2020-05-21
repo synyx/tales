@@ -30,7 +30,7 @@ func main() {
 
 	files, err := ioutil.ReadDir(projectDir)
 	if err != nil {
-		log.Fatalf("", err)
+		log.Fatalf("Failed to open project directory: %v", err)
 	}
 
 	for _, f := range files {
