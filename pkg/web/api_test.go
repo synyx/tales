@@ -49,7 +49,7 @@ func TestAPI_listProjects(t *testing.T) {
 
 		resp := tc.Request("GET", "/api/tales/", nil)
 
-		AssertError(t, resp, "open "+tc.dir+": no such file or directory\n", 500)
+		AssertHTTPError(t, resp, 500)
 	})
 }
 
@@ -229,9 +229,12 @@ func AssertProjectResponse(t *testing.T, resp *http.Response, expected project.P
 }
 
 func AssertError(t *testing.T, resp *http.Response, errorMsg string, statusCode int) {
-	assert.Equal(t, statusCode, resp.StatusCode)
-	assert.Equal(t, "text/plain; charset=utf-8", resp.Header.Get("Content-Type"))
-
+	AssertHTTPError(t, resp, statusCode)
 	body, _ := ioutil.ReadAll(resp.Body)
 	assert.Equal(t, errorMsg, string(body))
+}
+
+func AssertHTTPError(t *testing.T, resp *http.Response, statusCode int) {
+	assert.Equal(t, statusCode, resp.StatusCode)
+	assert.Equal(t, "text/plain; charset=utf-8", resp.Header.Get("Content-Type"))
 }
