@@ -68,7 +68,11 @@ dist: tales-server.zip
 tales-server.zip: bin/* public/*
 	mkdir -p dist/tales-server
 	cp -r bin public dist/tales-server/
-	cd dist && zip -r tales-server.zip tales-server
+	if which zip; then \
+		cd dist && zip -r tales-server.zip tales-server; \
+	else \
+		cd dist && 7z a tales-server.zip tales-server; \
+	fi
 
 clean:
 	rm -f coverage.out coverage.html dist \
