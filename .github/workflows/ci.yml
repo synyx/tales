@@ -1,0 +1,27 @@
+name: Tales CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.14.3'
+    - run: npm install
+
+    - name: Cache node modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+
+    - run: make test
+
+    - run: go get -u golang.org/x/lint/golint
+    - run: make lint
