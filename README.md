@@ -20,7 +20,7 @@ control the depth by which you zoom into details, but never lose the possibility
 Ordinary slide-based presentations normally are composed of mostly text and bullet points. Using text to communicate
 information is good - but the processing depth of the brain of an image is much deeper! So, compared to ordinary slides,
 presenting your Story based on an image makes it easier and more fun for your audience to follow and to not lose
-focus and interest. They will be thrilled by your ideas!  
+focus and interest. They will be thrilled by your ideas!
 As a side effect, you can directly use your Story as an offline product, by printing it e.g. on paper, t-shirts
 or tissues.
 
@@ -84,10 +84,11 @@ Some examples of already existing Tales:
 
 # Contributing
 
-- Install current version of Java
-- Install [Leiningen]
-- Run the development server `lein figwheel`
-- Build the JAR for production `lein uberjar`
+- Install `git`
+- Install `make`
+- Install `go`
+- Install `nodejs`
+- Build with `make all`
 
 
 # Licencse
