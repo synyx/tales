@@ -1,0 +1,54 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            artifact_name: dist/tales-server.zip
+            asset_name: tales-server-macos-x86_64.zip
+          - os: ubuntu-latest
+            artifact_name: dist/tales-server.zip
+            asset_name: tales-server-linux-x86_64.zip
+          - os: windows-latest
+            artifact_name: dist/tales-server.zip
+            asset_name: tales-server-windows-x86_64.zip
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.14.3'
+
+    - name: Cache node modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+
+    - run: npm install
+
+    - name: Get version from tag
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+    - run: make build
+    - run: make dist
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.artifact_name }}
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
