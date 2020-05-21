@@ -24,7 +24,7 @@ func main() {
 
 	shutdownTimeout := 5 * time.Second
 	projectDir := defaultProjectDir()
-	resourcesDir := "./resources/public"
+	resourcesDir := "./public"
 	log.Printf("Project directory is at \"%s\"", projectDir)
 
 	server := http.Server{
