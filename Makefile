@@ -19,7 +19,7 @@ BINDIR=bin/
 PKGDIR=pkg/
 BINARIES=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMDS}))
 
-.PHONY: all build clean coverage coverage-go coverage-js lint lint-go lint-js test test-go test-js
+.PHONY: all build clean coverage coverage-go coverage-js lint lint-go lint-js test test-go test-js dist
 
 all: build
 
@@ -63,5 +63,14 @@ test-go:
 test-js:
 	npm run test
 
+dist: tales-server.zip
+
+tales-server.zip: bin/* public/*
+	mkdir -p dist/tales-server
+	cp -r bin public dist/tales-server/
+	cd dist && zip -r tales-server.zip tales-server
+
 clean:
-	rm -f coverage.out coverage.html ${BINARIES} public/js/tales.{js,js.map}
+	rm -f coverage.out coverage.html dist \
+		public/js/tales.{js,js.map} \
+		${BINARIES}
