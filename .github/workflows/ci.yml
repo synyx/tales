@@ -3,7 +3,7 @@ name: Tales CI
 on: [push]
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -11,7 +11,6 @@ jobs:
     - uses: actions/setup-go@v2
       with:
         go-version: '^1.14.3'
-    - run: npm install
 
     - name: Cache node modules
       uses: actions/cache@v1
@@ -21,7 +20,76 @@ jobs:
         path: node_modules
         key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
 
-    - run: make test
+    - run: npm install
 
     - run: go get -u golang.org/x/lint/golint
     - run: make lint
+
+  macos:
+    needs: lint
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.14.3'
+
+    - name: Cache node modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+
+    - run: npm install
+
+    - run: make test
+
+  linux:
+    needs: lint
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.14.3'
+
+    - name: Cache node modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+
+    - run: npm install
+
+    - run: make test
+
+  windows:
+    needs: lint
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.14.3'
+
+    - name: Cache node modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+
+    - run: npm install
+
+    - run: make test
