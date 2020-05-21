@@ -1,13 +1,15 @@
 package project
 
 var (
-	ErrNotExist = &ProjectError{"does not exist"}
+	// ErrNotExist is returned by Repository in case a project does not exist.
+	ErrNotExist = &Error{"does not exist"}
 )
 
-type ProjectError struct {
+// Error represents a project repository error.
+type Error struct {
 	ErrorString string
 }
 
-func (pe *ProjectError) Error() string {
-	return pe.ErrorString
+func (e *Error) Error() string {
+	return e.ErrorString
 }

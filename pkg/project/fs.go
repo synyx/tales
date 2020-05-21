@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 )
 
+// A FilesystemRepository manages projects on the local filesystem.
 type FilesystemRepository struct {
 	ProjectDir string
 }
@@ -18,6 +19,7 @@ func (fr *FilesystemRepository) configFile(slug string) string {
 	return path.Join(fr.ProjectDir, slug, "config.json")
 }
 
+// Exists implements the Repository.Exists method.
 func (fr *FilesystemRepository) Exists(slug string) bool {
 	filename := fr.configFile(slug)
 	info, err := os.Stat(filename)
@@ -27,6 +29,7 @@ func (fr *FilesystemRepository) Exists(slug string) bool {
 	return !info.IsDir()
 }
 
+// LoadProjects implements the Repository.LoadProjects method.
 func (fr *FilesystemRepository) LoadProjects() ([]Project, error) {
 	projects := make([]Project, 0)
 	files, err := ioutil.ReadDir(fr.ProjectDir)
@@ -50,6 +53,7 @@ func (fr *FilesystemRepository) LoadProjects() ([]Project, error) {
 	return projects, nil
 }
 
+// LoadProject implements the Repository.LoadProject method.
 func (fr *FilesystemRepository) LoadProject(slug string) (Project, error) {
 	if !fr.Exists(slug) {
 		return Project{}, ErrNotExist
@@ -69,6 +73,7 @@ func (fr *FilesystemRepository) LoadProject(slug string) (Project, error) {
 	return project, nil
 }
 
+// SaveProject implements the Repository.SaveProject method.
 func (fr *FilesystemRepository) SaveProject(slug string, project Project) (Project, error) {
 	if slug == "" {
 		return Project{}, errors.New("missing slug")
@@ -88,6 +93,7 @@ func (fr *FilesystemRepository) SaveProject(slug string, project Project) (Proje
 	return project, ioutil.WriteFile(jsonFile, data, 0644)
 }
 
+// DeleteProject implements the Repository.DeleteProject method.
 func (fr *FilesystemRepository) DeleteProject(slug string) error {
 	if !fr.Exists(slug) {
 		return ErrNotExist
