@@ -1,6 +1,6 @@
 {
   "name": "tales",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "synyx presentation style for everyone",
   "main": "js/index.js",
   "browser": "public/js/tales.js",
