@@ -17,34 +17,51 @@ endif
 
 BINDIR=bin/
 PKGDIR=pkg/
-TARGETS=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMDS}))
+BINARIES=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMDS}))
 
-.PHONY: all build clean coverage lint test
+.PHONY: all build clean coverage coverage-go coverage-js lint lint-go lint-js test test-go test-js
 
 all: build
 
-build: ${TARGETS}
+build: ${BINARIES} public/js/tales.js
 
 bin/%: pkg/**/*.go
-	@echo "Building $@..."
 	go build $(GOFLAGS) -o $@ $(PKG)/cmd/$(subst $(SUFFIX),,$(@:bin/%=%))
 
-coverage: coverage.html
+coverage: coverage-go coverage-js
+
+coverage-go: coverage.html
 
 coverage.html: coverage.out
 	go tool cover -html=coverage.out -o coverage.html
 
 coverage.out: pkg/**/*_test.go
-	@echo "Running unit tests with coverage..."
 	go test -coverprofile=coverage.out ./pkg/...
 
-lint:
+coverage-js: coverage/index.html
+
+coverage/index.html:
+	npx jest --coverage --coverageReporters html
+
+public/js/tales.js: js/**/*.js
+	npm run build
+
+lint: lint-go lint-js
+
+lint-go:
 	go vet ./...
 	golint -set_exit_status ./...
 
-test:
-	@echo "Running unit tests..."
+lint-js:
+	npm run lint
+
+test: test-go test-js
+
+test-go:
 	go test ./pkg/...
 
+test-js:
+	npm run test
+
 clean:
-	rm -f coverage.out coverage.html ${TARGETS}
+	rm -f coverage.out coverage.html ${BINARIES} public/js/tales.{js,js.map}
