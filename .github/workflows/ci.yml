@@ -25,55 +25,16 @@ jobs:
     - run: go get -u golang.org/x/lint/golint
     - run: make lint
 
-  macos:
+  test:
     needs: lint
-    runs-on: macos-latest
-    if: github.ref == 'refs/heads/master'
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+          - os: ubuntu-latest
+          - os: windows-latest
 
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
-      with:
-        go-version: '^1.14.3'
-
-    - name: Cache node modules
-      uses: actions/cache@v1
-      env:
-        cache-name: cache-node-modules
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
-
-    - run: npm install
-
-    - run: make test
-
-  linux:
-    needs: lint
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
-      with:
-        go-version: '^1.14.3'
-
-    - name: Cache node modules
-      uses: actions/cache@v1
-      env:
-        cache-name: cache-node-modules
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
-
-    - run: npm install
-
-    - run: make test
-
-  windows:
-    needs: lint
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     if: github.ref == 'refs/heads/master'
 
     steps:
