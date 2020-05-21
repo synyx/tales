@@ -2,12 +2,12 @@
   "name": "tales",
   "version": "0.1.2",
   "description": "synyx presentation style for everyone",
-  "main": "src/js/index.js",
+  "main": "js/index.js",
   "browser": "public/js/tales.js",
   "scripts": {
     "build": "rollup -c",
-    "format": "prettier --write 'src/js/**/*.js'",
-    "lint": "eslint src/js",
+    "format": "prettier --write 'js/**/*.js'",
+    "lint": "eslint js",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm test && npm run lint",
@@ -48,12 +48,12 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/js/**/*.js",
-      "!src/js/**/*.test.js"
+      "js/**/*.js",
+      "!js/**/*.test.js"
     ],
     "coverageDirectory": "<rootDir>/coverage",
     "roots": [
-      "<rootDir>/src/js"
+      "<rootDir>/js"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.js"
