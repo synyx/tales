@@ -75,7 +75,7 @@ export const preview = withInputSignals(
       th = 75;
     return h(
       "ol.previews",
-      tale.slides.map((slide, index) =>
+      (tale.slides || []).map((slide, index) =>
         previewItem([tw, th], tale, slide, index, index === activeSlide),
       ),
     );
