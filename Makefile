@@ -19,14 +19,31 @@ BINDIR=bin/
 PKGDIR=pkg/
 BINARIES=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMDS}))
 
-.PHONY: all build clean coverage coverage-go coverage-js lint lint-go lint-js test test-go test-js dist
+.PHONY: all go js \
+	build build-go build-js \
+	clean clean-go clean-js \
+	coverage coverage-go coverage-js \
+	lint lint-go lint-js \
+	test test-go test-js \
+	dist
 
 all: build
 
-build: ${BINARIES} public/js/tales.js
+go: build-go
 
-bin/%: pkg/**/*.go
+js: build-js
+
+build: build-go build-js
+
+build-go: ${BINARIES}
+
+bin/%: cmd/**/*.go pkg/**/*.go
 	go build $(GOFLAGS) -o $@ $(PKG)/cmd/$(subst $(SUFFIX),,$(@:bin/%=%))
+
+build-js: public/js/tales.js
+
+public/js/tales.js: js/**/*.js
+	npm run build
 
 coverage: coverage-go coverage-js
 
@@ -42,9 +59,6 @@ coverage-js: coverage/index.html
 
 coverage/index.html:
 	npx jest --coverage --coverageReporters html
-
-public/js/tales.js: js/**/*.js
-	npm run build
 
 lint: lint-go lint-js
 
@@ -74,7 +88,10 @@ tales-server.zip: bin/* public/*
 		cd dist && 7z a tales-server.zip tales-server; \
 	fi
 
-clean:
-	rm -f coverage.out coverage.html dist \
-		public/js/tales.{js,js.map} \
-		${BINARIES}
+clean: clean-go clean-js
+
+clean-go:
+	rm -rf coverage.out coverage.html ${BINARIES}
+
+clean-js:
+	rm -rf dist/main.{js,js.map} public/js/tales.{js,js.map}
