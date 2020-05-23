@@ -144,11 +144,19 @@ input:focus {
 }
 
 .tale-list > li .poster {
-  display: block;
+  display: flex;
   height: 12rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   background-size: cover;
   background-position: center;
   background-color: #8883;
+}
+
+.tale-list > li .poster > img {
+  min-height: 100%;
+  flex: 1 1 auto;
 }
 
 #app {

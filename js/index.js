@@ -116,13 +116,19 @@ let taleItem = tale => {
   return h(
     "li",
     h("a", { attrs: { href: `#editor/${tale.slug}/` } }, [
-      h("div.poster", {
-        style: {
-          "background-image": tale["file-path"]
-            ? `url(/editor/${tale.slug}/${tale["file-path"]})`
-            : "url(/images/missing-image.svg)",
-        },
-      }),
+      h(
+        "div.poster",
+        h("img", {
+          attrs: {
+            decoding: "async",
+            importance: "low",
+            loading: "lazy",
+            src: tale["file-path"]
+              ? `/editor/${tale.slug}/${tale["file-path"]}`
+              : "/images/missing-image.svg",
+          },
+        }),
+      ),
       h("div.title", tale.name),
     ]),
   );
