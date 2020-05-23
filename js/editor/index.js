@@ -221,6 +221,136 @@ function slideBounds(rect, scale, index, options = {}) {
   );
 }
 
+let navigator = (tale, mvpMatrix, viewportMatrix, cameraPosition, activeSlide) => {
+  let elm,
+    projectFn = vec =>
+      vec3.transformMat4(
+        vec3.create(),
+        vec,
+        mat4.invert(
+          mat4.create(),
+          mat4.mul(mat4.create(), viewportMatrix, mvpMatrix),
+        ),
+      ),
+    scale = Math.max(
+      ...vec3.div(
+        vec3.create(),
+        [1, 1, 1],
+        vec3.sub(vec3.create(), projectFn([1, 1, 1]), projectFn([0, 0, 0])),
+      ),
+    );
+
+  let onWindowResize = () => {
+    let { left, top, width, height } = elm.getBoundingClientRect();
+    trigger("viewport/set-rect", [left, top, width, height]);
+  };
+
+  let startCreate = ev => {
+    if (ev.ctrlKey || ev.metaKey) {
+      dragging(ev, onCreate, onCreateEnd);
+      ev.stopPropagation();
+      preventNextClickEvent();
+    }
+  };
+
+  let onCreate = (ev, start, end) => {
+    let p1 = projectFn(start);
+    let p2 = projectFn(end);
+    let rect = normalizeRect({
+      x: p1[0],
+      y: p1[1],
+      width: p2[0] - p1[0],
+      height: p2[1] - p1[1],
+    });
+    drawRect.reset(rect);
+  };
+  let onCreateEnd = (ev, start, end) => {
+    let p1 = projectFn(start);
+    let p2 = projectFn(end);
+    let rect = normalizeRect({
+      x: p1[0],
+      y: p1[1],
+      width: p2[0] - p1[0],
+      height: p2[1] - p1[1],
+    });
+    drawRect.reset(null);
+    trigger("slide/add", { rect });
+  };
+  let onMove = (ev, slide, start, end) => {
+    let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
+    let rect = moveRect(slide.rect, delta);
+    drawRect.reset(rect);
+  };
+  let onMoveEnd = (ev, slide, start, end) => {
+    let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
+    let rect = moveRect(slide.rect, delta);
+    drawRect.reset(null);
+    trigger("slide/update", { ...slide, rect });
+  };
+  let onResize = (ev, slide, position, start, end) => {
+    let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
+    let rect = resizeRect(slide.rect, position, delta);
+    drawRect.reset(rect);
+  };
+  let onResizeEnd = (ev, slide, position, start, end) => {
+    let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
+    let rect = resizeRect(slide.rect, position, delta);
+    drawRect.reset(null);
+    trigger("slide/update", { ...slide, rect });
+  };
+
+  return viewport(
+    tale.dimensions.width,
+    tale.dimensions.height,
+    viewportMatrix,
+    mvpMatrix,
+    {
+      style: {
+        cursor: isMoving.value() ? "grabbing" : "grab",
+      },
+      on: {
+        wheel: ev => onWheel(ev, projectFn),
+        mousedown: ev => onMouseDown(ev, cameraPosition, projectFn),
+      },
+      hook: {
+        insert: vnode => {
+          elm = vnode.elm;
+          window.addEventListener("resize", onWindowResize);
+          onWindowResize();
+        },
+        remove: () => {
+          elm = null;
+          window.removeEventListener("resize", onWindowResize);
+        },
+      },
+    },
+    [
+      poster(`/editor/${tale.slug}/${tale["file-path"]}`),
+      layer(
+        {
+          on: {
+            mousedown: startCreate,
+          },
+        },
+        [
+          ...(tale.slides || []).map((slide, index) =>
+            slideBounds(slide.rect, scale, index, {
+              active: index === activeSlide,
+              onMove: (ev, start, end) => onMove(ev, slide, start, end),
+              onMoveEnd: (ev, start, end) => onMoveEnd(ev, slide, start, end),
+              onResize: (ev, position, start, end) =>
+                onResize(ev, slide, position, start, end),
+              onResizeEnd: (ev, position, start, end) =>
+                onResizeEnd(ev, slide, position, start, end),
+            }),
+          ),
+          ...(drawRect.value() ? [slideBounds(drawRect.value(), scale)] : []),
+        ],
+      ),
+    ],
+  );
+};
+
 export let editor = withInputSignals(
   () => [
     connect("matrix/mvp"),
@@ -232,83 +362,6 @@ export let editor = withInputSignals(
     if (!tale) {
       return notFound();
     }
-
-    let elm,
-      projectFn = vec =>
-        vec3.transformMat4(
-          vec3.create(),
-          vec,
-          mat4.invert(
-            mat4.create(),
-            mat4.mul(mat4.create(), viewportMatrix, mvpMatrix),
-          ),
-        ),
-      scale = Math.max(
-        ...vec3.div(
-          vec3.create(),
-          [1, 1, 1],
-          vec3.sub(vec3.create(), projectFn([1, 1, 1]), projectFn([0, 0, 0])),
-        ),
-      );
-
-    let onWindowResize = () => {
-      let { left, top, width, height } = elm.getBoundingClientRect();
-      trigger("viewport/set-rect", [left, top, width, height]);
-    };
-
-    let startCreate = ev => {
-      if (ev.ctrlKey || ev.metaKey) {
-        dragging(ev, onCreate, onCreateEnd);
-        ev.stopPropagation();
-        preventNextClickEvent();
-      }
-    };
-
-    let onCreate = (ev, start, end) => {
-      let p1 = projectFn(start);
-      let p2 = projectFn(end);
-      let rect = normalizeRect({
-        x: p1[0],
-        y: p1[1],
-        width: p2[0] - p1[0],
-        height: p2[1] - p1[1],
-      });
-      drawRect.reset(rect);
-    };
-    let onCreateEnd = (ev, start, end) => {
-      let p1 = projectFn(start);
-      let p2 = projectFn(end);
-      let rect = normalizeRect({
-        x: p1[0],
-        y: p1[1],
-        width: p2[0] - p1[0],
-        height: p2[1] - p1[1],
-      });
-      drawRect.reset(null);
-      trigger("slide/add", { rect });
-    };
-    let onMove = (ev, slide, start, end) => {
-      let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
-      let rect = moveRect(slide.rect, delta);
-      drawRect.reset(rect);
-    };
-    let onMoveEnd = (ev, slide, start, end) => {
-      let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
-      let rect = moveRect(slide.rect, delta);
-      drawRect.reset(null);
-      trigger("slide/update", { ...slide, rect });
-    };
-    let onResize = (ev, slide, position, start, end) => {
-      let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
-      let rect = resizeRect(slide.rect, position, delta);
-      drawRect.reset(rect);
-    };
-    let onResizeEnd = (ev, slide, position, start, end) => {
-      let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
-      let rect = resizeRect(slide.rect, position, delta);
-      drawRect.reset(null);
-      trigger("slide/update", { ...slide, rect });
-    };
 
     return h("div#editor", [
       h("header", [
@@ -325,59 +378,7 @@ export let editor = withInputSignals(
           ),
         ]),
       ]),
-      viewport(
-        tale.dimensions.width,
-        tale.dimensions.height,
-        viewportMatrix,
-        mvpMatrix,
-        {
-          style: {
-            cursor: isMoving.value() ? "grabbing" : "grab",
-          },
-          on: {
-            wheel: ev => onWheel(ev, projectFn),
-            mousedown: ev => onMouseDown(ev, cameraPosition, projectFn),
-          },
-          hook: {
-            insert: vnode => {
-              elm = vnode.elm;
-              window.addEventListener("resize", onWindowResize);
-              onWindowResize();
-            },
-            remove: () => {
-              elm = null;
-              window.removeEventListener("resize", onWindowResize);
-            },
-          },
-        },
-        [
-          poster(`/editor/${tale.slug}/${tale["file-path"]}`),
-          layer(
-            {
-              on: {
-                mousedown: startCreate,
-              },
-            },
-            [
-              ...(tale.slides || []).map((slide, index) =>
-                slideBounds(slide.rect, scale, index, {
-                  active: index === activeSlide,
-                  onMove: (ev, start, end) => onMove(ev, slide, start, end),
-                  onMoveEnd: (ev, start, end) =>
-                    onMoveEnd(ev, slide, start, end),
-                  onResize: (ev, position, start, end) =>
-                    onResize(ev, slide, position, start, end),
-                  onResizeEnd: (ev, position, start, end) =>
-                    onResizeEnd(ev, slide, position, start, end),
-                }),
-              ),
-              ...(drawRect.value()
-                ? [slideBounds(drawRect.value(), scale)]
-                : []),
-            ],
-          ),
-        ],
-      ),
+      navigator(tale, mvpMatrix, viewportMatrix, cameraPosition, activeSlide),
       h("footer", preview(tale)),
     ]);
   },
