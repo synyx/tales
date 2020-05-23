@@ -62,6 +62,7 @@ handler("key-pressed", ({ db }, eventId, ev) => {
         trigger("slide/delete-current");
       }
       break;
+    case "Shift+PageUp":
     case "Shift+ArrowLeft":
       ev.preventDefault();
       ev.stopPropagation();
@@ -69,6 +70,7 @@ handler("key-pressed", ({ db }, eventId, ev) => {
         trigger("slide/swap-prev");
       }
       break;
+    case "Shift+PageDown":
     case "Shift+ArrowRight":
       ev.preventDefault();
       ev.stopPropagation();
@@ -76,11 +78,13 @@ handler("key-pressed", ({ db }, eventId, ev) => {
         trigger("slide/swap-next");
       }
       break;
+    case "PageUp":
     case "ArrowLeft":
       ev.preventDefault();
       ev.stopPropagation();
       trigger(presenting ? "slide/fly-to-prev" : "slide/activate-prev");
       break;
+    case "PageDown":
     case "ArrowRight":
       ev.preventDefault();
       ev.stopPropagation();
