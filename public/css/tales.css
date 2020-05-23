@@ -303,6 +303,16 @@ input:focus {
   fill: var(--highlight);
 }
 
+.poster-uploader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
 .viewport {}
 .viewport > .scene {}
 .viewport > .scene > .world {}

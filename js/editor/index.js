@@ -6,6 +6,7 @@ import { chevronLeft, chevronRight } from "../icons";
 import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
 import { preview } from "./preview";
+import { uploader } from "./upload";
 
 let isMoving = signal(false);
 let drawRect = signal(null);
@@ -221,7 +222,13 @@ function slideBounds(rect, scale, index, options = {}) {
   );
 }
 
-let navigator = (tale, mvpMatrix, viewportMatrix, cameraPosition, activeSlide) => {
+let navigator = (
+  tale,
+  mvpMatrix,
+  viewportMatrix,
+  cameraPosition,
+  activeSlide,
+) => {
   let elm,
     projectFn = vec =>
       vec3.transformMat4(
@@ -378,7 +385,15 @@ export let editor = withInputSignals(
           ),
         ]),
       ]),
-      navigator(tale, mvpMatrix, viewportMatrix, cameraPosition, activeSlide),
+      tale["file-path"]
+        ? navigator(
+            tale,
+            mvpMatrix,
+            viewportMatrix,
+            cameraPosition,
+            activeSlide,
+          )
+        : uploader(tale),
       h("footer", preview(tale)),
     ]);
   },
