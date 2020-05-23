@@ -17,15 +17,15 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewServer creates an http.Handler ready to handle tales requests.
-func NewServer(projectDir, resourcesDir string) http.Handler {
+func NewServer(projectsDir, resourcesDir string) http.Handler {
 	repository := &project.FilesystemRepository{
-		ProjectDir: projectDir,
+		ProjectDir: projectsDir,
 	}
 
 	r := mux.NewRouter()
 	r.StrictSlash(true)
 
-	fs := http.FileServer(http.Dir(projectDir))
+	fs := http.FileServer(http.Dir(projectsDir))
 	r.PathPrefix("/editor").Handler(http.StripPrefix("/editor", fs))
 	r.PathPrefix("/presenter").Handler(http.StripPrefix("/presenter", fs))
 
@@ -37,9 +37,7 @@ func NewServer(projectDir, resourcesDir string) http.Handler {
 	api.HandleFunc("/{slug}", deleteProject(repository)).Methods("DELETE")
 	api.HandleFunc("/{slug}/image", saveProjectImage(repository)).Methods("PUT")
 
-	if resourcesDir != "" {
-		r.PathPrefix("/").Handler(http.FileServer(http.Dir(resourcesDir)))
-	}
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(resourcesDir)))
 
 	return &server{
 		router: r,

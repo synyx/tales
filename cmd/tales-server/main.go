@@ -2,15 +2,22 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"path"
+	"path/filepath"
 	"time"
 
 	"synyx.de/tales/pkg/buildinfo"
 	"synyx.de/tales/pkg/web"
+)
+
+var (
+	resourcesDir string
+	projectsDir  string
 )
 
 func init() {
@@ -18,17 +25,37 @@ func init() {
 }
 
 func main() {
+	flag.StringVar(&resourcesDir, "resources", "", "path to public resources")
+	flag.StringVar(&projectsDir, "projects", defaultProjectsDir(), "path to projects")
+	flag.Parse()
+
+	if resourcesDir == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	log.Printf("Starting tales-server %s (%s)",
 		buildinfo.Version,
 		buildinfo.FormattedGitSHA())
 
+	var err error
+	resourcesDir, err = filepath.Abs(resourcesDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	projectsDir, err = filepath.Abs(projectsDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	shutdownTimeout := 5 * time.Second
-	projectDir := defaultProjectDir()
-	resourcesDir := "./public"
-	log.Printf("Project directory is at \"%s\"", projectDir)
+
+	log.Printf("Projects directory is at \"%s\"", projectsDir)
+	log.Printf("Resources directory is at \"%s\"", resourcesDir)
 
 	server := http.Server{
-		Handler:      web.NewServer(projectDir, resourcesDir),
+		Handler:      web.NewServer(projectsDir, resourcesDir),
 		Addr:         "127.0.0.1:3000",
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
@@ -56,7 +83,7 @@ func main() {
 	}
 }
 
-func defaultProjectDir() string {
+func defaultProjectsDir() string {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatalf("Failed to retrieve project dir: %v", err)
