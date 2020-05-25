@@ -106,6 +106,24 @@ func deleteProject(repository project.Repository) http.HandlerFunc {
 
 func saveProjectImage(repository project.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		slug := vars["slug"]
+		if !repository.Exists(slug) {
+			notFound(w)
+			return
+		}
+		data, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			badRequest(w)
+			return
+		}
+		contentType := r.Header.Get("Content-Type")
+		project, err := repository.SaveImage(slug, contentType, data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		jsonResponse(w, project, http.StatusAccepted)
 	}
 }
 

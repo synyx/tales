@@ -218,6 +218,40 @@ func TestAPI_deleteProject(t *testing.T) {
 	})
 }
 
+func TestAPI_updateProjectImage(t *testing.T) {
+	t.Run("update project image", func(t *testing.T) {
+		tc := NewTestClient(t)
+		defer tc.Cleanup()
+
+		tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
+
+		data := []byte{'f', 'o', 'o'}
+		header := http.Header(map[string][]string{})
+		header.Add("Content-Type", "image/bmp")
+		resp := tc.RequestWithHeaders("PUT", "/api/tales/foo/image", data, header)
+
+		AssertProjectResponse(t, resp, project.Project{Slug: "foo", Name: "Bar", FilePath: "foo.bmp"}, 202)
+	})
+	t.Run("invalid content type", func(t *testing.T) {
+		tc := NewTestClient(t)
+		defer tc.Cleanup()
+
+		tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
+
+		resp := tc.Request("PUT", "/api/tales/foo/image", nil)
+
+		AssertError(t, resp, "unsupported content-type: \n", 500)
+	})
+	t.Run("unknown project", func(t *testing.T) {
+		tc := NewTestClient(t)
+		defer tc.Cleanup()
+
+		resp := tc.Request("PUT", "/api/tales/foo/image", nil)
+
+		AssertError(t, resp, "project not found\n", 404)
+	})
+}
+
 func AssertProjectResponse(t *testing.T, resp *http.Response, expected project.Project, statusCode int) {
 	assert.Equal(t, statusCode, resp.StatusCode)
 	assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))

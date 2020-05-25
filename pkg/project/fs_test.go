@@ -160,6 +160,40 @@ func TestFilesystemRepository_DeleteProject(t *testing.T) {
 	})
 }
 
+func TestFilesystemRepository_SaveImage(t *testing.T) {
+	repo := testRepo(t)
+	defer os.RemoveAll(repo.ProjectDir)
+
+	t.Run("save image for empty slug project", func(t *testing.T) {
+		_, err := repo.SaveImage("", "", []byte{})
+		assert.EqualError(t, err, "does not exist")
+	})
+	t.Run("save image for non-existing project", func(t *testing.T) {
+		_, err := repo.SaveImage("", "", []byte{})
+		assert.EqualError(t, err, "does not exist")
+	})
+	t.Run("save image with invalid content-type", func(t *testing.T) {
+		project := Project{}
+		repo.SaveProject("project", project)
+		_, err := repo.SaveImage("project", "foo/bar", []byte{})
+		assert.EqualError(t, err, "unsupported content-type: foo/bar")
+	})
+	t.Run("save image for valid project", func(t *testing.T) {
+		project := Project{}
+		repo.SaveProject("project", project)
+		savedProject, err := repo.SaveImage("project", "image/jpeg", []byte{'f', 'o', 'o'})
+		assert.NoError(t, err)
+		assert.Equal(t, "project.jpg", savedProject.FilePath)
+	})
+	t.Run("supported content types", func(t *testing.T) {
+		assert.Equal(t, "gif", imageType("image/gif"))
+		assert.Equal(t, "png", imageType("image/png"))
+		assert.Equal(t, "jpg", imageType("image/jpeg"))
+		assert.Equal(t, "bmp", imageType("image/bmp"))
+		assert.Equal(t, "svg", imageType("image/svg+xml"))
+	})
+}
+
 func testRepo(t *testing.T) FilesystemRepository {
 	dir, err := ioutil.TempDir("", "tales-test")
 	assert.Nil(t, err)

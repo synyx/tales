@@ -35,4 +35,5 @@ type Repository interface {
 	LoadProject(string) (Project, error)
 	SaveProject(string, Project) (Project, error)
 	DeleteProject(string) error
+	SaveImage(string, string, []byte) (Project, error)
 }
