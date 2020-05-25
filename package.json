@@ -5,10 +5,13 @@
   "author": "synyx",
   "main": "dist/main.js",
   "browser": "public/js/tales.js",
+  "postinstall": "electron-builder install-app-deps",
   "scripts": {
     "build": "rollup -c",
+    "dist": "electron-builder",
     "format": "prettier --write 'js/**/*.js'",
     "lint": "eslint js",
+    "pack": "electron-builder --dir",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm test && npm run lint",

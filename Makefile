@@ -75,7 +75,9 @@ test-go:
 test-js:
 	npm run test
 
-dist: tales-server.zip
+dist: dist-go dist-js
+
+dist-go: tales-server.zip
 
 tales-server.zip: bin/* public/*
 	mkdir -p dist/tales-server
@@ -85,6 +87,9 @@ tales-server.zip: bin/* public/*
 	else \
 		cd dist && 7z a tales-server.zip tales-server; \
 	fi
+
+dist-js:
+	npm run dist
 
 clean: clean-go clean-js
 

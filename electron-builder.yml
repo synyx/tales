@@ -1,0 +1,21 @@
+appId: "de.synyx.tales"
+icon: "public/images/tales-icon-512x512.png"
+files:
+  - "bin/tales-migrate"
+  - "bin/tales-server"
+  - "dist/main.js"
+  - "public/**/*"
+asar: true
+asarUnpack:
+  - "public"
+artifactName: ${productName}-desktop.${ext}
+mac:
+  category: "public.app-category.graphics-design"
+  binaries:
+    - "bin/tales-migrate"
+    - "bin/tales-server"
+  target: dmg
+linux:
+  target: AppImage
+win:
+  target: portable
