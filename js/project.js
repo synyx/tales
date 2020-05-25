@@ -66,6 +66,20 @@ handler("projects/update", (causes, eventId, project) => ({
   },
 }));
 
+handler("projects/update-image", (causes, eventId, project, file) => ({
+  xhr: {
+    url: "/api/tales/" + project.slug + "/image",
+    method: "PUT",
+    data: file,
+    headers: {
+      "Content-Type": file.type,
+    },
+    responseType: "json",
+    onSuccess: ["projects/request-success"],
+    onError: ["projects/request-error"],
+  },
+}));
+
 handler("projects/request-success", ({ db }, eventId, project) => ({
   db: {
     ...db,

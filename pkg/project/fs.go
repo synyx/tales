@@ -3,6 +3,7 @@ package project
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,6 +18,10 @@ type FilesystemRepository struct {
 
 func (fr *FilesystemRepository) configFile(slug string) string {
 	return path.Join(fr.ProjectDir, slug, "config.json")
+}
+
+func (fr *FilesystemRepository) imageFile(slug, filename string) string {
+	return path.Join(fr.ProjectDir, slug, filename)
 }
 
 // Exists implements the Repository.Exists method.
@@ -100,4 +105,51 @@ func (fr *FilesystemRepository) DeleteProject(slug string) error {
 	}
 	jsonFile := fr.configFile(slug)
 	return os.RemoveAll(filepath.Dir(jsonFile))
+}
+
+// SaveImage implements the Repository.SaveImage method.
+func (fr *FilesystemRepository) SaveImage(slug, contentType string, data []byte) (Project, error) {
+	if !fr.Exists(slug) {
+		return Project{}, ErrNotExist
+	}
+	extension := imageType(contentType)
+	filename := slug + "." + extension
+	if extension == "" {
+		return Project{}, fmt.Errorf("unsupported content-type: %v", contentType)
+	}
+	imageFile := fr.imageFile(slug, filename)
+	err := os.MkdirAll(filepath.Dir(imageFile), os.ModePerm)
+	if err != nil {
+		return Project{}, err
+	}
+	err = ioutil.WriteFile(imageFile, data, 0644)
+	if err != nil {
+		return Project{}, err
+	}
+	project, err := fr.LoadProject(slug)
+	if err != nil {
+		return Project{}, err
+	}
+	project.FilePath = filename
+	project, err = fr.SaveProject(slug, project)
+	if err != nil {
+		return Project{}, err
+	}
+	return project, nil
+}
+
+func imageType(contentType string) string {
+	switch contentType {
+	case "image/gif":
+		return "gif"
+	case "image/png":
+		return "png"
+	case "image/jpeg":
+		return "jpg"
+	case "image/bmp":
+		return "bmp"
+	case "image/svg+xml":
+		return "svg"
+	}
+	return ""
 }

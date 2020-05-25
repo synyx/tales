@@ -37,11 +37,16 @@ func NewTestClient(t *testing.T) *TestClient {
 }
 
 func (tc *TestClient) Request(method, url string, payload interface{}) *http.Response {
+	return tc.RequestWithHeaders(method, url, payload, nil)
+}
+
+func (tc *TestClient) RequestWithHeaders(method, url string, payload interface{}, header http.Header) *http.Response {
 	var body []byte
 	if payload != nil {
 		body, _ = json.Marshal(payload)
 	}
 	req := httptest.NewRequest(method, url, bytes.NewReader(body))
+	req.Header = header
 	w := httptest.NewRecorder()
 	tc.handler.ServeHTTP(w, req)
 
