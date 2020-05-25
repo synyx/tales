@@ -11,14 +11,20 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            artifact_name: dist/tales-server.zip
-            asset_name: tales-server-macos-x86_64.zip
+            server_artifact_name: dist/tales-server.zip
+            server_asset_name: tales-server-macos-x86_64.zip
+            desktop_artifact_name: dist/tales-desktop.dmg
+            desktop_asset_name: tales-desktop-macos-x86_64.dmg
           - os: ubuntu-latest
-            artifact_name: dist/tales-server.zip
-            asset_name: tales-server-linux-x86_64.zip
+            server_artifact_name: dist/tales-server.zip
+            server_asset_name: tales-server-linux-x86_64.zip
+            desktop_artifact_name: dist/tales-desktop.AppImage
+            desktop_asset_name: tales-desktop-linux-x86_64.AppImage
           - os: windows-latest
-            artifact_name: dist/tales-server.zip
-            asset_name: tales-server-windows-x86_64.zip
+            server_artifact_name: dist/tales-server.zip
+            server_asset_name: tales-server-windows-x86_64.zip
+            desktop_artifact_name: dist/tales-desktop.exe
+            desktop_asset_name: tales-desktop-windows-x86_64.exe
 
     runs-on: ${{ matrix.os }}
 
@@ -45,10 +51,18 @@ jobs:
     - run: make build
     - run: make dist
 
-    - name: Upload binaries to release
+    - name: Upload server binaries to release
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ matrix.artifact_name }}
-        asset_name: ${{ matrix.asset_name }}
+        file: ${{ matrix.server_artifact_name }}
+        asset_name: ${{ matrix.server_asset_name }}
+        tag: ${{ github.ref }}
+
+    - name: Upload desktop binaries to release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.desktop_artifact_name }}
+        asset_name: ${{ matrix.desktop_asset_name }}
         tag: ${{ github.ref }}
