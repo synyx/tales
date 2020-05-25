@@ -2,7 +2,8 @@
   "name": "tales",
   "version": "0.3.0",
   "description": "synyx presentation style for everyone",
-  "main": "js/index.js",
+  "author": "synyx",
+  "main": "dist/main.js",
   "browser": "public/js/tales.js",
   "scripts": {
     "build": "rollup -c",

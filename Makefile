@@ -40,9 +40,7 @@ build-go: ${BINARIES}
 bin/%: cmd/**/*.go pkg/**/*.go
 	go build $(GOFLAGS) -o $@ $(PKG)/cmd/$(subst $(SUFFIX),,$(@:bin/%=%))
 
-build-js: public/js/tales.js
-
-public/js/tales.js: js/**/*.js
+build-js:
 	npm run build
 
 coverage: coverage-go coverage-js

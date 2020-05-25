@@ -15,11 +15,28 @@ export default [
       }
     ],
     plugins: [
-        resolve({
-          dedupe: ["flyps"]
-        }),
-        commonjs(),
-        babel({ exclude: "node_modules/**" })
+      resolve({
+        dedupe: ["flyps"]
+      }),
+      commonjs(),
+      babel({ exclude: "node_modules/**" })
+    ],
+  },
+  {
+    input: "app/main.js",
+    output: [
+      {
+        file: "dist/main.js",
+        format: "cjs",
+        name: "tales-desktop",
+        sourcemap: true,
+      }
+    ],
+    external: ["child_process", "electron", "path"],
+    plugins: [
+      resolve(),
+      commonjs(),
+      babel({ exclude: "node_modules/**" })
     ],
   },
 ];
