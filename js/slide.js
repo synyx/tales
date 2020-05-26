@@ -38,7 +38,8 @@ function arraySwap(array, idx1, idx2) {
 
 export function swap(db, idx1, idx2) {
   let tale = findTale([db.tales, db.activeTale]);
-  let count = tale.slides.length - 1;
+  let slides = tale.slides || [];
+  let count = slides.length - 1;
   if (0 <= idx1 && idx1 <= count && 0 <= idx2 && idx2 <= count) {
     return {
       db: { ...db, editor: { ...db.editor, activeSlide: idx2 } },
@@ -78,7 +79,8 @@ export function flyToNext(db) {
 
 export function focusCurrent(db) {
   let tale = findTale([db.tales, db.activeTale]);
-  let slide = tale.slides[db.editor.activeSlide];
+  let slides = tale.slides || [];
+  let slide = slides[db.editor.activeSlide];
   return {
     trigger: ["camera/fit-rect", slide.rect],
   };
@@ -86,7 +88,8 @@ export function focusCurrent(db) {
 
 export function flyToCurrent(db) {
   let tale = findTale([db.tales, db.activeTale]);
-  let slide = tale.slides[db.editor.activeSlide];
+  let slides = tale.slides || [];
+  let slide = slides[db.editor.activeSlide];
   return {
     trigger: ["camera/fly-to-rect", slide.rect],
   };
@@ -94,7 +97,7 @@ export function flyToCurrent(db) {
 
 export function add(db, slide) {
   let tale = findTale([db.tales, db.activeTale]);
-  let slides = [...tale.slides, slide];
+  let slides = [...(tale.slides || []), slide];
   return {
     trigger: ["projects/update", { ...tale, slides }],
   };
@@ -102,7 +105,7 @@ export function add(db, slide) {
 
 export function update(db, slide) {
   let tale = findTale([db.tales, db.activeTale]);
-  let slides = [...tale.slides];
+  let slides = [...(tale.slides || [])];
   slides[db.editor.activeSlide] = slide;
   return {
     trigger: ["projects/update", { ...tale, slides }],
@@ -111,7 +114,7 @@ export function update(db, slide) {
 
 export function deleteCurrent(db) {
   let tale = findTale([db.tales, db.activeTale]);
-  let slides = [...tale.slides];
+  let slides = [...(tale.slides || [])];
   slides.splice(db.editor.activeSlide, 1);
   return {
     trigger: ["projects/update", { ...tale, slides }],
