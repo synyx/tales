@@ -8,7 +8,7 @@
   "postinstall": "electron-builder install-app-deps",
   "scripts": {
     "build": "rollup -c",
-    "dist": "electron-builder",
+    "dist": "electron-builder --publish=never",
     "format": "prettier --write 'js/**/*.js'",
     "lint": "eslint js",
     "pack": "electron-builder --dir",
