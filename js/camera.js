@@ -19,7 +19,7 @@ export function getScale(db) {
 export function getCameraMatrix(position, scale) {
   let m = mat4.create();
   mat4.translate(m, m, position);
-  mat4.scale(m, m, [1 / scale, 1 / scale, 1]);
+  mat4.scale(m, m, [scale, scale, 1]);
   return m;
 }
 
@@ -82,7 +82,7 @@ function setScale(db, scale, anchor) {
     let scaledDelta = vec3.scale(
       vec3.create(),
       vec3.sub(vec3.create(), db.camera.position, anchor),
-      db.camera.scale / scale,
+      scale / db.camera.scale,
     );
     position = vec3.add(vec3.create(), anchor, scaledDelta);
   }
@@ -98,11 +98,11 @@ function setScale(db, scale, anchor) {
 }
 
 export function zoomIn(db, anchor, factor = 1) {
-  return setScale(db, db.camera.scale * (1 + factor), anchor);
+  return setScale(db, db.camera.scale / (1 + factor), anchor);
 }
 
 export function zoomOut(db, anchor, factor = 1) {
-  return setScale(db, db.camera.scale / (1 + factor), anchor);
+  return setScale(db, db.camera.scale * (1 + factor), anchor);
 }
 
 export function moveTo(db, position) {
@@ -117,14 +117,13 @@ export function moveBy(db, delta) {
 export function fitRect(db, rect, [_vx, _vy, vw, vh]) {
   let position = [rect.x + rect.width / 2, rect.y + rect.height / 2, 0];
   let scale =
-    2 /
     Math.max(
       ...vec3.transformMat4(
         vec3.create(),
         [rect.width, rect.height, 0],
         getProjectionMatrix(vw / vh),
       ),
-    );
+    ) / 2;
 
   return { ...db, camera: { ...db.camera, position, scale } };
 }
