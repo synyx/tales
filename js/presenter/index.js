@@ -1,4 +1,4 @@
-import { connect, trigger, withInputSignals } from "flyps";
+import { trigger } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 
 import { viewport } from "../viewport";
@@ -12,8 +12,8 @@ export function notFound() {
 }
 
 export let presenter = withInputSignals(
-  () => [connect("matrix/mvp"), connect("matrix/viewport")],
-  ([mvpMatrix, viewportMatrix], tale) => {
+  () => connect("matrix/transform"),
+  (transformMatrix, tale) => {
     if (!tale) {
       return notFound();
     }
@@ -29,8 +29,7 @@ export let presenter = withInputSignals(
       viewport(
         tale.dimensions.width,
         tale.dimensions.height,
-        viewportMatrix,
-        mvpMatrix,
+        transformMatrix,
         {
           hook: {
             insert: vnode => {

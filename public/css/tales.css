@@ -315,7 +315,9 @@ input:focus {
 
 .viewport {}
 .viewport > .scene {}
-.viewport > .scene > .world {}
+.viewport > .scene > .world {
+  position: relative;
+}
 .viewport > .scene > .world > * {
   position: absolute;
   width: 100%;

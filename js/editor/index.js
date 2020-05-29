@@ -222,22 +222,13 @@ function slideBounds(rect, scale, index, options = {}) {
   );
 }
 
-let navigator = (
-  tale,
-  mvpMatrix,
-  viewportMatrix,
-  cameraPosition,
-  activeSlide,
-) => {
+let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
   let elm,
     projectFn = vec =>
       vec3.transformMat4(
         vec3.create(),
         vec,
-        mat4.invert(
-          mat4.create(),
-          mat4.mul(mat4.create(), viewportMatrix, mvpMatrix),
-        ),
+        mat4.invert(mat4.create(), transformMatrix),
       ),
     scale = Math.max(
       ...vec3.div(
@@ -309,8 +300,7 @@ let navigator = (
   return viewport(
     tale.dimensions.width,
     tale.dimensions.height,
-    viewportMatrix,
-    mvpMatrix,
+    transformMatrix,
     {
       style: {
         cursor: isMoving.value() ? "grabbing" : "grab",
@@ -360,12 +350,11 @@ let navigator = (
 
 export let editor = withInputSignals(
   () => [
-    connect("matrix/mvp"),
-    connect("matrix/viewport"),
+    connect("matrix/transform"),
     connect("camera/position"),
     connect("editor/active-slide"),
   ],
-  ([mvpMatrix, viewportMatrix, cameraPosition, activeSlide], tale) => {
+  ([transformMatrix, cameraPosition, activeSlide], tale) => {
     if (!tale) {
       return notFound();
     }
@@ -386,13 +375,7 @@ export let editor = withInputSignals(
         ]),
       ]),
       tale["file-path"]
-        ? navigator(
-            tale,
-            mvpMatrix,
-            viewportMatrix,
-            cameraPosition,
-            activeSlide,
-          )
+        ? navigator(tale, transformMatrix, cameraPosition, activeSlide)
         : uploader(tale),
       h("footer", preview(tale)),
     ]);

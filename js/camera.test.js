@@ -8,6 +8,7 @@ import {
   getModelViewMatrix,
   getProjectionMatrix,
   getMVPMatrix,
+  getTransformMatrix,
   moveBy,
   moveTo,
   zoomIn,
@@ -36,7 +37,7 @@ describe("camera", () => {
     );
   });
   it("gets model-view matrix", () => {
-    let mv = getModelViewMatrix(getCameraMatrix([1, 2, 3], 4));
+    let mv = getModelViewMatrix([1, 2, 3], 4);
     expect(mv).toEqualMat4(
       // prettier-ignore
       [
@@ -60,9 +61,7 @@ describe("camera", () => {
     );
   });
   it("gets model-view-projection matrix", () => {
-    let mv = getModelViewMatrix(getCameraMatrix([1, 2, 3], 4));
-    let proj = getProjectionMatrix(1);
-    let mvp = getMVPMatrix(mv, proj);
+    let mvp = getMVPMatrix([1, 2, 3], 4, 1);
     expect(mvp).toEqualMat4(
       // prettier-ignore
       [
@@ -70,6 +69,18 @@ describe("camera", () => {
          0   ,  0.25,  0, 0,
          0   ,  0   , -1, 0,
         -0.25, -0.5 ,  3, 1,
+      ],
+    );
+  });
+  it("gets transform matrix", () => {
+    let transform = getTransformMatrix([1, 2, 3], 4, 400, 800);
+    expect(transform).toEqualMat4(
+      // prettier-ignore
+      [
+         100,   0,  0, 0,
+           0, 100,  0, 0,
+           0,   0, -1, 0,
+         100, 200,  3, 1,
       ],
     );
   });

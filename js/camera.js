@@ -2,6 +2,7 @@ import { connector, connect, handler, withInputSignals } from "flyps";
 import { mat4, vec3 } from "gl-matrix";
 
 import { dbAnimator } from "./animation";
+import { getViewportMatrix } from "./viewport";
 
 /**
  * connectors
@@ -22,16 +23,23 @@ export function getCameraMatrix(position, scale) {
   return m;
 }
 
-export function getModelViewMatrix(cameraMatrix) {
-  return mat4.invert(mat4.create(), cameraMatrix);
+export function getModelViewMatrix(position, scale) {
+  let m = getCameraMatrix(position, scale);
+  return mat4.invert(m, m);
 }
 
 export function getProjectionMatrix(aspect) {
   return mat4.ortho(mat4.create(), -aspect, aspect, -1, 1, -1, 1);
 }
 
-export function getMVPMatrix(modelViewMatrix, projectionMatrix) {
-  return mat4.multiply(mat4.create(), projectionMatrix, modelViewMatrix);
+export function getMVPMatrix(position, scale, aspect) {
+  let m = getProjectionMatrix(aspect);
+  return mat4.multiply(m, m, getModelViewMatrix(position, scale));
+}
+
+export function getTransformMatrix(position, scale, width, height) {
+  let m = getViewportMatrix([0, 0, width, height]);
+  return mat4.multiply(m, m, getMVPMatrix(position, scale, width / height));
 }
 
 connector(
@@ -51,34 +59,15 @@ connector(
 );
 
 connector(
-  "matrix/camera",
+  "matrix/transform",
   withInputSignals(
-    () => [connect("camera/position"), connect("camera/scale")],
-    ([position, scale]) => getCameraMatrix(position, scale),
-  ),
-);
-
-connector(
-  "matrix/modelview",
-  withInputSignals(
-    () => connect("matrix/camera"),
-    camera => getModelViewMatrix(camera),
-  ),
-);
-
-connector(
-  "matrix/projection",
-  withInputSignals(
-    () => connect("viewport/aspect"),
-    aspect => getProjectionMatrix(aspect),
-  ),
-);
-
-connector(
-  "matrix/mvp",
-  withInputSignals(
-    () => [connect("matrix/modelview"), connect("matrix/projection")],
-    ([modelview, projection]) => getMVPMatrix(modelview, projection),
+    () => [
+      connect("camera/position"),
+      connect("camera/scale"),
+      connect("viewport/rect"),
+    ],
+    ([position, scale, [_x, _y, w, h]]) =>
+      getTransformMatrix(position, scale, w, h),
   ),
 );
 

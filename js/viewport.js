@@ -41,14 +41,6 @@ connector(
   ),
 );
 
-connector(
-  "matrix/viewport",
-  withInputSignals(
-    () => connect("viewport/rect"),
-    rect => getViewportMatrix(rect),
-  ),
-);
-
 /**
  * handlers
  */
@@ -74,8 +66,7 @@ dbHandler("viewport/set-rect", (db, id, rect) => setViewportRect(db, rect));
 export function viewport(
   worldWidth,
   worldHeight,
-  viewportMatrix,
-  mvpMatrix,
+  transformMatrix,
   data = {},
   children = [],
 ) {
@@ -95,15 +86,13 @@ export function viewport(
       {
         style: {
           "transform-origin": "0 0",
-          transform: matrix3d(viewportMatrix),
+          transform: matrix3d(transformMatrix),
         },
       },
       h(
         "div.world",
         {
           style: {
-            "transform-origin": "0 0",
-            transform: matrix3d(mvpMatrix),
             width: `${worldWidth}px`,
             height: `${worldHeight}px`,
           },
