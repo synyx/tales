@@ -25,7 +25,7 @@ describe("camera", () => {
     expect(scale).toBe(4);
   });
   it("gets camera matrix", () => {
-    let camera = getCameraMatrix([1, 2, 3], 4);
+    let camera = getCameraMatrix([1, 2, 3], 0.25);
     expect(camera).toEqualMat4(
       // prettier-ignore
       [
@@ -37,7 +37,7 @@ describe("camera", () => {
     );
   });
   it("gets model-view matrix", () => {
-    let mv = getModelViewMatrix([1, 2, 3], 4);
+    let mv = getModelViewMatrix([1, 2, 3], 0.25);
     expect(mv).toEqualMat4(
       // prettier-ignore
       [
@@ -61,7 +61,7 @@ describe("camera", () => {
     );
   });
   it("gets model-view-projection matrix", () => {
-    let mvp = getMVPMatrix([1, 2, 3], 4, 1);
+    let mvp = getMVPMatrix([1, 2, 3], 0.25, 1);
     expect(mvp).toEqualMat4(
       // prettier-ignore
       [
@@ -73,7 +73,7 @@ describe("camera", () => {
     );
   });
   it("gets transform matrix", () => {
-    let transform = getTransformMatrix([1, 2, 3], 4, 400, 800);
+    let transform = getTransformMatrix([1, 2, 3], 0.25, 400, 800);
     expect(transform).toEqualMat4(
       // prettier-ignore
       [
@@ -94,7 +94,7 @@ describe("camera", () => {
       80,
       0,
     ]);
-    expect(db.camera.position).toEqualVec3([-20, -40, 0]);
+    expect(db.camera.position).toEqualVec3([25, 50, 0]);
     expect(db.camera.scale).toBe(2);
   });
   it("zooms in with anchor at current position", () => {
@@ -124,7 +124,7 @@ describe("camera", () => {
       80,
       0,
     ]);
-    expect(db.camera.position).toEqualVec3([25, 50, 0]);
+    expect(db.camera.position).toEqualVec3([-20, -40, 0]);
     expect(db.camera.scale).toBe(0.5);
   });
   it("zooms out with anchor at current position", () => {
@@ -159,7 +159,7 @@ describe("camera", () => {
       [0, 0, 400, 200],
     );
     expect(db.camera.position).toEqualVec3([125, 100, 0]);
-    expect(db.camera.scale).toBe(50);
+    expect(db.camera.scale).toBe(0.02);
   });
   it("fits portait rect", () => {
     let db = fitRect(
@@ -168,7 +168,7 @@ describe("camera", () => {
       [0, 0, 400, 200],
     );
     expect(db.camera.position).toEqualVec3([75, 150, 0]);
-    expect(db.camera.scale).toBe(100);
+    expect(db.camera.scale).toBe(0.01);
   });
   it("flies to rect", () => {
     let effects = flyToRect(
