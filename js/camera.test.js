@@ -180,9 +180,9 @@ describe("camera", () => {
     expect(animationId).toBe("camera");
     expect(animationFn).toEqual(expect.any(Function));
     expect(animationFn(1000)).toBeTruthy();
-    expect(animationFn(1150)).toBeTruthy();
-    expect(animationFn(1299)).toBeTruthy();
-    expect(animationFn(1300)).toBeFalsy();
+    expect(animationFn(1250)).toBeTruthy();
+    expect(animationFn(1499)).toBeTruthy();
+    expect(animationFn(1500)).toBeFalsy();
   });
 });
 

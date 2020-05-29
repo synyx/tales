@@ -152,11 +152,9 @@ export function cameraAnimator(source, target) {
 
 export function flyToRect(db, rect, viewport) {
   let target = fitRect(db, rect, viewport);
-  let distance = vec3.dist(db.camera.position, target.camera.position);
-  let duration = distance * 2;
   let fn = cameraAnimator(db.camera, target.camera);
   return {
-    animation: ["camera", dbAnimator(fn, duration)],
+    animation: ["camera", dbAnimator(fn, 500)],
   };
 }
 
