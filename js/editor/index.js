@@ -230,13 +230,7 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
         vec,
         mat4.invert(mat4.create(), transformMatrix),
       ),
-    scale = Math.max(
-      ...vec3.div(
-        vec3.create(),
-        [1, 1, 1],
-        vec3.sub(vec3.create(), projectFn([1, 1, 1]), projectFn([0, 0, 0])),
-      ),
-    );
+    scale = Math.max(...mat4.getScaling(vec3.create(), transformMatrix));
 
   let onWindowResize = () => {
     let { left, top, width, height } = elm.getBoundingClientRect();
@@ -300,7 +294,6 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
   return viewport(
     tale.dimensions.width,
     tale.dimensions.height,
-    transformMatrix,
     {
       style: {
         cursor: isMoving.value() ? "grabbing" : "grab",

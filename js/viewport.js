@@ -63,13 +63,8 @@ dbHandler("viewport/set-rect", (db, id, rect) => setViewportRect(db, rect));
  * views
  */
 
-export function viewport(
-  worldWidth,
-  worldHeight,
-  transformMatrix,
-  data = {},
-  children = [],
-) {
+export function viewport(worldWidth, worldHeight, data = {}, children = []) {
+  let disconnect;
   return h(
     "div.viewport",
     {
@@ -86,7 +81,14 @@ export function viewport(
       {
         style: {
           "transform-origin": "0 0",
-          transform: matrix3d(transformMatrix),
+        },
+        hook: {
+          insert: vnode => {
+            disconnect = connect("matrix/transform").connect(m => {
+              vnode.elm.style.transform = matrix3d(m.value());
+            });
+          },
+          remove: () => disconnect && disconnect(),
         },
       },
       h(
