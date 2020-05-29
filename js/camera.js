@@ -145,12 +145,10 @@ export function cameraAnimator(source, target) {
   let s1 = source.scale;
   let s2 = target.scale;
   return (db, progress) => {
-    let [x, y, s] = vec3.lerp(
-      vec3.create(),
-      [x1, y1, s1],
-      [x2, y2, s2],
-      progress,
-    );
+    let [x, y, s] =
+      progress >= 1.0
+        ? [x2, y2, s2]
+        : vec3.lerp(vec3.create(), [x1, y1, s1], [x2, y2, s2], progress);
     return {
       ...db,
       camera: {
