@@ -48,6 +48,7 @@ function cord(ev) {
 
 handler("key-pressed", ({ db }, eventId, ev) => {
   let presenting = db.activePage === "presenter";
+  let editing = db.activePage === "editor";
   let key = cord(ev);
   switch (key) {
     case "Enter":
@@ -89,6 +90,20 @@ handler("key-pressed", ({ db }, eventId, ev) => {
       ev.preventDefault();
       ev.stopPropagation();
       trigger(presenting ? "slide/fly-to-next" : "slide/activate-next");
+      break;
+    case "Escape":
+      if (presenting) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        trigger("router/navigate", `#editor/${db.activeTale}`);
+        return;
+      }
+      if (editing) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        trigger("router/navigate", "#");
+        return;
+      }
       break;
   }
 });
