@@ -27,6 +27,14 @@ describe("slide", () => {
     });
     expect(db.editor.activeSlide).toBe(0);
   });
+  it("activates last slide on prev with no activated slide", () => {
+    let db = activatePrev({
+      tales: [{ slug: "foo", slides: [{}, {}, {}] }],
+      activeTale: "foo",
+      editor: {},
+    });
+    expect(db.editor.activeSlide).toBe(2);
+  });
   it("activates last after first slide", () => {
     let db = activatePrev({
       tales: [{ slug: "foo", slides: [{}, {}, {}] }],
@@ -42,6 +50,14 @@ describe("slide", () => {
       editor: { activeSlide: 1 },
     });
     expect(db.editor.activeSlide).toBe(2);
+  });
+  it("activates first slide on next with no activated slide", () => {
+    let db = activateNext({
+      tales: [{ slug: "foo", slides: [{}, {}, {}] }],
+      activeTale: "foo",
+      editor: {},
+    });
+    expect(db.editor.activeSlide).toBe(0);
   });
   it("activates first after last slide", () => {
     let db = activateNext({

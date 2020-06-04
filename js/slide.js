@@ -3,11 +3,13 @@ import { handler } from "flyps";
 import { findTale } from "./project";
 
 function prevSlide(slides, index) {
-  return ((index || 0) + slides.length - 1) % slides.length;
+  index = Number.isInteger(index) ? index : 0;
+  return (index + slides.length - 1) % slides.length;
 }
 
 function nextSlide(slides, index) {
-  return ((index || 0) + slides.length + 1) % slides.length;
+  index = Number.isInteger(index) ? index : slides.length - 1;
+  return (index + slides.length + 1) % slides.length;
 }
 
 /**
