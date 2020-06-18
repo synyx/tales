@@ -1,6 +1,6 @@
 {
   "name": "tales",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "description": "synyx presentation style for everyone",
   "author": "synyx",
   "main": "dist/main.js",
