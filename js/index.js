@@ -163,9 +163,11 @@ let home = () => {
     switch (e.which) {
       case 13: // Enter
         save();
+        e.stopPropagation();
         break;
       case 27: // Escape
         clear();
+        e.stopPropagation();
         break;
     }
   };
