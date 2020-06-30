@@ -20,6 +20,7 @@ let onNavigate = url => {
     case "#presenter":
       trigger("page/activate", "presenter");
       trigger("projects/activate", args[0]);
+      trigger("viewport/fullscreen", true);
       break;
     default:
       trigger("page/activate", "home");

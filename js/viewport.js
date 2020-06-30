@@ -1,8 +1,27 @@
-import { db, connector, connect, handler, withInputSignals } from "flyps";
+import {
+  db,
+  connector,
+  connect,
+  effector,
+  handler,
+  withInputSignals,
+} from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { mat4 } from "gl-matrix";
 
 let matrix3d = mat => `matrix3d(${mat.join(",")})`;
+
+/**
+ * effectors
+ */
+
+effector("fullscreen", fullscreen => {
+  if (fullscreen) {
+    document.documentElement.requestFullscreen({ navigationUI: "hide" });
+  } else {
+    document.exitFullscreen();
+  }
+});
 
 /**
  * connectors
@@ -58,6 +77,10 @@ function dbHandler(eventId, handlerFn, interceptors) {
 }
 
 dbHandler("viewport/set-rect", (db, id, rect) => setViewportRect(db, rect));
+
+handler("viewport/fullscreen", (_causes, _id, fullscreen) => ({
+  fullscreen: fullscreen,
+}));
 
 /**
  * views
