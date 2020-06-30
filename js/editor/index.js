@@ -1,4 +1,4 @@
-import { connect, signal, trigger, withInputSignals, connector } from "flyps";
+import { db, connect, handler, signal, trigger, withInputSignals, connector } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
@@ -111,7 +111,7 @@ export function onMouseDown(ev, cameraPosition, projectFn) {
 connector(
   "editor/active-slide",
   withInputSignals(
-    () => connect("db"),
+    () => db,
     db => db.editor.activeSlide,
   ),
 );

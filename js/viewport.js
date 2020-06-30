@@ -1,4 +1,4 @@
-import { connector, connect, handler, withInputSignals } from "flyps";
+import { db, connector, connect, handler, withInputSignals } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { mat4 } from "gl-matrix";
 
@@ -28,7 +28,7 @@ export function getViewportMatrix([_x, _y, w, h]) {
 connector(
   "viewport/rect",
   withInputSignals(
-    () => connect("db"),
+    () => db,
     db => getViewportRect(db),
   ),
 );

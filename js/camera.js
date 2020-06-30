@@ -1,4 +1,4 @@
-import { connector, connect, handler, withInputSignals } from "flyps";
+import { db, connector, connect, handler, withInputSignals } from "flyps";
 import { mat4, vec3 } from "gl-matrix";
 
 import { dbAnimator } from "./animation";
@@ -45,7 +45,7 @@ export function getTransformMatrix(position, scale, width, height) {
 connector(
   "camera/position",
   withInputSignals(
-    () => connect("db"),
+    () => db,
     db => getPosition(db),
   ),
 );
@@ -53,7 +53,7 @@ connector(
 connector(
   "camera/scale",
   withInputSignals(
-    () => connect("db"),
+    () => db,
     db => getScale(db),
   ),
 );
