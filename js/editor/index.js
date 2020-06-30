@@ -1,4 +1,12 @@
-import { db, connect, handler, signal, trigger, withInputSignals, connector } from "flyps";
+import {
+  db,
+  connect,
+  handler,
+  signal,
+  trigger,
+  withInputSignals,
+  connector,
+} from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
