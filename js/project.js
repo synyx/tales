@@ -1,4 +1,11 @@
-import { db, handler, connect, connector, withInputSignals } from "flyps";
+import {
+  db,
+  handler,
+  connect,
+  connector,
+  trigger,
+  withInputSignals,
+} from "flyps";
 
 export function findTale([tales, slug]) {
   return tales.find(tale => tale.slug === slug);
@@ -8,7 +15,7 @@ connector(
   "tales",
   withInputSignals(
     () => db,
-    db => db.tales,
+    db => db.tales || [],
   ),
 );
 
@@ -24,6 +31,9 @@ connector(
   "tale",
   withInputSignals(() => [connect("tales"), connect("tale-slug")], findTale),
 );
+
+// triggers an event whenever the tale changes
+connect("tale").connect(tale => trigger("project/loaded", tale.value()));
 
 handler("projects/get-all", () => ({
   xhr: {
@@ -95,3 +105,15 @@ handler("projects/request-error", response => {
 handler("projects/activate", ({ db }, eventId, slug) => ({
   db: { ...db, activeTale: slug },
 }));
+
+handler("project/loaded", ({ db }, eventId, tale) => {
+  let effects = {
+    db: { ...db, editor: { ...db.editor, activeSlide: undefined } },
+  };
+  if (tale.dimensions) {
+    let { width, height } = tale.dimensions;
+    let rect = { x: 0, y: 0, width: width, height: height };
+    effects.trigger = ["camera/fit-rect", rect];
+  }
+  return effects;
+});
