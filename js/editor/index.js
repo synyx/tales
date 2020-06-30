@@ -1,7 +1,6 @@
 import {
   db,
   connect,
-  handler,
   signal,
   trigger,
   withInputSignals,
