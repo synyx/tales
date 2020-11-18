@@ -15,6 +15,11 @@ import { viewport } from "../viewport";
 import { preview } from "./preview";
 import { uploader } from "./upload";
 
+/**
+ * The speed in which the editor zoom level changes when the user zooms in/out.
+ */
+const ZOOM_SPEED = 0.5;
+
 let isMoving = signal(false);
 let drawRect = signal(null);
 
@@ -87,8 +92,11 @@ function resizeRect(rect, position, [dx, dy, _dz]) {
 
 export function onWheel(ev, projectFn) {
   let anchor = projectFn(vec3.fromValues(ev.clientX, ev.clientY, 0));
-  let delta = Math.abs(ev.deltaY / 3);
-  trigger(ev.deltaY < 0 ? "camera/zoom-in" : "camera/zoom-out", anchor, delta);
+  trigger(
+    ev.deltaY < 0 ? "camera/zoom-in" : "camera/zoom-out",
+    anchor,
+    ZOOM_SPEED,
+  );
 }
 
 export function onMouseDown(ev, cameraPosition, projectFn) {
