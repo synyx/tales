@@ -1,5 +1,7 @@
 :root {
   --primary: #365256;
+  --secondary: #B05243;
+  --secondary-dark: #99473A;
   --bg: #c0cbcc;
   --bg-1: #fff;
   --bg-2: #dee4e4;
@@ -7,16 +9,28 @@
   --text-light: #07272b;
   --text-medium: #5c6465;
   --text-dark: #eee;
-  --shadow-dark: #0002;
-  --highlight: #da2511;
+  --shadow-medium: #0002;
+  --shadow-strong: #0003;
 
-  --header-bg: var(--bg-1);
+  --highlight: var(--secondary);
+  --sidebar-bg: var(--bg-2);
+  --editor-bg: var(--bg-1);
   --input: var(--bg-2);
   --input-focus: var(--bg-1);
+  --btn-secondary: var(--secondary);
+  --btn-secondary-hover: var(--secondary-dark);
+  --btn-secondary-text: var(--text-dark);
+  --border-strong: var(--bg-3);
+  --border-medium: var(--bg-2);
+  --sidebar-button-hover: var(--bg-3);
 
+  --font-size-base: 16px;
   --font-size-small: 0.9em;
   --font-size-medium: 1.1em;
+  --line-height: 28px;
   --transition-fast: 200ms;
+
+  --tale-preview-width: 200px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +52,10 @@
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
 html {
   height: 100%;
 }
@@ -46,6 +64,8 @@ body {
   background-color: var(--bg);
   color: var(--text-light);
   font-family: sans-serif;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
   height: 100%;
 }
 
@@ -82,7 +102,33 @@ input {
 
 input:focus {
   background-color: var(--input-focus);
-  box-shadow: 0 2px 4px var(--shadow-dark);
+  box-shadow: 0 2px 4px var(--shadow-medium);
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--btn-secondary);
+  border-radius: 0.5rem;
+  padding: 0.25rem 1rem;
+  text-decoration: none;
+  color: var(--btn-secondary-text);
+  transition: background-color var(--transition-fast);
+}
+.button:hover {
+  background-color: var(--btn-secondary-hover);
+}
+
+.button .icon {
+  height: 1.25rem;
+}
+.button .icon.--right {
+  margin-left: 0.5rem;
+}
+.button .icon svg {
+  height: 100%;
+  stroke: var(--btn-secondary-text);
 }
 
 .tale-list {
@@ -95,7 +141,7 @@ input:focus {
   overflow: hidden;
   background-color: var(--bg-1);
   border-radius: 0.25rem;
-  box-shadow: 0 2px 4px var(--shadow-dark);
+  box-shadow: 0 2px 4px var(--shadow-medium);
 }
 
 @media (min-width: 768px) {
@@ -169,87 +215,84 @@ input:focus {
 
 #editor {
   height: 100%;
+  background-color: var(--editor-bg);
 }
 
-#editor > header {
-  background-color: var(--header-bg);
-  color: var(--text-light);
-  font-size: var(--font-size-medium);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.2rem 1rem;
-  position: fixed;
-  z-index: 10;
+#editor .sidebar {
+  position: absolute;
   left: 0;
-  right: 0;
-  box-shadow: 0 2px 4px var(--shadow-dark);
-}
-
-#editor > header > .left {
+  top: 0;
+  bottom: 0;
   display: flex;
-  align-items: center;
-  justify-content: left;
+  flex-direction: column;
+  max-width: 30vw;
+  height: 100%;
+  z-index: 10;
+  background-color: var(--sidebar-bg);
+  border-right: solid 2px var(--border-medium);
+  box-shadow: 0 1px 12px var(--shadow-strong);
 }
 
-#editor > header > .right {
+#editor .sidebar-header {
   display: flex;
-  align-items: center;
-  justify-content: right;
+  flex-direction: column;
+  align-items: start;
+  margin: 1rem 1rem 0;
 }
 
-#editor > header h2 {
-  margin: 0;
-  color: var(--text-medium);
-  font-size: 1rem;
-  font-weight: bold;
+#editor .sidebar-title {
+  justify-self: flex-start;
+  max-width: var(--tale-preview-width);
+  height: var(--line-height);
+  margin: 0 0 1rem;
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-medium);
+  font-weight: normal;
 }
 
-#editor > header .icon {
+#editor .sidebar-tell {
+  width: 100%;
+}
+
+#editor .sidebar-footer {
+  display: flex;
+  padding: 0.5rem 0;
+  border-top: solid 1px var(--border-medium);
+  margin: 0 1rem;
+}
+
+#editor .sidebar-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
+  width: 2.5rem;
+  height: 2.5rem;
   padding: 0.5rem;
   border-radius: 50%;
   text-decoration: none;
   transition: background-color var(--transition-fast);
 }
 
-#editor > header > .left .icon {
-  margin-right: 0.5rem;
+#editor .sidebar-icon:hover {
+  background-color: var(--sidebar-button-hover);
 }
 
-#editor > header > .right .icon {
-  margin-left: 0.5rem;
-}
-
-#editor > header .icon > svg {
+#editor .sidebar-icon > svg {
   height: 100%;
   stroke: var(--text-light);
-}
-
-#editor > header .icon:hover {
-  background-color: var(--bg-3);
-}
-
-#editor > footer {
-  background-color: var(--header-bg);
-  position: fixed;
-  z-index: 10;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  box-shadow: 0 -2px 4px var(--shadow-dark);
+  fill: var(--text-light);
 }
 
 #editor .previews {
+  flex: 1;
   display: flex;
-  flex-direction: row;
-  margin: 0;
-  padding: 0 0.5rem;
-  overflow-x: auto;
+  flex-direction: column;
+  margin: 1rem 0;
+  padding: 0 1rem;
+  overflow-y: auto;
   list-style: none;
 }
 
@@ -257,9 +300,14 @@ input:focus {
   position: relative;
   overflow: hidden;
   flex: 0 0 auto;
-  margin: 5px;
+  margin: 2px 0 1rem;
   cursor: pointer;
   outline: solid 1px var(--primary);
+}
+
+#editor .preview:hover {
+  outline: solid 2px var(--highlight);
+  transition: outline-color 0.3s;
 }
 
 #editor .preview.active {
@@ -329,6 +377,15 @@ svg.chevron {
   transition: transform var(--transition-fast);
   transform-origin: center;
 }
-.icon:hover > svg.chevron {
+.icon:hover > svg.chevron,
+.button:hover .icon > svg.chevron {
   transform: scaleY(0.8);
+}
+
+svg.home .roof {
+  transition: transform var(--transition-fast);
+}
+.icon:hover > svg.home .roof,
+.button:hover .icon > svg.home .roof {
+  transform: translateY(-1px);
 }

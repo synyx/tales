@@ -9,7 +9,7 @@ import {
 import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
-import { chevronLeft, chevronRight } from "../icons";
+import { chevronRight, home } from "../icons";
 import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
 import { preview } from "./preview";
@@ -368,24 +368,32 @@ export let editor = withInputSignals(
     }
 
     return h("div#editor", [
-      h("header", [
-        h("section.left", [
-          h("a.icon", { attrs: { href: "#" } }, chevronLeft()),
-          h("h2", tale.name),
-        ]),
-        h("section.right", [
-          h("h2", "Tell"),
+      h("div.sidebar", [
+        h("header.sidebar-header", [
+          h("h2.sidebar-title", tale.name),
           h(
-            "a.icon",
-            { attrs: { href: `#presenter/${tale.slug}/` } },
-            chevronRight(),
+            "a.button.sidebar-tell",
+            {
+              attrs: {
+                href: `#presenter/${tale.slug}/`,
+                title: "Start the presentation",
+              },
+            },
+            ["Tell", h("span.icon.--right", chevronRight())],
+          ),
+        ]),
+        preview(tale),
+        h("footer.sidebar-footer", [
+          h(
+            "a.icon.sidebar-icon",
+            { attrs: { href: "#", title: "Go back to the home page" } },
+            home(),
           ),
         ]),
       ]),
       tale["file-path"]
         ? navigator(tale, transformMatrix, cameraPosition, activeSlide)
         : uploader(tale),
-      h("footer", preview(tale)),
     ]);
   },
 );
