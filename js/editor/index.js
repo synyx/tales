@@ -14,6 +14,7 @@ import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
 import { preview } from "./preview";
 import { uploader } from "./upload";
+import { slideBounds } from "./slide-bounds";
 
 /**
  * The speed in which the editor zoom level changes when the user zooms in/out.
@@ -140,101 +141,13 @@ export function notFound() {
 }
 
 function poster(url) {
-  return h("img", {
+  return h("img.poster", {
     attrs: { src: url },
   });
 }
 
 function layer(data, children) {
   return h("svg.layer", data, children);
-}
-
-// prettier-ignore
-let slideMarkers = [
-  ["top-left",     { x: 0, y: 0, cursor: "nw-resize" }],
-  ["top",          { x: 1, y: 0, cursor: "n-resize" }],
-  ["top-right",    { x: 2, y: 0, cursor: "ne-resize" }],
-  ["right",        { x: 2, y: 1, cursor: "e-resize" }],
-  ["bottom-right", { x: 2, y: 2, cursor: "se-resize" }],
-  ["bottom",       { x: 1, y: 2, cursor: "s-resize" }],
-  ["bottom-left",  { x: 0, y: 2, cursor: "sw-resize" }],
-  ["left",         { x: 0, y: 1, cursor: "w-resize" }],
-];
-
-function slideBounds(rect, scale, index, options = {}) {
-  let { active, onMove, onMoveEnd, onResize, onResizeEnd } = options;
-  let { x, y, width, height } = rect;
-  let markerWidth = width / 3;
-  let markerHeight = height / 3;
-  let strokeWidth = 2.5 / scale;
-
-  let startMove = ev => {
-    dragging(ev, onMove, onMoveEnd);
-    ev.stopPropagation();
-  };
-  let startResize = (ev, position) => {
-    dragging(
-      ev,
-      (ev, ...args) => onResize(ev, position, ...args),
-      (ev, ...args) => onResizeEnd(ev, position, ...args),
-    );
-    ev.stopPropagation();
-  };
-
-  let markers = active
-    ? [
-        h("rect", {
-          attrs: {
-            x: x + markerWidth,
-            y: y + markerHeight,
-            width: markerWidth,
-            height: markerHeight,
-            "fill-opacity": 0.0,
-            cursor: "move",
-          },
-          on: {
-            mousedown: ev => startMove(ev),
-          },
-        }),
-        ...slideMarkers.map(([position, options]) =>
-          h("rect", {
-            id: position,
-            attrs: {
-              x: x + options.x * markerWidth,
-              y: y + options.y * markerHeight,
-              width: markerWidth,
-              height: markerHeight,
-              "fill-opacity": 0.0,
-              cursor: options.cursor,
-            },
-            on: {
-              mousedown: ev => startResize(ev, position),
-            },
-          }),
-        ),
-      ]
-    : [];
-
-  return h(
-    "g.slide-bounds",
-    {
-      on: { click: () => trigger("slide/activate", index) },
-      class: { active: active },
-    },
-    [
-      h("rect.frame", {
-        attrs: {
-          x: x,
-          y: y,
-          width: width,
-          height: height,
-          "stroke-width": strokeWidth,
-          "fill-opacity": 0.2,
-        },
-      }),
-      ...markers,
-    ],
-  );
 }
 
 let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
@@ -245,7 +158,7 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
         vec,
         mat4.invert(mat4.create(), transformMatrix),
       ),
-    scale = Math.max(...mat4.getScaling(vec3.create(), transformMatrix));
+    scale = mat4.getScaling(vec3.create(), transformMatrix)[0];
 
   let onWindowResize = () => {
     let { left, top, width, height } = elm.getBoundingClientRect();

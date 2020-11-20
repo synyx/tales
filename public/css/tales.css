@@ -415,6 +415,10 @@ input:focus {
   height: 100%;
 }
 
+#editor .poster {
+  user-select: none;
+}
+
 .viewport {}
 .viewport > .scene {}
 .viewport > .scene > .world {
