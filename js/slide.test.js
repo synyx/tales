@@ -12,6 +12,7 @@ import {
   add,
   update,
   deleteCurrent,
+  deactivate,
 } from "./slide";
 
 describe("slide", () => {
@@ -66,6 +67,10 @@ describe("slide", () => {
       editor: { activeSlide: 2 },
     });
     expect(db.editor.activeSlide).toBe(0);
+  });
+  it("deactivates slide", () => {
+    let db = deactivate({ editor: { activeSlide: 1 } });
+    expect(db.editor.activeSlide).toBeUndefined();
   });
   it("swaps slides", () => {
     let initialDb = {

@@ -116,6 +116,7 @@ export function onMouseDown(ev, cameraPosition, projectFn) {
         preventNextClickEvent();
       }
     },
+    onClick: () => trigger("slide/deactivate"),
   });
 }
 

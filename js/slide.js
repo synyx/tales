@@ -32,6 +32,10 @@ export function activateNext(db) {
   return activate(db, index);
 }
 
+export function deactivate(db) {
+  return { ...db, editor: { ...db.editor, activeSlide: undefined } };
+}
+
 function arraySwap(array, idx1, idx2) {
   let a = [...array];
   [a[idx1], a[idx2]] = [a[idx2], a[idx1]];
@@ -134,6 +138,7 @@ function dbHandler(eventId, handlerFn, interceptors) {
 dbHandler("slide/activate", (db, _, slideIndex) => activate(db, slideIndex));
 dbHandler("slide/activate-prev", db => activatePrev(db));
 dbHandler("slide/activate-next", db => activateNext(db));
+dbHandler("slide/deactivate", db => deactivate(db));
 handler("slide/swap-prev", ({ db }) => swapPrev(db));
 handler("slide/swap-next", ({ db }) => swapNext(db));
 handler("slide/fly-to-prev", ({ db }) => flyToPrev(db));
