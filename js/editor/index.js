@@ -101,23 +101,22 @@ export function onWheel(ev, projectFn) {
 }
 
 export function onMouseDown(ev, cameraPosition, projectFn) {
-  isMoving.reset(true);
   ev.preventDefault();
   ev.stopPropagation();
-  dragging(
-    ev,
-    (ev, start, end) => {
+  dragging(ev, {
+    onDragStart: () => isMoving.reset(true),
+    onDragChange: (_, start, end) => {
       let delta = vec3.sub(vec3.create(), projectFn(start), projectFn(end));
       let newPosition = vec3.add(vec3.create(), cameraPosition, delta);
       trigger("camera/move-to", newPosition);
     },
-    (ev, start, end) => {
+    onDragEnd: (_, start, end) => {
       isMoving.reset(false);
       if (!vec3.exactEquals(start, end)) {
         preventNextClickEvent();
       }
     },
-  );
+  });
 }
 
 /**
@@ -167,7 +166,10 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
 
   let startCreate = ev => {
     if (ev.ctrlKey || ev.metaKey) {
-      dragging(ev, onCreate, onCreateEnd);
+      dragging(ev, {
+        onDragChange: onCreate,
+        onDragEnd: onCreateEnd,
+      });
       ev.stopPropagation();
       preventNextClickEvent();
     }

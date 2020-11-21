@@ -93,15 +93,14 @@ export const slideBounds = (rect, scale, index, options = {}) => {
   let strokeWidth = 2 / scale;
 
   let startMove = ev => {
-    dragging(ev, onMove, onMoveEnd);
+    dragging(ev, { onDragChange: onMove, onDragEnd: onMoveEnd });
     ev.stopPropagation();
   };
   let startResize = (ev, position) => {
-    dragging(
-      ev,
-      (ev, ...args) => onResize(ev, position, ...args),
-      (ev, ...args) => onResizeEnd(ev, position, ...args),
-    );
+    dragging(ev, {
+      onDragChange: (ev, ...args) => onResize(ev, position, ...args),
+      onDragEnd: (ev, ...args) => onResizeEnd(ev, position, ...args),
+    });
     ev.stopPropagation();
   };
 
