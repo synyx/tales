@@ -71,8 +71,8 @@ export function previewItem([tw, th], tale, slide, index, active) {
 export const preview = withInputSignals(
   () => connect("editor/active-slide"),
   (activeSlide, tale) => {
-    let tw = 100,
-      th = 75;
+    let tw = 200,
+      th = 150;
     return h(
       "ol.previews",
       (tale.slides || []).map((slide, index) =>

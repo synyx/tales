@@ -174,7 +174,9 @@ let home = () => {
   let onInput = e => input.reset(e.target.value);
 
   return h("div#home", [
-    h("img.logo", { attrs: { src: "/images/tales.svg" } }),
+    h("object.logo", {
+      attrs: { type: "image/svg+xml", data: "/images/tales.svg" },
+    }),
     h("input", {
       attrs: {
         type: "text",
