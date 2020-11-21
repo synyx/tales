@@ -32,8 +32,8 @@ connector(
   withInputSignals(() => [connect("tales"), connect("tale-slug")], findTale),
 );
 
-// triggers an event whenever the tale changes
-connect("tale").connect(tale => trigger("project/loaded", tale.value()));
+// triggers an event whenever the tale slug changes
+connect("tale-slug").connect(() => trigger("project/loaded"));
 
 handler("projects/get-all", () => ({
   xhr: {
@@ -46,6 +46,7 @@ handler("projects/get-all", () => ({
 
 handler("projects/get-all-success", ({ db }, eventId, projects) => ({
   db: { ...db, tales: projects },
+  trigger: ["project/loaded"],
 }));
 
 handler("projects/add", (causes, eventId, project) => ({
@@ -93,7 +94,7 @@ handler("projects/update-image", (causes, eventId, project, file) => ({
 handler("projects/request-success", ({ db }, eventId, project) => ({
   db: {
     ...db,
-    tales: [...db.tales.filter(tale => tale.slug != project.slug), project],
+    tales: [...db.tales.filter(tale => tale.slug !== project.slug), project],
   },
   navigate: `#editor/${project.slug}/`,
 }));
@@ -106,11 +107,12 @@ handler("projects/activate", ({ db }, eventId, slug) => ({
   db: { ...db, activeTale: slug },
 }));
 
-handler("project/loaded", ({ db }, eventId, tale) => {
+handler("project/loaded", ({ db }) => {
   let effects = {
     db: { ...db, editor: { ...db.editor, activeSlide: undefined } },
   };
-  if (tale.dimensions) {
+  let tale = findTale([db.tales, db.activeTale]);
+  if (tale && tale.dimensions) {
     let { width, height } = tale.dimensions;
     let rect = { x: 0, y: 0, width: width, height: height };
     effects.trigger = ["camera/fit-rect", rect];
