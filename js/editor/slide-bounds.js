@@ -139,7 +139,10 @@ export const slideBounds = (rect, scale, index, options = {}) => {
   return h(
     "g.slide-bounds",
     {
-      on: { click: () => trigger("slide/activate", index) },
+      on: {
+        click: () => trigger("slide/activate", index),
+        dblclick: () => trigger("camera/fit-rect", rect),
+      },
       class: { active: active },
     },
     [
