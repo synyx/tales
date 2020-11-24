@@ -13,7 +13,7 @@ export function getPosition(db) {
 }
 
 export function getScale(db) {
-  return db.camera.scale;
+  return db.camera.scale || 1;
 }
 
 export function getCameraMatrix(position, scale) {

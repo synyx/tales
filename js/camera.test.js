@@ -24,6 +24,10 @@ describe("camera", () => {
     let scale = getScale({ camera: { scale: 4 } });
     expect(scale).toBe(4);
   });
+  it("always gets non-zero scale", () => {
+    let scale = getScale({ camera: { scale: 0 } });
+    expect(scale).toBe(1);
+  });
   it("gets camera matrix", () => {
     let camera = getCameraMatrix([1, 2, 3], 4);
     expect(camera).toEqualMat4(
