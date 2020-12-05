@@ -35,39 +35,37 @@ or tissues.
 
 # Talecabulary
 
-You are the **Bookbinder** and the **Storyteller**! The image you use is the idea you want the convey, that is the
+You are the **Bookbinder** and the **Storyteller**! The image you use is the idea you want to convey, that is the
 **Tale** you want to tell. Your Tale consists of several **Sections** (that replace slides), which are assembled in the
 Storyline of your Tale. **Chapters** can further structure your Sections, making the Story more understandable.
 
 
 ## Prerequisites
 
-All you need is the image, a web browser and Java installed! :) Tales supports all kinds of image formats, from simple
-jpg to sophisticated vector graphics.
+All you need is a computer running Windows, Linux or MacOS – and the image with your Tale! :) 
+Tales supports all kinds of image formats, from simple JPEGs to sophisticated vector graphics like SVGs.
 
 
 ## Installation
 
-- Install Java (if you do not already have it)
-- Download the JAR file of the latest [release of Tales]
-- Execute the JAR
-- Point your browser to localhost:3000
+- Download the [latest release of Tales] for your platform. 
+  Usually only the `tales-desktop-...` version is needed.
+- Execute the downloaded file.
 
 
 ## Taletorial
 
 Set up your first Tale.
 
-- Create an image that tells the Tale you want to share
-- Start Tales
-- Open your web browser and go to the following address: `localhost:3000`
-- Enter the name of your Tale and press enter
-- Choose the Tale you want to tell, that is the path to your image on your computer
-- Now press `Ctrl` (or `cmd` on a Mac) and use your mouse to create the your Sections
+- Create an image that tells the Tale you want to share.
+- Start Tales.
+- Enter the name of your Tale and press enter.
+- Choose the Tale you want to tell, that is the path to your image on your computer.
+- Now press `Ctrl` (or `cmd` on a Mac) and use your mouse to create your Sections.
 - Check your Tale in the Storyline, and use the left and right arrows on your keyboard while pressing `Shift`to
- rearrange the order of your sections, or use `Delete` to remove a slide
-- Press `Tell!` and tell your Tale by using the left and right arrows of your keyboard to navigate among the sections
-- Use the `Back` Button of your browser to return into the edit mode for your Tale
+  rearrange the order of your sections, or press `Delete` to remove a slide.
+- Press `Tell!` and tell your Tale by using the left and right arrows of your keyboard to navigate between the sections.
+- Use the `Back` Button of your browser to return to the editor.
 
 A video tutorial is coming soon!
 
@@ -95,5 +93,4 @@ Some examples of already existing Tales:
 
 Apache 2.0
 
-[release of Tales]: https://github.com/synyx/tales/releases
-[Leiningen]: https://leiningen.org/
+[latest release of Tales]: https://github.com/synyx/tales/releases/latest
