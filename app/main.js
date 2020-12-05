@@ -23,6 +23,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: false,
     },
+    title: "Tales",
   });
 
   if (isDevelopment) {
