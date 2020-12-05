@@ -2,7 +2,7 @@ import electron from "electron";
 import * as childProcess from "child_process";
 import * as path from "path";
 
-let { app, BrowserWindow } = electron;
+let { app, BrowserWindow, Menu, shell } = electron;
 
 const isDevelopment = false;
 
@@ -35,6 +35,28 @@ function createWindow() {
     win.focus();
     setTimeout(() => win.focus(), 0);
   });
+
+  var menu = Menu.buildFromTemplate([
+    {
+      label: "&Tales",
+      submenu: [
+        {
+          label: "Tales on &GitHub",
+          click() {
+            shell.openExternal("https://github.com/synyx/tales");
+          },
+        },
+        {
+          label: "&Quit",
+          click() {
+            app.quit();
+          },
+          accelerator: "CmdOrCtrl+Q",
+        },
+      ],
+    },
+  ]);
+  Menu.setApplicationMenu(menu);
 }
 
 function start() {
@@ -50,7 +72,7 @@ function stop() {
 function migrateProjects() {
   migrate = childProcess.execFile(path.join(binDir, "tales-migrate"));
   migrate.on("error", err => {
-    console.log("failed to start process", err);
+    console.error("failed to start process", err);
   });
   migrate.on("exit", (code, signal) => {
     console.log("migrate exited", code, signal);
@@ -63,7 +85,7 @@ function runServer() {
     resourcesDir,
   ]);
   server.on("error", err => {
-    console.log("failed to start process", err);
+    console.error("failed to start process", err);
     server = null;
   });
   server.on("exit", (code, signal) => {
