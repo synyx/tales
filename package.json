@@ -38,7 +38,7 @@
     "@babel/preset-env": "^7.12.1",
     "@rollup/plugin-commonjs": "^12.0.0",
     "@rollup/plugin-node-resolve": "^8.4.0",
-    "electron": "^9.3.4",
+    "electron": "^9.4.0",
     "electron-builder": "^22.9.1",
     "eslint": "^7.13.0",
     "eslint-config-prettier": "^6.15.0",
