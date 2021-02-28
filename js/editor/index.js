@@ -147,9 +147,12 @@ function poster(url) {
   });
 }
 
-function layer(data, children) {
-  return h("svg.layer", data, children);
-}
+const layer = withInputSignals(
+  () => [connect("settings/poster-dim")],
+  ([dim], data, children) => {
+    return h("svg.layer", { ...data, class: { ...data.class, dim } }, children);
+  },
+);
 
 let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
   let elm,

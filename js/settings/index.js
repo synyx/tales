@@ -11,9 +11,11 @@ import {
 import { h } from "flyps-dom-snabbdom";
 import "../util/effects";
 import { themeSetting } from "./theme";
+import { posterDimSetting } from "./poster";
 
 const DEFAULT_SETTINGS = {
   theme: "light",
+  posterDim: true,
 };
 
 /**
@@ -34,7 +36,7 @@ export let settings = withInputSignals(
       [
         h("div", { on: { click: e => e.stopPropagation() } }, [
           h("header", h("h2", "Settings")),
-          h("div.settings-body", [themeSetting()]),
+          h("div.settings-body", [themeSetting(), posterDimSetting()]),
           h("footer", [
             h(
               "button.button.settings-done",
@@ -68,6 +70,7 @@ handler("settings/changed", ({ db }) => {
   return {
     settings: {
       theme: db.theme,
+      posterDim: db.posterDim,
     },
   };
 });
@@ -85,7 +88,7 @@ effector("settings", settings => {
 causing("settings", () => {
   let storedSettings = STORE.getItem(SETTINGS_KEY);
   if (storedSettings) {
-    return JSON.parse(storedSettings);
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(storedSettings) };
   }
   return DEFAULT_SETTINGS;
 });

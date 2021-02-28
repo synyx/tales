@@ -35,6 +35,7 @@ handler(
       },
       editor: {},
       theme: settings.theme,
+      posterDim: settings.posterDim,
     },
     trigger: ["settings/theme-changed", settings.theme],
   }),

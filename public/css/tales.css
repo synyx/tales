@@ -60,7 +60,8 @@
   --preview-index-text: var(--text-inverse);
   --preview-outline: var(--gray-4);
   --preview-outline-active: var(--secondary-6);
-  --slide-bounds: var(--primary-4);
+  --slide-bounds: var(--primary-5);
+  --editor-dim: #fffb;
 
   --settings-bg: var(--white);
   --settings-backdrop: #3338;
@@ -69,7 +70,7 @@
   --font-size-base: 16px;
   --font-size-small: 0.9em;
   --font-size-medium: 1.1em;
-  --line-height: 28px;
+  --line-height: 24px;
   --transition-fast: 200ms;
 
   --tale-preview-width: 200px;
@@ -81,6 +82,7 @@
   --text-medium: var(--gray-5);
   --text-primary: var(--primary-4);
   --shadow-strong: #0007;
+  --highlight: var(--secondary-4);
 
   --input: var(--gray-8);
   --input-focus: var(--gray-9);
@@ -98,6 +100,8 @@
   --sidebar-text: var(--text);
   --preview-index-bg: var(--gray-7);
   --preview-index-text: var(--text);
+  --slide-bounds: var(--primary-4);
+  --editor-dim: #000b;
 
   --settings-bg: var(--gray-8);
   --settings-backdrop: #3338;
@@ -179,28 +183,46 @@ input[type="text"]:focus {
  */
 label.checkable {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  max-width: 100%;
   margin: 0 2rem 0.5rem 0;
 }
-input[type="radio"] {
+label.checkable {
+  flex-shrink: 0;
+}
+input[type="radio"],
+input[type="checkbox"] {
   display: block;
-  width: 1.3em;
-  height: 1.3em;
-  margin-right: 0.5rem;
+  flex: 0 1 1.25em;
+  width: 1.25em;
+  height: 1.25em;
+  margin: 0.125em 0.5rem 0 0;
   border: solid 2px var(--input-checkable);
-  border-radius: 50%;
 
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
 }
+input[type="radio"] {
+  border-radius: 50%;
+}
+input[type="checkbox"] {
+  border-radius: 20%;
+}
+
 input[type="radio"]:checked {
   background: radial-gradient(
     var(--input-checkable) 50%,
     rgba(255, 0, 0, 0) 51%
   );
 }
-input[type="radio"]:focus {
+input[type="checkbox"]:checked {
+  background: var(--input-checkable)
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' fill='none' d='M 2 10 l 5 5 l 11 -11'/%3e%3c/svg%3e");
+}
+
+input[type="radio"]:focus,
+input[type="checkbox"]:focus {
   outline: 0;
   box-shadow: 0 0 0 0.25rem var(--input-outline);
 }
@@ -467,6 +489,10 @@ input[type="radio"]:focus {
   user-select: none;
 }
 
+#editor .layer.dim {
+  background-color: var(--editor-dim);
+}
+
 #settings {
   position: fixed;
   left: 0;
@@ -498,7 +524,7 @@ input[type="radio"]:focus {
 }
 
 #settings header {
-  padding: 1rem 2rem;
+  padding: 1rem 2rem 0;
 }
 
 #settings h2 {
@@ -512,14 +538,16 @@ input[type="radio"]:focus {
   padding: 1rem 2rem;
 }
 
-#settings label {
+#settings h3 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1rem;
   font-weight: bold;
   color: var(--text-primary);
 }
 
 #settings .settings-options {
   display: flex;
-  margin: 0.5rem 0 0 0.5rem;
+  margin: 0 0 0 0.5rem;
 }
 
 #settings .settings-options label {

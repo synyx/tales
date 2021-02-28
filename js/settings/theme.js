@@ -15,7 +15,7 @@ export const themeSetting = withInputSignals(
   () => [connect("settings/theme")],
   ([currentTheme]) => {
     return h("div", [
-      h("label", "Theme"),
+      h("h3", "Theme"),
       h(
         "div.settings-options",
         ["light", "dark"].map(theme =>
