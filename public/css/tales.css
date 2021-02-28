@@ -189,9 +189,7 @@ input:focus {
   overflow: hidden;
   background-color: var(--tale-list-bg);
   border-radius: 0.25rem;
-  box-shadow:
-    0 1px 2px var(--shadow-medium),
-    0 4px 8px var(--shadow-light);
+  box-shadow: 0 1px 2px var(--shadow-medium), 0 4px 8px var(--shadow-light);
   transition: box-shadow var(--transition-fast);
 }
 
@@ -217,7 +215,7 @@ input:focus {
 }
 
 #home .tale-list > li:after {
-  content: ' ';
+  content: " ";
   position: absolute;
   z-index: 10;
   left: 0;
@@ -364,7 +362,7 @@ input:focus {
 }
 
 #editor .preview.active:after {
-  content: ' ';
+  content: " ";
   position: absolute;
   left: 0;
   top: 0;
@@ -419,8 +417,10 @@ input:focus {
   user-select: none;
 }
 
-.viewport {}
-.viewport > .scene {}
+.viewport {
+}
+.viewport > .scene {
+}
 .viewport > .scene > .world {
   position: relative;
 }

@@ -9,7 +9,7 @@
   "scripts": {
     "build": "rollup -c",
     "dist": "electron-builder --publish=never",
-    "format": "prettier --write 'js/**/*.js'",
+    "format": "prettier --write 'js/**/*.js' 'public/css/**/*.css'",
     "lint": "eslint js",
     "pack": "electron-builder --dir",
     "prepare": "npm run build",
