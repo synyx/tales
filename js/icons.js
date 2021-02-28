@@ -5,6 +5,7 @@ export const chevronLeft = (data = {}) => {
     h("path", {
       attrs: {
         d: "M9 2 L1 12 L9 22",
+        stroke: "currentColor",
         fill: "none",
         "stroke-width": 2,
         "stroke-linecap": "round",
@@ -19,6 +20,7 @@ export const chevronRight = (data = {}) => {
     h("path", {
       attrs: {
         d: "M3 2 L11 12 L3 22",
+        stroke: "currentColor",
         fill: "none",
         "stroke-width": 2,
         "stroke-linecap": "round",
@@ -36,11 +38,13 @@ export const home = (data = {}) => {
           "M 6 2 L 2 5 L 2 9 A 1 1 0 0 0 3 10 L 5 10 L 5 7 l 2 0 l 0 3 " +
           "l 2 0 A 1 1 0 0 0 10 9 l 0 -4 Z",
         stroke: "none",
+        fill: "currentColor",
       },
     }),
     h("path.roof", {
       attrs: {
         d: "M 1 5 l 5 -4 l 5 4",
+        stroke: "currentColor",
         fill: "none",
         "stroke-width": 2,
         "stroke-linecap": "round",

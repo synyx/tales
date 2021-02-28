@@ -155,7 +155,6 @@ input:focus {
 }
 .button .icon svg {
   height: 100%;
-  stroke: var(--btn-secondary-text);
 }
 
 #app,
@@ -321,6 +320,7 @@ input:focus {
   padding: 0.5rem;
   border-radius: 50%;
   text-decoration: none;
+  color: var(--sidebar-text);
   transition: background-color var(--transition-fast);
 }
 
@@ -330,8 +330,6 @@ input:focus {
 
 #editor .sidebar-icon > svg {
   height: 100%;
-  stroke: var(--sidebar-text);
-  fill: var(--sidebar-text);
 }
 
 #editor .previews {
