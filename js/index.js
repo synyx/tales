@@ -7,6 +7,7 @@ import {
   handler,
   withInputSignals,
   triggerImmediately,
+  injectCause,
 } from "flyps";
 import { mount, h } from "flyps-dom-snabbdom";
 
@@ -19,20 +20,26 @@ import { editor } from "./editor/index";
 import { presenter } from "./presenter/index";
 import * as router from "./router";
 
-handler("initialize", () => ({
-  db: {
-    tales: [],
-    activePage: "home",
-    camera: {
-      position: [0, 0, 0],
-      scale: 1,
+handler(
+  "initialize",
+  ({ settings }) => ({
+    db: {
+      tales: [],
+      activePage: "home",
+      camera: {
+        position: [0, 0, 0],
+        scale: 1,
+      },
+      viewport: {
+        rect: [0, 0, 800, 600],
+      },
+      editor: {},
+      theme: settings.theme,
     },
-    viewport: {
-      rect: [0, 0, 800, 600],
-    },
-    editor: {},
-  },
-}));
+    trigger: ["settings/theme-changed", settings.theme],
+  }),
+  [injectCause("settings")],
+);
 
 function cord(ev) {
   return [

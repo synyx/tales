@@ -33,12 +33,16 @@
 
   --text-inverse: var(--gray-1);
   --text: var(--gray-9);
+  --text-medium: var(--gray-6);
+  --text-primary: var(--primary-5);
   --shadow-light: #0002;
   --shadow-medium: #0003;
   --shadow-strong: #0005;
   --highlight: var(--secondary-5);
   --input: var(--gray-1);
   --input-focus: var(--white);
+  --input-outline: var(--primary-1);
+  --input-checkable: var(--primary-5);
   --btn-secondary: var(--primary-6);
   --btn-secondary-text: var(--text-inverse);
 
@@ -58,6 +62,10 @@
   --preview-outline-active: var(--secondary-6);
   --slide-bounds: var(--primary-4);
 
+  --settings-bg: var(--white);
+  --settings-backdrop: #3338;
+  --settings-footer: var(--gray-2);
+
   --font-size-base: 16px;
   --font-size-small: 0.9em;
   --font-size-medium: 1.1em;
@@ -67,27 +75,33 @@
   --tale-preview-width: 200px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text-inverse: var(--gray-9);
-    --text: var(--gray-1);
-    --shadow-strong: #0007;
+:root[theme="dark"] {
+  --text-inverse: var(--gray-9);
+  --text: var(--gray-1);
+  --text-medium: var(--gray-5);
+  --text-primary: var(--primary-4);
+  --shadow-strong: #0007;
 
-    --input: var(--gray-8);
-    --input-focus: var(--gray-9);
-    --btn-secondary-text: var(--text);
+  --input: var(--gray-8);
+  --input-focus: var(--gray-9);
+  --btn-secondary-text: var(--text);
+  --input-outline: var(--primary-7);
+  --input-checkable: var(--primary-5);
 
-    --home-bg: var(--primary-8);
-    --tale-list-bg: var(--gray-7);
-    --tale-list-text: var(--text);
+  --home-bg: var(--primary-8);
+  --tale-list-bg: var(--gray-7);
+  --tale-list-text: var(--text);
 
-    --editor-bg: var(--gray-8);
-    --sidebar-bg: var(--gray-9);
-    --sidebar-footer: var(--black);
-    --sidebar-text: var(--text);
-    --preview-index-bg: var(--gray-7);
-    --preview-index-text: var(--text);
-  }
+  --editor-bg: var(--gray-8);
+  --sidebar-bg: var(--gray-9);
+  --sidebar-footer: var(--black);
+  --sidebar-text: var(--text);
+  --preview-index-bg: var(--gray-7);
+  --preview-index-text: var(--text);
+
+  --settings-bg: var(--gray-8);
+  --settings-backdrop: #3338;
+  --settings-footer: var(--gray-9);
 }
 
 * {
@@ -114,7 +128,7 @@ a {
   color: var(--text);
 }
 
-input {
+input[type="text"] {
   display: block;
   margin-bottom: 2rem;
   padding: 0.75rem 1rem;
@@ -126,7 +140,7 @@ input {
   transition: background-color var(--transition-fast);
 }
 
-input:focus {
+input[type="text"]:focus {
   background-color: var(--input-focus);
 }
 
@@ -137,9 +151,12 @@ input:focus {
   background-color: var(--btn-secondary);
   border-radius: 0.5rem;
   padding: 0.25rem 1rem;
+  border-style: none;
   text-decoration: none;
+  line-height: 1.75;
   color: var(--btn-secondary-text);
   box-shadow: 0 1px 3px var(--shadow-light);
+  cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 .button:hover {
@@ -155,6 +172,37 @@ input:focus {
 }
 .button .icon svg {
   height: 100%;
+}
+
+/**
+ * A label encapsulating a radiobutton or checkbox.
+ */
+label.checkable {
+  display: flex;
+  align-items: center;
+  margin: 0 2rem 0.5rem 0;
+}
+input[type="radio"] {
+  display: block;
+  width: 1.3em;
+  height: 1.3em;
+  margin-right: 0.5rem;
+  border: solid 2px var(--input-checkable);
+  border-radius: 50%;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+input[type="radio"]:checked {
+  background: radial-gradient(
+    var(--input-checkable) 50%,
+    rgba(255, 0, 0, 0) 51%
+  );
+}
+input[type="radio"]:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem var(--input-outline);
 }
 
 #app,
@@ -306,6 +354,7 @@ input:focus {
 
 #editor .sidebar-footer {
   display: flex;
+  justify-content: space-between;
   padding: 0.5rem 1rem;
   margin: 0;
   background-color: var(--sidebar-footer);
@@ -318,9 +367,12 @@ input:focus {
   width: 2.5rem;
   height: 2.5rem;
   padding: 0.5rem;
+  border-style: none;
   border-radius: 50%;
+  background-color: transparent;
   text-decoration: none;
   color: var(--sidebar-text);
+  cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
@@ -415,6 +467,74 @@ input:focus {
   user-select: none;
 }
 
+#settings {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--settings-backdrop);
+  z-index: 10;
+
+  display: none;
+}
+
+#settings.visible {
+  display: flex;
+}
+
+#settings > * {
+  display: flex;
+  flex-direction: column;
+  width: 30rem;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  background-color: var(--settings-bg);
+  box-shadow: 0 6px 24px var(--shadow-strong), 0 2px 4px var(--shadow-strong);
+  border-radius: 0.5rem;
+}
+
+#settings header {
+  padding: 1rem 2rem;
+}
+
+#settings h2 {
+  margin: 1rem 0 0;
+  color: var(--text-medium);
+  text-align: center;
+}
+
+#settings .settings-body {
+  flex: 1;
+  padding: 1rem 2rem;
+}
+
+#settings label {
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+#settings .settings-options {
+  display: flex;
+  margin: 0.5rem 0 0 0.5rem;
+}
+
+#settings .settings-options label {
+  font-weight: normal;
+  color: var(--text);
+}
+
+#settings footer {
+  display: flex;
+  justify-content: flex-end;
+  flex: 0;
+  background-color: var(--settings-footer);
+  padding: 1rem 2rem;
+}
+
 .viewport {
 }
 .viewport > .scene {
@@ -444,4 +564,12 @@ svg.home .roof {
 .icon:hover > svg.home .roof,
 .button:hover .icon > svg.home .roof {
   transform: translateY(-1px);
+}
+
+svg.gear {
+  transition: transform var(--transition-fast);
+  transform-origin: center;
+}
+.icon:hover > svg.gear {
+  transform: rotate(45deg);
 }

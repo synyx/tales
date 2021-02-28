@@ -9,12 +9,13 @@ import {
 import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
-import { chevronRight, home } from "../icons";
+import { chevronRight, gear, home } from "../icons";
 import { dragging } from "../util/drag";
 import { viewport } from "../viewport";
 import { preview } from "./preview";
 import { uploader } from "./upload";
 import { slideBounds } from "./slide-bounds";
+import { settings } from "../settings";
 
 /**
  * The speed in which the editor zoom level changes when the user zooms in/out.
@@ -305,11 +306,20 @@ export let editor = withInputSignals(
             { attrs: { href: "#", title: "Go back to the home page" } },
             home(),
           ),
+          h(
+            "button.icon.sidebar-icon",
+            {
+              attrs: { title: "Show Tales settings" },
+              on: { click: () => trigger("settings/show") },
+            },
+            gear(),
+          ),
         ]),
       ]),
       tale["file-path"]
         ? navigator(tale, transformMatrix, cameraPosition, activeSlide)
         : uploader(tale),
+      settings(),
     ]);
   },
 );
