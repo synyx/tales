@@ -1,6 +1,5 @@
 import { dragging } from "../util/drag";
 import { h } from "flyps-dom-snabbdom";
-import { trigger } from "flyps";
 
 let slideMarkers = (slideRect, markerWidth, markerHeight) => [
   {
@@ -86,14 +85,18 @@ let slideMarkers = (slideRect, markerWidth, markerHeight) => [
 ];
 
 export const slideBounds = (rect, scale, index, options = {}) => {
-  let { active, onMove, onMoveEnd, onResize, onResizeEnd } = options;
+  let { active, onMove, onMoveEnd, onResize, onResizeEnd, onClick } = options;
   let { x, y, width, height } = rect;
   let markerWidth = Math.min(10 / scale, width / 3);
   let markerHeight = Math.min(10 / scale, height / 3);
   let strokeWidth = 2 / scale;
 
   let startMove = ev => {
-    dragging(ev, { onDragChange: onMove, onDragEnd: onMoveEnd });
+    dragging(ev, {
+      onDragChange: onMove,
+      onDragEnd: onMoveEnd,
+      onClick: onClick,
+    });
     ev.stopPropagation();
   };
   let startResize = (ev, position) => {
@@ -139,10 +142,6 @@ export const slideBounds = (rect, scale, index, options = {}) => {
   return h(
     "g.slide-bounds",
     {
-      on: {
-        click: () => trigger("slide/activate", index),
-        dblclick: () => trigger("camera/fit-rect", rect),
-      },
       class: { active: active },
     },
     [

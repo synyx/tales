@@ -14,15 +14,15 @@ let eventPosition = ev => [ev.clientX, ev.clientY, 0];
  * an optional click handler is called.
  */
 export let dragging = (
-  ev,
+  mouseDownEv,
   { onDragStart, onDragChange, onDragEnd, onClick } = {},
 ) => {
-  let dragStart = eventPosition(ev);
+  let mouseDownPosition = eventPosition(mouseDownEv);
   let options = { passive: true };
   let isDragging = !onClick;
 
   if (isDragging && onDragStart) {
-    onDragStart(ev, dragStart);
+    onDragStart(mouseDownEv, mouseDownPosition);
   }
 
   let mousemove = ev => {
@@ -31,27 +31,27 @@ export let dragging = (
     let dragPosition = eventPosition(ev);
     if (!isDragging) {
       let dragDistance = vec3.length(
-        vec3.sub(vec3.create(), dragStart, dragPosition),
+        vec3.sub(vec3.create(), mouseDownPosition, dragPosition),
       );
       if (dragDistance > minDragDistance) {
         isDragging = true;
         if (onDragStart) {
-          onDragStart(ev, dragStart);
+          onDragStart(ev, mouseDownPosition);
         }
       }
     }
 
     if (isDragging && onDragChange) {
-      onDragChange(ev, dragStart, dragPosition);
+      onDragChange(ev, mouseDownPosition, dragPosition);
     }
   };
   let mouseup = ev => {
     ev.stopPropagation();
 
     if (isDragging && onDragEnd) {
-      onDragEnd(ev, dragStart, eventPosition(ev));
+      onDragEnd(ev, mouseDownPosition, eventPosition(ev));
     } else if (!isDragging && onClick) {
-      onClick(ev);
+      onClick(ev, mouseDownPosition);
     }
 
     window.removeEventListener("mousemove", mousemove, options);

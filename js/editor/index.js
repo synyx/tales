@@ -117,7 +117,8 @@ export function onMouseDown(ev, cameraPosition, projectFn) {
         preventNextClickEvent();
       }
     },
-    onClick: () => trigger("slide/deactivate"),
+    onClick: (ev, position) =>
+      trigger("slide/activate-at-position", projectFn(position)),
   });
 }
 
@@ -267,9 +268,13 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
                 onResize(ev, slide, position, start, end),
               onResizeEnd: (ev, position, start, end) =>
                 onResizeEnd(ev, slide, position, start, end),
+              onClick: (ev, position) =>
+                trigger("slide/activate-at-position", projectFn(position)),
             }),
           ),
-          ...(drawRect.value() ? [slideBounds(drawRect.value(), scale)] : []),
+          ...(drawRect.value()
+            ? [slideBounds(drawRect.value(), scale, null, { active: true })]
+            : []),
         ],
       ),
     ],

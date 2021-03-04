@@ -13,6 +13,8 @@ import {
   update,
   deleteCurrent,
   deactivate,
+  isPointInRect,
+  activateAtPosition,
 } from "./slide";
 
 describe("slide", () => {
@@ -236,4 +238,98 @@ describe("slide", () => {
       { slug: "test-1", slides: [{ id: 1 }, { id: 3 }] },
     ]);
   });
+});
+describe("isPointInRect", () => {
+  it("accepts points inside the rect", () => {
+    let rect = { x: 9, y: 9, width: 2, height: 2 };
+    expect(isPointInRect([10, 10], rect)).toBeTruthy();
+  });
+  it("rejects points outside the rect", () => {
+    let rect = { x: 9, y: 9, width: 2, height: 2 };
+    expect(isPointInRect([8, 10], rect)).toBeFalsy();
+    expect(isPointInRect([12, 10], rect)).toBeFalsy();
+    expect(isPointInRect([10, 8], rect)).toBeFalsy();
+    expect(isPointInRect([10, 12], rect)).toBeFalsy();
+  });
+});
+describe("activateAtPosition", () => {
+  it("deactivates the active slide if there's no slide at position", () => {
+    let db = activateAtPosition(
+      {
+        tales: [
+          {
+            slug: "foo",
+            slides: [{ rect: { x: 10, y: 10, width: 10, height: 10 } }],
+          },
+        ],
+        activeTale: "foo",
+        editor: { activeSlide: 0 },
+      },
+      [5, 5],
+    );
+    expect(db.editor.activeSlide).toBeUndefined();
+  });
+  it("activates the slide at the given position", () => {
+    let db = activateAtPosition(
+      {
+        tales: [
+          {
+            slug: "foo",
+            slides: [
+              { rect: { x: 10, y: 10, width: 10, height: 10 } },
+              { rect: { x: 20, y: 20, width: 10, height: 10 } }, // active
+            ],
+          },
+        ],
+        activeTale: "foo",
+        editor: { activeSlide: 1 },
+      },
+      [15, 15],
+    );
+    expect(db.editor.activeSlide).toBe(0);
+  });
+  it("activates the slide below the currently active slide", () => {
+    let db = activateAtPosition(
+      {
+        tales: [
+          {
+            slug: "foo",
+            slides: [
+              { rect: { x: 10, y: 10, width: 10, height: 10 } },
+              { rect: { x: 10, y: 10, width: 10, height: 10 } }, // active
+              { rect: { x: 10, y: 10, width: 10, height: 10 } },
+            ],
+          },
+        ],
+        activeTale: "foo",
+        editor: { activeSlide: 1 },
+      },
+      [15, 15],
+    );
+    expect(db.editor.activeSlide).toBe(0);
+  });
+  it(
+    "activates the top-most slide again if the bottom-most slide " +
+      "is active",
+    () => {
+      let db = activateAtPosition(
+        {
+          tales: [
+            {
+              slug: "foo",
+              slides: [
+                { rect: { x: 10, y: 10, width: 10, height: 10 } }, // active
+                { rect: { x: 10, y: 10, width: 10, height: 10 } },
+                { rect: { x: 10, y: 10, width: 10, height: 10 } },
+              ],
+            },
+          ],
+          activeTale: "foo",
+          editor: { activeSlide: 0 },
+        },
+        [15, 15],
+      );
+      expect(db.editor.activeSlide).toBe(2);
+    },
+  );
 });

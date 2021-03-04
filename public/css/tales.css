@@ -465,6 +465,13 @@ input[type="checkbox"]:focus {
   font-size: var(--font-size-small);
 }
 
+#editor .slide-bounds {
+  pointer-events: none;
+}
+#editor .slide-bounds.active {
+  pointer-events: initial;
+}
+
 #editor .slide-bounds > .frame {
   stroke: var(--slide-bounds);
   fill: var(--slide-bounds);

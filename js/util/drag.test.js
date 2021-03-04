@@ -141,6 +141,6 @@ describe("dragging", () => {
     expect(dragChange).not.toHaveBeenCalled();
     expect(dragEnd).not.toHaveBeenCalled();
 
-    expect(click).toHaveBeenCalledWith(event2);
+    expect(click).toHaveBeenCalledWith(event2, [10, 20, 0]);
   });
 });

@@ -32,6 +32,35 @@ export function activateNext(db) {
   return activate(db, index);
 }
 
+export function isPointInRect(point, rect) {
+  return (
+    point[0] >= rect.x &&
+    point[0] <= rect.x + rect.width &&
+    point[1] >= rect.y &&
+    point[1] <= rect.y + rect.height
+  );
+}
+
+/**
+ * Actives the slide at the given position.
+ *
+ * If there are multiple slides at that position, the selection will loop
+ * through all of them one by one, starting with the top-most slide.
+ */
+export function activateAtPosition(db, position) {
+  let tale = findTale([db.tales, db.activeTale]);
+  let activeSlideIndex = db.editor.activeSlide || 0;
+  let i = activeSlideIndex;
+  do {
+    i = i > 0 ? i - 1 : tale.slides.length - 1;
+    if (isPointInRect(position, tale.slides[i].rect)) {
+      return activate(db, i);
+    }
+  } while (i !== activeSlideIndex);
+
+  return deactivate(db);
+}
+
 export function deactivate(db) {
   return { ...db, editor: { ...db.editor, activeSlide: undefined } };
 }
@@ -138,6 +167,9 @@ function dbHandler(eventId, handlerFn, interceptors) {
 dbHandler("slide/activate", (db, _, slideIndex) => activate(db, slideIndex));
 dbHandler("slide/activate-prev", db => activatePrev(db));
 dbHandler("slide/activate-next", db => activateNext(db));
+dbHandler("slide/activate-at-position", (db, _, position) =>
+  activateAtPosition(db, position),
+);
 dbHandler("slide/deactivate", db => deactivate(db));
 handler("slide/swap-prev", ({ db }) => swapPrev(db));
 handler("slide/swap-next", ({ db }) => swapNext(db));
