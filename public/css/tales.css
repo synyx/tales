@@ -351,7 +351,7 @@ input[type="checkbox"]:focus {
   display: flex;
   flex-direction: column;
   align-items: start;
-  margin: 1rem 1rem 0;
+  margin: 1.5rem 2rem 0;
 }
 
 #editor .sidebar-title {
@@ -374,7 +374,7 @@ input[type="checkbox"]:focus {
 #editor .sidebar-footer {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 2rem;
   margin: 0;
   background-color: var(--sidebar-footer);
 }
@@ -407,8 +407,8 @@ input[type="checkbox"]:focus {
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin: 1rem 0 0;
-  padding: 0 1rem;
+  margin: 2rem 0 0;
+  padding: 1rem 2rem;
   overflow-y: auto;
   list-style: none;
 }
@@ -417,13 +417,9 @@ input[type="checkbox"]:focus {
   position: relative;
   overflow: hidden;
   flex: 0 0 auto;
-  margin: 2px 0 1rem;
+  margin: 0.25rem 0;
   cursor: pointer;
   outline: solid 1px var(--preview-outline);
-}
-
-#editor .preview:hover {
-  outline-width: 2px;
 }
 
 #editor .preview.active {

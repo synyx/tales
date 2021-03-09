@@ -152,7 +152,7 @@ export const slideBounds = (rect, scale, index, options = {}) => {
           width: width,
           height: height,
           "stroke-width": strokeWidth,
-          "fill-opacity": 0.2,
+          "fill-opacity": 0.1,
         },
       }),
       ...markers,
