@@ -77,14 +77,14 @@ describe("camera", () => {
     );
   });
   it("gets transform matrix", () => {
-    let transform = getTransformMatrix([1, 2, 3], 4, 400, 800);
+    let transform = getTransformMatrix([1, 2, 3], 4, [10, 20, 400, 800]);
     expect(transform).toEqualMat4(
       // prettier-ignore
       [
          100,   0,  0, 0,
            0, 100,  0, 0,
            0,   0, -1, 0,
-         100, 200,  3, 1,
+         110, 220,  3, 1,
       ],
     );
   });

@@ -283,7 +283,7 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
 
 export let editor = withInputSignals(
   () => [
-    connect("matrix/transform"),
+    connect("matrix/client-transform"),
     connect("camera/position"),
     connect("editor/active-slide"),
   ],

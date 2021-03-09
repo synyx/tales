@@ -330,15 +330,12 @@ input[type="checkbox"]:focus {
 }
 
 #editor {
+  display: flex;
   height: 100%;
   background-color: var(--editor-bg);
 }
 
 #editor .sidebar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
   display: flex;
   flex-direction: column;
   min-width: var(--tale-preview-width);
@@ -571,6 +568,7 @@ input[type="checkbox"]:focus {
 }
 
 .viewport {
+  flex: 1;
 }
 .viewport > .scene {
 }

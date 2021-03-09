@@ -35,11 +35,11 @@ export function getViewportAspect([_x, _y, w, h]) {
   return w / h;
 }
 
-export function getViewportMatrix([_x, _y, w, h]) {
+export function getViewportMatrix([x, y, w, h]) {
   let w2 = w / 2.0;
   let h2 = h / 2.0;
   let m = mat4.create();
-  mat4.translate(m, m, [w2, h2, 0]);
+  mat4.translate(m, m, [x + w2, y + h2, 0]);
   mat4.scale(m, m, [w2, h2, 1]);
   return m;
 }
@@ -107,7 +107,7 @@ export function viewport(worldWidth, worldHeight, data = {}, children = []) {
         },
         hook: {
           insert: vnode => {
-            disconnect = connect("matrix/transform").connect(m => {
+            disconnect = connect("matrix/viewport-transform").connect(m => {
               vnode.elm.style.transform = matrix3d(m.value());
             });
           },

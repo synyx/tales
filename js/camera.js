@@ -37,9 +37,13 @@ export function getMVPMatrix(position, scale, aspect) {
   return mat4.multiply(m, m, getModelViewMatrix(position, scale));
 }
 
-export function getTransformMatrix(position, scale, width, height) {
-  let m = getViewportMatrix([0, 0, width, height]);
-  return mat4.multiply(m, m, getMVPMatrix(position, scale, width / height));
+export function getTransformMatrix(position, scale, viewport) {
+  let m = getViewportMatrix(viewport);
+  return mat4.multiply(
+    m,
+    m,
+    getMVPMatrix(position, scale, viewport[2] / viewport[3]),
+  );
 }
 
 connector(
@@ -58,16 +62,35 @@ connector(
   ),
 );
 
+/**
+ * Transform matrix relative to the viewport.
+ */
 connector(
-  "matrix/transform",
+  "matrix/viewport-transform",
   withInputSignals(
     () => [
       connect("camera/position"),
       connect("camera/scale"),
       connect("viewport/rect"),
     ],
-    ([position, scale, [_x, _y, w, h]]) =>
-      getTransformMatrix(position, scale, w, h),
+    ([position, scale, viewport]) =>
+      getTransformMatrix(position, scale, [0, 0, viewport[2], viewport[3]]),
+  ),
+);
+
+/**
+ * Transform matrix relative to the client (e.g. the browser).
+ */
+connector(
+  "matrix/client-transform",
+  withInputSignals(
+    () => [
+      connect("camera/position"),
+      connect("camera/scale"),
+      connect("viewport/rect"),
+    ],
+    ([position, scale, viewport]) =>
+      getTransformMatrix(position, scale, viewport),
   ),
 );
 

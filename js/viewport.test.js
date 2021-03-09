@@ -16,14 +16,14 @@ describe("viewport", () => {
     expect(aspect).toBe(2 / 3);
   });
   it("gets viewport matrix", () => {
-    let viewport = getViewportMatrix([1, 2, 800, 600]);
+    let viewport = getViewportMatrix([10, 20, 800, 600]);
     expect(viewport).toEqualMat4(
       // prettier-ignore
       [
         400,   0, 0, 0,
           0, 300, 0, 0,
           0,   0, 1, 0,
-        400, 300, 0, 1,
+        410, 320, 0, 1
       ],
     );
   });
