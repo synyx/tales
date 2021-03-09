@@ -46,6 +46,23 @@ export function getTransformMatrix(position, scale, viewport) {
   );
 }
 
+export function getCameraRect(transform, viewport) {
+  let projectFn = vec =>
+    vec3.transformMat4(
+      vec3.create(),
+      vec,
+      mat4.invert(mat4.create(), transform),
+    );
+  let [x1, y1, _z1] = projectFn([0, 0, 0]);
+  let [x2, y2, _z2] = projectFn([viewport[2], viewport[3], 0]);
+  return {
+    x: x1,
+    y: y1,
+    width: x2 - x1,
+    height: y2 - y1,
+  };
+}
+
 connector(
   "camera/position",
   withInputSignals(
@@ -91,6 +108,14 @@ connector(
     ],
     ([position, scale, viewport]) =>
       getTransformMatrix(position, scale, viewport),
+  ),
+);
+
+connector(
+  "camera/rect",
+  withInputSignals(
+    () => [connect("matrix/viewport-transform"), connect("viewport/rect")],
+    ([transform, viewport]) => getCameraRect(transform, viewport),
   ),
 );
 

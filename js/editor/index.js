@@ -16,6 +16,7 @@ import { preview } from "./preview";
 import { uploader } from "./upload";
 import { slideBounds } from "./slide-bounds";
 import { settings } from "../settings";
+import { normalizeRect } from "../util/geometry";
 
 /**
  * The speed in which the editor zoom level changes when the user zooms in/out.
@@ -30,19 +31,6 @@ function preventNextClickEvent() {
     capture: true,
     once: true,
   });
-}
-
-function normalizeRect(rect) {
-  let p1 = [rect.x, rect.y, 0];
-  let p2 = [p1[0] + rect.width, p1[1] + rect.height, 0];
-  let [x1, y1, _z1] = p1;
-  let [x2, y2, _z2] = p2;
-  return {
-    x: Math.min(x1, x2),
-    y: Math.min(y1, y2),
-    width: Math.abs(x2 - x1),
-    height: Math.abs(y2 - y1),
-  };
 }
 
 function moveRect(rect, delta) {

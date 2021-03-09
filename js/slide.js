@@ -138,6 +138,15 @@ export function add(db, slide) {
   };
 }
 
+export function insert(db, slide, index) {
+  let tale = findTale([db.tales, db.activeTale]);
+  let slides = [...(tale.slides || [])];
+  slides.splice(index, 0, slide);
+  return {
+    trigger: ["projects/update", { ...tale, slides }],
+  };
+}
+
 export function update(db, slide) {
   let tale = findTale([db.tales, db.activeTale]);
   let slides = [...(tale.slides || [])];
@@ -177,5 +186,6 @@ handler("slide/fly-to-prev", ({ db }) => flyToPrev(db));
 handler("slide/fly-to-next", ({ db }) => flyToNext(db));
 handler("slide/focus-current", ({ db }) => focusCurrent(db));
 handler("slide/add", ({ db }, _, slide) => add(db, slide));
+handler("slide/insert", ({ db }, _, slide, index) => insert(db, slide, index));
 handler("slide/update", ({ db }, _, slide) => update(db, slide));
 handler("slide/delete-current", ({ db }) => deleteCurrent(db));

@@ -1,5 +1,6 @@
 import { connect, trigger, withInputSignals } from "flyps";
 import { h } from "flyps-dom-snabbdom";
+import { intersectRects } from "../util/geometry";
 
 export function previewRect(
   rect,
@@ -69,15 +70,47 @@ export function previewItem([tw, th], tale, slide, index, active) {
 }
 
 export const preview = withInputSignals(
-  () => connect("editor/active-slide"),
-  (activeSlide, tale) => {
+  () => [connect("editor/active-slide"), connect("camera/rect")],
+  ([activeSlide, cameraRect], tale) => {
     let tw = 200,
       th = 150;
-    return h(
-      "ol.previews",
-      (tale.slides || []).map((slide, index) =>
+
+    let onInsert = index => () => {
+      let croppedRect = intersectRects(cameraRect, {
+        x: 0,
+        y: 0,
+        ...tale.dimensions,
+      });
+      if (!croppedRect) {
+        return;
+      }
+      trigger(
+        "slide/insert",
+        {
+          rect: croppedRect,
+        },
+        index,
+      );
+    };
+
+    let items = [gap(onInsert(0))];
+    (tale.slides || []).forEach((slide, index) => {
+      items.push(
         previewItem([tw, th], tale, slide, index, index === activeSlide),
-      ),
-    );
+        gap(onInsert(index + 1)),
+      );
+    });
+    return h("ol.previews", items);
   },
 );
+
+const gap = onInsert => {
+  return h("li.slide-gap", [
+    h("div.insert", {
+      on: {
+        click: onInsert,
+      },
+      attrs: { title: "Insert new slide" },
+    }),
+  ]);
+};

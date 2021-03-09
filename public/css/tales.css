@@ -408,7 +408,7 @@ input[type="checkbox"]:focus {
   display: flex;
   flex-direction: column;
   margin: 2rem 0 0;
-  padding: 1rem 2rem;
+  padding: 1rem 2rem 2rem;
   overflow-y: auto;
   list-style: none;
 }
@@ -417,7 +417,7 @@ input[type="checkbox"]:focus {
   position: relative;
   overflow: hidden;
   flex: 0 0 auto;
-  margin: 0.25rem 0;
+  margin: 0.125rem 0;
   cursor: pointer;
   outline: solid 1px var(--preview-outline);
 }
@@ -463,6 +463,28 @@ input[type="checkbox"]:focus {
 }
 #editor .slide-bounds.active {
   pointer-events: initial;
+}
+
+#editor .slide-gap {
+  display: flex;
+  justify-content: center;
+  height: 2rem;
+  margin: -0.75rem 0;
+  z-index: 10;
+}
+
+#editor .slide-gap .insert {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--primary-6)
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' fill='none' d='M 6 10 h 8 M 10 6 V 14'/%3e%3c/svg%3e");
+  box-shadow: 1px 1px 2px var(--shadow-medium);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+#editor .slide-gap .insert:hover {
+  transform: scale(1.1);
 }
 
 #editor .slide-bounds > .frame {

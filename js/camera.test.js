@@ -13,6 +13,7 @@ import {
   moveTo,
   zoomIn,
   zoomOut,
+  getCameraRect,
 } from "./camera";
 
 describe("camera", () => {
@@ -87,6 +88,16 @@ describe("camera", () => {
          110, 220,  3, 1,
       ],
     );
+  });
+  it("gets camera rect", () => {
+    let viewport = [0, 0, 800, 400];
+    let transform = [0.8, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, -1, 0, -400, -200, 0, 1];
+    expect(getCameraRect(transform, viewport)).toEqual({
+      x: 500,
+      y: 250,
+      width: 1000,
+      height: 500,
+    });
   });
   it("zooms in", () => {
     let db = zoomIn({ camera: { position: [0, 0, 0], scale: 1 } });
