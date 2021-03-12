@@ -25,6 +25,7 @@ function createWindow() {
     },
     title: "Tales",
   });
+  win.maximize();
 
   if (isDevelopment) {
     win.webContents.openDevTools();
