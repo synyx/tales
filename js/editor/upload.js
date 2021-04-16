@@ -17,6 +17,7 @@ export let uploader = tale => {
                 ...tale,
                 dimensions: { width, height },
               });
+              trigger("camera/fit-rect", { x: 0, y: 0, width, height });
               trigger("projects/update-image", tale, file);
             })
             .catch(err =>
