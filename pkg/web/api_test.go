@@ -230,7 +230,8 @@ func TestAPI_updateProjectImage(t *testing.T) {
 		header.Add("Content-Type", "image/bmp")
 		resp := tc.RequestWithHeaders("PUT", "/api/tales/foo/image", data, header)
 
-		AssertProjectResponse(t, resp, project.Project{Slug: "foo", Name: "Bar", FilePath: "foo.bmp"}, 202)
+		AssertProjectResponse(t, resp, project.Project{Slug: "foo", Name: "Bar", FilePath: "foo.bmp",
+			FileType: "image/bmp"}, 202)
 	})
 	t.Run("invalid content type", func(t *testing.T) {
 		tc := NewTestClient(t)

@@ -131,6 +131,7 @@ func (fr *FilesystemRepository) SaveImage(slug, contentType string, data []byte)
 		return Project{}, err
 	}
 	project.FilePath = filename
+	project.FileType = contentType
 	project, err = fr.SaveProject(slug, project)
 	if err != nil {
 		return Project{}, err
