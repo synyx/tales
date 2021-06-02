@@ -130,9 +130,9 @@ export function notFound() {
   return h("div", "Unwritten tale…");
 }
 
-function poster(url) {
-  return h("img.poster", {
-    attrs: { src: url },
+function poster(url, type) {
+  return h("object.poster", {
+    attrs: { data: url, type },
   });
 }
 
@@ -239,7 +239,7 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
       },
     },
     [
-      poster(`/editor/${tale.slug}/${tale["file-path"]}`),
+      poster(`/editor/${tale.slug}/${tale["file-path"]}`, tale.fileType),
       layer(
         {
           on: {
