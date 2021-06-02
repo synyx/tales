@@ -24,6 +24,7 @@ type Project struct {
 	Slug       string     `json:"slug"`
 	Name       string     `json:"name"`
 	FilePath   string     `json:"file-path" edn:"file-path"`
+	FileType   string     `json:"fileType" edn:"fileType"`
 	Dimensions Dimensions `json:"dimensions"`
 	Slides     []Slide    `json:"slides"`
 }

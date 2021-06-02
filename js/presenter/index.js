@@ -40,9 +40,10 @@ export let presenter = tale => {
           },
         },
       },
-      h("img", {
+      h("object", {
         attrs: {
-          src: `/editor/${tale.slug}/${tale["file-path"]}`,
+          data: `/editor/${tale.slug}/${tale["file-path"]}`,
+          type: tale.fileType,
         },
       }),
     ),
