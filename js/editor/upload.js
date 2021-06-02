@@ -8,6 +8,7 @@ export let uploader = tale => {
     h("input", {
       attrs: {
         type: "file",
+        accept: "image/*",
       },
       on: {
         change: ev => {
