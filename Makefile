@@ -1,5 +1,6 @@
 PKG := synyx.de/tales
-CMDS := tales-server tales-migrate
+SERVER_CMD := tales-server
+MIGRATE_CMD := tales-migrate
 
 VERSION ?= $(shell git describe --tags --abbrev=0 2> /dev/null)
 GIT_SHA := $(shell git rev-parse HEAD)
@@ -17,7 +18,9 @@ endif
 
 BINDIR=bin/
 PKGDIR=pkg/
-BINARIES=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMDS}))
+SERVER_BINARY=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${SERVER_CMD}))
+MIGRATE_BINARY=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${MIGRATE_CMD}))
+BINARIES=${SERVER_BINARY} ${MIGRATE_BINARY}
 
 .PHONY: all go js \
 	build build-go build-js \
@@ -25,7 +28,7 @@ BINARIES=$(addsuffix ${SUFFIX},$(addprefix ${BINDIR},${CMDS}))
 	coverage coverage-go coverage-js \
 	lint lint-go lint-js \
 	test test-go test-js \
-	dist
+	run dist
 
 all: build
 
@@ -74,6 +77,9 @@ test-go:
 
 test-js:
 	npm run test
+
+run:
+	${SERVER_BINARY} -resources public/
 
 dist: dist-go dist-js
 
