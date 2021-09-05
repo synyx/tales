@@ -16,6 +16,7 @@ import {
   isPointInRect,
   activateAtPosition,
   insert,
+  move,
 } from "./slide";
 
 describe("slide", () => {
@@ -261,6 +262,30 @@ describe("insert", () => {
     expect(effects.trigger).toEqual([
       "projects/update",
       { slug: "test-1", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] },
+    ]);
+  });
+});
+describe("move", () => {
+  it("moves slide to the front", () => {
+    let db = {
+      tales: [{ slug: "test-1", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] }],
+      activeTale: "test-1",
+    };
+    let effects = move(db, 1, 0);
+    expect(effects.trigger).toEqual([
+      "projects/update",
+      { slug: "test-1", slides: [{ id: 2 }, { id: 1 }, { id: 3 }] },
+    ]);
+  });
+  it("moves slide to the back", () => {
+    let db = {
+      tales: [{ slug: "test-1", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] }],
+      activeTale: "test-1",
+    };
+    let effects = move(db, 1, 2);
+    expect(effects.trigger).toEqual([
+      "projects/update",
+      { slug: "test-1", slides: [{ id: 1 }, { id: 3 }, { id: 2 }] },
     ]);
   });
 });
