@@ -205,6 +205,7 @@ describe("slide", () => {
       "projects/update",
       { slug: "test-1", slides: [{ id: 1 }, { id: 2 }] },
     ]);
+    expect(effects.db).toEqual({ ...db, editor: { activeSlide: 1 } });
   });
   it("updates slide", () => {
     let db = {
@@ -263,6 +264,14 @@ describe("insert", () => {
       "projects/update",
       { slug: "test-1", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] },
     ]);
+  });
+  it("activates the new slide", () => {
+    let db = {
+      tales: [{ slug: "test-1", slides: [{ id: 1 }, { id: 2 }] }],
+      activeTale: "test-1",
+    };
+    let effects = insert(db, { id: 3 }, 2);
+    expect(effects.db).toEqual({ ...db, editor: { activeSlide: 2 } });
   });
 });
 describe("move", () => {

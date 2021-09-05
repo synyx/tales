@@ -133,7 +133,9 @@ export function flyToCurrent(db) {
 export function add(db, slide) {
   let tale = findTale([db.tales, db.activeTale]);
   let slides = [...(tale.slides || []), slide];
+  let index = slides.length - 1;
   return {
+    db: activate(db, index),
     trigger: ["projects/update", { ...tale, slides }],
   };
 }
@@ -143,6 +145,7 @@ export function insert(db, slide, index) {
   let slides = [...(tale.slides || [])];
   slides.splice(index, 0, slide);
   return {
+    db: activate(db, index),
     trigger: ["projects/update", { ...tale, slides }],
   };
 }
