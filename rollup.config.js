@@ -12,14 +12,14 @@ export default [
         format: "umd",
         name: "tales",
         sourcemap: true,
-      }
+      },
     ],
     plugins: [
       resolve({
-        dedupe: ["flyps"]
+        dedupe: ["flyps"],
       }),
       commonjs(),
-      babel({ exclude: "node_modules/**" })
+      babel({ exclude: "node_modules/**" }),
     ],
   },
   {
@@ -30,13 +30,9 @@ export default [
         format: "cjs",
         name: "tales-desktop",
         sourcemap: true,
-      }
+      },
     ],
     external: ["child_process", "electron", "path"],
-    plugins: [
-      resolve(),
-      commonjs(),
-      babel({ exclude: "node_modules/**" })
-    ],
+    plugins: [resolve(), commonjs(), babel({ exclude: "node_modules/**" })],
   },
 ];
