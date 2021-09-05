@@ -1,6 +1,7 @@
 import { connect, trigger, withInputSignals } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { intersectRects } from "../util/geometry";
+import * as previewMove from "./preview-move";
 
 export function previewRect(
   rect,
@@ -20,7 +21,7 @@ export function previewRect(
   };
 }
 
-export function previewItem([tw, th], tale, slide, index, active) {
+function previewItem([tw, th], tale, slide, index, active) {
   let imgSrc = `/editor/${tale.slug}/${tale["file-path"]}`;
   let { width, height, x, y } = previewRect(
     slide.rect,
@@ -28,43 +29,65 @@ export function previewItem([tw, th], tale, slide, index, active) {
     [tw, th],
   );
   return h(
-    "li.preview",
+    "li.preview-container",
     {
-      style: {
-        width: `${tw}px`,
-        height: `${th}px`,
-      },
       class: {
-        active: active,
-      },
-      hook: {
-        postpatch: vnode => {
-          if (active) {
-            vnode.elm.scrollIntoView();
-          }
-        },
+        dragging: previewMove.isDragging(),
       },
       on: {
-        click: () => trigger("slide/activate", index),
-        dblclick: () => trigger("camera/fit-rect", slide.rect),
+        dragstart: [previewMove.dragStart, index],
+        dragenter: [previewMove.dragEnter, index],
+        dragover: [previewMove.dragOver, index, th],
+        dragleave: [previewMove.dragLeave, index],
+        drop: [previewMove.drop, index, th],
+        dragend: [previewMove.dragEnd],
       },
     },
     [
-      h("img", {
-        attrs: {
-          src: imgSrc,
-          decoding: "async",
-          importance: "low",
-          loading: "lazy",
+      h(
+        "div.preview",
+        {
+          style: {
+            width: `${tw}px`,
+            height: `${th}px`,
+          },
+          class: {
+            active: active,
+          },
+          hook: {
+            postpatch: vnode => {
+              if (active) {
+                vnode.elm.scrollIntoView();
+              }
+            },
+          },
+          on: {
+            click: () => trigger("slide/activate", index),
+            dblclick: () => trigger("camera/fit-rect", slide.rect),
+          },
         },
-        style: {
-          width: `${width}px`,
-          height: `${height}px`,
-          left: `${x}px`,
-          top: `${y}px`,
-        },
-      }),
-      h("span.index", (index + 1).toString()),
+        [
+          h("img", {
+            attrs: {
+              src: imgSrc,
+              decoding: "async",
+              importance: "low",
+              loading: "lazy",
+              draggable: true,
+            },
+            style: {
+              width: `${width}px`,
+              height: `${height}px`,
+              left: `${x}px`,
+              top: `${y}px`,
+            },
+          }),
+          h("span.index", (index + 1).toString()),
+          previewMove.isDraggedSlide(index)
+            ? h("div.overlay", "Move slide")
+            : null,
+        ],
+      ),
     ],
   );
 }
@@ -75,7 +98,7 @@ export const preview = withInputSignals(
     let tw = 200,
       th = 150;
 
-    let onInsert = index => () => {
+    let onInsert = index => {
       let croppedRect = intersectRects(cameraRect, {
         x: 0,
         y: 0,
@@ -93,24 +116,33 @@ export const preview = withInputSignals(
       );
     };
 
-    let items = [gap(onInsert(0))];
+    let items = [gap(onInsert, 0)];
     (tale.slides || []).forEach((slide, index) => {
       items.push(
         previewItem([tw, th], tale, slide, index, index === activeSlide),
-        gap(onInsert(index + 1)),
+        gap(onInsert, index + 1),
       );
     });
     return h("ol.previews", items);
   },
 );
 
-const gap = onInsert => {
-  return h("li.slide-gap", [
-    h("div.insert", {
-      on: {
-        click: onInsert,
+const gap = (onInsert, index) => {
+  return h(
+    "li.slide-gap",
+    {
+      class: {
+        dragging: previewMove.isDragging(),
       },
-      attrs: { title: "Insert new slide" },
-    }),
-  ]);
+    },
+    [
+      h("div.insert", {
+        on: {
+          click: () => onInsert(index),
+        },
+        attrs: { title: "Insert new slide" },
+      }),
+      previewMove.isDropTarget(index) ? h("div.move-indicator") : null,
+    ],
+  );
 };
