@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "monthly"
     labels:
-      - "type: dependencies"
+      - "dependencies"
       - "javascript"
 
   - package-ecosystem: "gomod"
@@ -13,5 +13,5 @@ updates:
     schedule:
       interval: "monthly"
     labels:
-      - "type: dependencies"
+      - "dependencies"
       - "go"
