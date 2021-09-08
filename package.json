@@ -45,7 +45,7 @@
     "eslint-plugin-jest": "^24.4.0",
     "eslint-plugin-prettier": "^4.0.0",
     "flyps": "^0.6.7",
-    "flyps-dom-snabbdom": "^0.1.4",
+    "flyps-dom-snabbdom": "^0.2.0",
     "gl-matrix": "^3.3.0",
     "jest": "^27.1.0",
     "prettier": "^2.3.2",
