@@ -1,1 +1,22 @@
-{}
+{
+  "home.tale-name-prompt": "Enter the name of your tale",
+
+  "editor.unwritten-tale": "An unwritten tale…",
+  "editor.tell": "Tell",
+  "editor.tell.hint": "Start the presentation",
+  "editor.back-to-home": "Go back to the home page",
+  "editor.show-settings": "Show settings",
+  "editor.move-slide": "Move slide",
+  "editor.insert-new-slide": "Insert new slide",
+
+  "settings.title": "Settings",
+  "settings.done": "Done",
+  "settings.theme.title": "Theme",
+  "settings.theme.light": "light",
+  "settings.theme.dark": "dark",
+  "settings.dim-poster.title": "Dim poster",
+  "settings.dim-poster.description": "Dim the poster in the background so you can focus on your slides.",
+
+  "uploader.upload-poster.title": "You haven't uploaded a poster yet.",
+  "uploader.upload-poster.subtitle": "Select an image to tell your Tale with."
+}

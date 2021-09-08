@@ -7,6 +7,7 @@ import {
   trigger,
   withInputSignals,
 } from "flyps";
+import i18n from "../i18n";
 
 /**
  * The application UI theme (light/dark).
@@ -15,10 +16,13 @@ export const themeSetting = withInputSignals(
   () => [connect("settings/theme")],
   ([currentTheme]) => {
     return h("div", [
-      h("h3", "Theme"),
+      h("h3", i18n("settings.theme.title")),
       h(
         "div.settings-options",
-        ["light", "dark"].map(theme =>
+        [
+          { id: "light", label: i18n("settings.theme.light") },
+          { id: "dark", label: i18n("settings.theme.dark") },
+        ].map(({ theme, label }) =>
           h("label.checkable", [
             h("input", {
               attrs: {
@@ -30,7 +34,7 @@ export const themeSetting = withInputSignals(
                 change: () => trigger("settings/theme-changed", theme),
               },
             }),
-            theme,
+            label,
           ]),
         ),
       ),

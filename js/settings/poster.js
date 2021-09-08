@@ -7,6 +7,7 @@ import {
   trigger,
   withInputSignals,
 } from "flyps";
+import i18n from "../i18n";
 
 /**
  * Settings for the poster in the editor.
@@ -15,7 +16,7 @@ export const posterDimSetting = withInputSignals(
   () => [connect("settings/poster-dim")],
   ([dim]) => {
     return h("div", [
-      h("h3", "Dim poster"),
+      h("h3", i18n("settings.dim-poster.title")),
       h(
         "div.settings-options",
 
@@ -30,7 +31,7 @@ export const posterDimSetting = withInputSignals(
               change: () => trigger("settings/poster-dim-changed", !dim),
             },
           }),
-          "Dim the poster in the editor to increase contrast",
+          i18n("settings.dim-poster.description"),
         ]),
       ),
     ]);

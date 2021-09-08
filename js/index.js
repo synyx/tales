@@ -19,6 +19,7 @@ import "./slide";
 import { editor } from "./editor/index";
 import { presenter } from "./presenter/index";
 import * as router from "./router";
+import i18n from "./i18n/index";
 
 handler(
   "initialize",
@@ -188,7 +189,7 @@ let home = () => {
     h("input", {
       attrs: {
         type: "text",
-        placeholder: "Enter the name of your tale",
+        placeholder: i18n("home.tale-name-prompt"),
         autofocus: true,
         value: input.value(),
       },

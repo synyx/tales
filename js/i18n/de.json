@@ -1,1 +1,22 @@
-{}
+{
+  "home.tale-name-prompt": "Gib einen Namen für deine Geschichte ein",
+
+  "editor.unwritten-tale": "Eine ungeschriebene Geschichte…",
+  "editor.tell": "Erzählen",
+  "editor.tell.hint": "Starte die Präsentation",
+  "editor.back-to-home": "Zurück zur Startseite",
+  "editor.show-settings": "Öffne die Einstellungen",
+  "editor.move-slide": "Folie verschieben",
+  "editor.insert-new-slide": "Neue Folie einfügen",
+
+  "settings.title": "Einstellungen",
+  "settings.done": "Schließen",
+  "settings.theme.title": "Benutzeroberfläche",
+  "settings.theme.light": "hell",
+  "settings.theme.dark": "dunkel",
+  "settings.dim-poster.title": "Poster abdunkeln",
+  "settings.dim-poster.description": "Das Poster im Hintergrund abdunkeln, damit du deine Folien besser im Blick behältst.",
+
+  "uploader.upload-poster.title": "Du hast noch kein Poster hochgeladen.",
+  "uploader.upload-poster.subtitle": "Wähle ein Bild, mit dem du deine Geschichte erzählen willst."
+}
