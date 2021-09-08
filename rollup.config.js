@@ -1,6 +1,8 @@
 import babel from "rollup-plugin-babel";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
+import replace from "@rollup/plugin-replace";
 import pkg from "./package.json";
 
 export default [
@@ -16,9 +18,16 @@ export default [
     ],
     plugins: [
       resolve({
+        browser: true,
         dedupe: ["flyps"],
       }),
       commonjs(),
+      json(),
+      replace({
+        preventAssignment: true,
+        /* workaround for missing env variable  */
+        "process.env.NODE_ENV": JSON.stringify("production"),
+      }),
       babel({ exclude: "node_modules/**" }),
     ],
   },
