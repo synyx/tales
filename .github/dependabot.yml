@@ -15,3 +15,11 @@ updates:
     labels:
       - "dependencies"
       - "go"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "github_actions"
