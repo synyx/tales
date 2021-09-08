@@ -196,7 +196,7 @@ label.checkable {
 input[type="radio"],
 input[type="checkbox"] {
   display: block;
-  flex: 0 1 1.25em;
+  flex: 0 0 1.25em;
   width: 1.25em;
   height: 1.25em;
   margin: 0.125em 0.5rem 0 0;
@@ -477,8 +477,8 @@ input[type="checkbox"]:focus {
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
   background-color: var(--preview-overlay-bg);
+  text-align: center;
   font-size: 1.5rem;
   color: var(--preview-overlay-fg);
   opacity: 1;
