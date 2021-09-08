@@ -104,20 +104,18 @@ describe("camera", () => {
     expect(db.camera.scale).toBe(0.5);
   });
   it("zooms in with anchor", () => {
-    let db = zoomIn({ camera: { position: [10, 20, 0], scale: 1 } }, [
-      40,
-      80,
-      0,
-    ]);
+    let db = zoomIn(
+      { camera: { position: [10, 20, 0], scale: 1 } },
+      [40, 80, 0],
+    );
     expect(db.camera.position).toEqualVec3([25, 50, 0]);
     expect(db.camera.scale).toBe(0.5);
   });
   it("zooms in with anchor at current position", () => {
-    let db = zoomIn({ camera: { position: [10, 20, 0], scale: 1 } }, [
-      10,
-      20,
-      0,
-    ]);
+    let db = zoomIn(
+      { camera: { position: [10, 20, 0], scale: 1 } },
+      [10, 20, 0],
+    );
     expect(db.camera.position).toEqualVec3([10, 20, 0]);
     expect(db.camera.scale).toBe(0.5);
   });
@@ -134,20 +132,18 @@ describe("camera", () => {
     expect(db.camera.scale).toBe(2);
   });
   it("zooms out with anchor", () => {
-    let db = zoomOut({ camera: { position: [10, 20, 0], scale: 1 } }, [
-      40,
-      80,
-      0,
-    ]);
+    let db = zoomOut(
+      { camera: { position: [10, 20, 0], scale: 1 } },
+      [40, 80, 0],
+    );
     expect(db.camera.position).toEqualVec3([-20, -40, 0]);
     expect(db.camera.scale).toBe(2);
   });
   it("zooms out with anchor at current position", () => {
-    let db = zoomOut({ camera: { position: [10, 20, 0], scale: 1 } }, [
-      10,
-      20,
-      0,
-    ]);
+    let db = zoomOut(
+      { camera: { position: [10, 20, 0], scale: 1 } },
+      [10, 20, 0],
+    );
     expect(db.camera.position).toEqualVec3([10, 20, 0]);
     expect(db.camera.scale).toBe(2);
   });

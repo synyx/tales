@@ -63,6 +63,7 @@ describe("determineImageDimensions", () => {
   it("rejects on unknown width or height", () => {
     expect.assertions(1);
     return determineImageDimensions(pngFile).catch(reason =>
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(reason).toBe("undefined width or height"),
     );
   });
@@ -89,12 +90,14 @@ describe("determineImageDimensions", () => {
   it("rejects on invalid svg viewbox", () => {
     expect.assertions(1);
     return determineImageDimensions(svgFile3).catch(reason =>
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(reason).toBe("undefined width or height"),
     );
   });
   it("rejects on invalid svg", () => {
     expect.assertions(1);
     return determineImageDimensions(xmlFile).catch(reason =>
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(reason).toContain("failed to get svg from document:"),
     );
   });

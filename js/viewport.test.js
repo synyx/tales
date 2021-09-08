@@ -28,12 +28,10 @@ describe("viewport", () => {
     );
   });
   it("sets rect", () => {
-    let db = setViewportRect({ viewport: { rect: [0, 0, 0, 0] } }, [
-      10,
-      20,
-      30,
-      40,
-    ]);
+    let db = setViewportRect(
+      { viewport: { rect: [0, 0, 0, 0] } },
+      [10, 20, 30, 40],
+    );
     expect(db.viewport.rect).toEqual([10, 20, 30, 40]);
   });
   it("renders viewport with a default style", () => {
