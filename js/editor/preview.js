@@ -36,12 +36,12 @@ function previewItem([tw, th], tale, slide, index, active) {
         dragging: previewMove.isDragging(),
       },
       on: {
-        dragstart: [previewMove.dragStart, index],
-        dragenter: [previewMove.dragEnter, index],
-        dragover: [previewMove.dragOver, index, th],
-        dragleave: [previewMove.dragLeave, index],
-        drop: [previewMove.drop, index, th],
-        dragend: [previewMove.dragEnd],
+        dragstart: ev => previewMove.dragStart(index, ev),
+        dragenter: ev => previewMove.dragEnter(index, ev),
+        dragover: ev => previewMove.dragOver(index, th, ev),
+        dragleave: ev => previewMove.dragLeave(index, ev),
+        drop: ev => previewMove.drop(index, th, ev),
+        dragend: ev => previewMove.dragEnd(ev),
       },
     },
     [
