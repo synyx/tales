@@ -2,6 +2,7 @@ import { connect, trigger, withInputSignals } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { intersectRects } from "../util/geometry";
 import * as previewMove from "./preview-move";
+import i18n from "../i18n";
 
 export function previewRect(
   rect,
@@ -84,7 +85,7 @@ function previewItem([tw, th], tale, slide, index, active) {
           }),
           h("span.index", (index + 1).toString()),
           previewMove.isDraggedSlide(index)
-            ? h("div.overlay", "Move slide")
+            ? h("div.overlay", i18n("editor.move-slide"))
             : null,
         ],
       ),
@@ -140,7 +141,7 @@ const gap = (onInsert, index) => {
         on: {
           click: () => onInsert(index),
         },
-        attrs: { title: "Insert new slide" },
+        attrs: { title: i18n("editor.insert-new-slide") },
       }),
       previewMove.isDropTarget(index) ? h("div.move-indicator") : null,
     ],

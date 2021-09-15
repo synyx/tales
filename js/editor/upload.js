@@ -1,10 +1,11 @@
 import { trigger } from "flyps";
 import { h } from "flyps-dom-snabbdom";
+import i18n from "../i18n";
 
 export let uploader = tale => {
   return h("div.poster-uploader", [
-    h("h2", "You haven't uploaded a poster yet."),
-    h("h3", "Please do so now to start editing your tale!"),
+    h("h2", i18n("uploader.upload-poster.title")),
+    h("h3", i18n("uploader.upload-poster.subtitle")),
     h("input", {
       attrs: {
         type: "file",

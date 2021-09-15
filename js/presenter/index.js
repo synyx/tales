@@ -2,13 +2,14 @@ import { trigger } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 
 import { viewport } from "../viewport";
+import i18n from "../i18n";
 
 /**
  * views
  */
 
 export function notFound() {
-  return h("div", "Unwritten tale…");
+  return h("div", i18n("editor.unwritten-tale"));
 }
 
 export let presenter = tale => {

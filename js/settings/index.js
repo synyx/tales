@@ -12,6 +12,7 @@ import { h } from "flyps-dom-snabbdom";
 import "../util/effects";
 import { themeSetting } from "./theme";
 import { posterDimSetting } from "./poster";
+import i18n from "../i18n";
 
 const DEFAULT_SETTINGS = {
   theme: "light",
@@ -35,13 +36,13 @@ export let settings = withInputSignals(
       { on: { click: () => trigger("settings/hide") } },
       [
         h("div", { on: { click: e => e.stopPropagation() } }, [
-          h("header", h("h2", "Settings")),
+          h("header", h("h2", i18n("settings.title"))),
           h("div.settings-body", [themeSetting(), posterDimSetting()]),
           h("footer", [
             h(
               "button.button.settings-done",
               { on: { click: () => trigger("settings/hide") } },
-              "Done",
+              i18n("settings.done"),
             ),
           ]),
         ]),

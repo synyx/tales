@@ -17,6 +17,7 @@ import { uploader } from "./upload";
 import { slideBounds } from "./slide-bounds";
 import { settings } from "../settings";
 import { normalizeRect } from "../util/geometry";
+import i18n from "../i18n";
 
 /**
  * The speed in which the editor zoom level changes when the user zooms in/out.
@@ -127,7 +128,7 @@ connector(
  */
 
 export function notFound() {
-  return h("div", "Unwritten tale…");
+  return h("div", i18n("editor.unwritten-tale"));
 }
 
 function poster(url, type) {
@@ -289,23 +290,23 @@ export let editor = withInputSignals(
             {
               attrs: {
                 href: `#presenter/${tale.slug}/`,
-                title: "Start the presentation",
+                title: i18n("editor.tell.hint"),
               },
             },
-            ["Tell", h("span.icon.--right", chevronRight())],
+            [i18n("editor.tell"), h("span.icon.--right", chevronRight())],
           ),
         ]),
         preview(tale),
         h("footer.sidebar-footer", [
           h(
             "a.icon.sidebar-icon",
-            { attrs: { href: "#", title: "Go back to the home page" } },
+            { attrs: { href: "#", title: i18n("editor.back-to-home") } },
             home(),
           ),
           h(
             "button.icon.sidebar-icon",
             {
-              attrs: { title: "Show Tales settings" },
+              attrs: { title: i18n("editor.show-settings") },
               on: { click: () => trigger("settings/show") },
             },
             gear(),

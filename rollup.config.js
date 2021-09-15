@@ -1,6 +1,8 @@
 import babel from "rollup-plugin-babel";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
+import replace from "@rollup/plugin-replace";
 import pkg from "./package.json";
 
 export default [
@@ -12,14 +14,21 @@ export default [
         format: "umd",
         name: "tales",
         sourcemap: true,
-      }
+      },
     ],
     plugins: [
       resolve({
-        dedupe: ["flyps"]
+        browser: true,
+        dedupe: ["flyps"],
       }),
       commonjs(),
-      babel({ exclude: "node_modules/**" })
+      json(),
+      replace({
+        preventAssignment: true,
+        /* workaround for missing env variable  */
+        "process.env.NODE_ENV": JSON.stringify("production"),
+      }),
+      babel({ exclude: "node_modules/**" }),
     ],
   },
   {
@@ -30,13 +39,9 @@ export default [
         format: "cjs",
         name: "tales-desktop",
         sourcemap: true,
-      }
+      },
     ],
     external: ["child_process", "electron", "path"],
-    plugins: [
-      resolve(),
-      commonjs(),
-      babel({ exclude: "node_modules/**" })
-    ],
+    plugins: [resolve(), commonjs(), babel({ exclude: "node_modules/**" })],
   },
 ];
