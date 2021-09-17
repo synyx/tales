@@ -20,6 +20,7 @@ import { editor } from "./editor/index";
 import { presenter } from "./presenter/index";
 import * as router from "./router";
 import i18n from "./i18n/index";
+import { arrowRight } from "./icons";
 
 handler(
   "initialize",
@@ -134,8 +135,9 @@ window.addEventListener("keydown", ev => trigger("key-pressed", ev));
 let input = signal("");
 let clear = () => input.reset("");
 let save = () => {
-  if (input.value()) {
-    trigger("projects/add", { name: input.value() });
+  let name = input.value().trim();
+  if (name) {
+    trigger("projects/add", { name });
   }
   clear();
 };
@@ -181,26 +183,35 @@ let home = () => {
     }
   };
   let onInput = e => input.reset(e.target.value);
+  let validName = !!input.value().trim();
 
   return h("div#home", [
     h("object.logo", {
       attrs: { type: "image/svg+xml", data: "/images/tales.svg" },
     }),
-    h("input", {
-      attrs: {
-        type: "text",
-        placeholder: i18n("home.tale-name-prompt"),
-        autofocus: true,
-        value: input.value(),
-      },
-      hook: {
-        update: (o, n) => (n.elm.value = input.value()),
-      },
-      on: {
-        keydown: onKeydown,
-        input: onInput,
-      },
-    }),
+    h("div.tale-name", [
+      h("input", {
+        attrs: {
+          type: "text",
+          placeholder: i18n("home.tale-name-prompt"),
+          autofocus: true,
+          value: input.value(),
+        },
+        hook: {
+          update: (o, n) => (n.elm.value = input.value()),
+        },
+        on: {
+          keydown: onKeydown,
+          input: onInput,
+        },
+      }),
+      h(
+        "button.icon-button",
+        { attrs: { disabled: !validName }, on: { click: save } },
+        arrowRight(),
+      ),
+    ]),
+
     taleList(),
   ]);
 };

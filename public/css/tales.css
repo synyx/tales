@@ -50,6 +50,9 @@
   --tale-list-bg: var(--white);
   --tale-list-bg-hover: var(--primary-4);
   --tale-list-text: var(--text);
+  --home-button-disabled-fg: var(--gray-5);
+  --home-button-fg: var(--primary-6);
+  --home-button-active-fg: var(--primary-7);
 
   --editor-bg: var(--primary-1);
   --sidebar-bg: var(--gray-7);
@@ -96,6 +99,9 @@
   --home-bg: var(--primary-8);
   --tale-list-bg: var(--gray-7);
   --tale-list-text: var(--text);
+  --home-button-disabled-fg: var(--gray-6);
+  --home-button-fg: var(--primary-4);
+  --home-button-active-fg: var(--primary-3);
 
   --editor-bg: var(--gray-8);
   --sidebar-bg: var(--gray-9);
@@ -137,7 +143,6 @@ a {
 
 input[type="text"] {
   display: block;
-  margin-bottom: 2rem;
   padding: 0.75rem 1rem;
   border-radius: 0.25rem;
   border: none;
@@ -162,9 +167,9 @@ input[type="text"]:focus {
   text-decoration: none;
   line-height: 1.75;
   color: var(--btn-secondary-text);
-  box-shadow: 0 1px 3px var(--shadow-light);
+  box-shadow: 0 1px 1px var(--shadow-light), 0 2px 3px var(--shadow-light);
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 .button:hover {
   opacity: 0.85;
@@ -178,6 +183,25 @@ input[type="text"]:focus {
   margin-left: 0.5rem;
 }
 .button .icon svg {
+  height: 100%;
+}
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-button-size);
+  height: var(--icon-button-size);
+  padding: calc(var(--icon-button-size) / 5);
+  border-style: none;
+  border-radius: 50%;
+  background-color: var(--icon-button-bg);
+  text-decoration: none;
+  color: var(--icon-button-fg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.icon-button > svg {
   height: 100%;
 }
 
@@ -249,6 +273,30 @@ input[type="checkbox"]:focus {
   height: 12rem;
   max-width: 90%;
   margin: 4rem auto;
+}
+
+#home .tale-name {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+#home .tale-name input {
+  flex: 1;
+  padding-right: 2.5rem;
+}
+#home .tale-name button {
+  margin-left: -2.25rem;
+  --icon-button-size: 2.25rem;
+  --icon-button-bg: transparent;
+  --icon-button-fg: var(--home-button-fg);
+}
+#home .tale-name button:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  --icon-button-fg: var(--home-button-disabled-fg);
+}
+#home .tale-name button:hover {
+  --icon-button-fg: var(--home-button-active-fg);
 }
 
 #home .tale-list {
@@ -383,27 +431,12 @@ input[type="checkbox"]:focus {
 }
 
 #editor .sidebar-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0.5rem;
-  border-style: none;
-  border-radius: 50%;
-  background-color: transparent;
-  text-decoration: none;
-  color: var(--sidebar-text);
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
+  --icon-button-size: 2.5rem;
+  --icon-button-bg: transparent;
+  --icon-button-fg: var(--sidebar-text);
 }
-
 #editor .sidebar-icon:hover {
-  background-color: var(--sidebar-button-hover);
-}
-
-#editor .sidebar-icon > svg {
-  height: 100%;
+  --icon-button-bg: var(--sidebar-button-hover);
 }
 
 #editor .previews {
@@ -659,16 +692,14 @@ svg.chevron {
   transition: transform var(--transition-fast);
   transform-origin: center;
 }
-.icon:hover > svg.chevron,
-.button:hover .icon > svg.chevron {
+*:hover .icon > svg.chevron {
   transform: scaleY(0.8);
 }
 
 svg.home .roof {
   transition: transform var(--transition-fast);
 }
-.icon:hover > svg.home .roof,
-.button:hover .icon > svg.home .roof {
+*:hover > svg.home .roof {
   transform: translateY(-1px);
 }
 
@@ -676,6 +707,13 @@ svg.gear {
   transition: transform var(--transition-fast);
   transform-origin: center;
 }
-.icon:hover > svg.gear {
+*:hover > svg.gear {
   transform: rotate(45deg);
+}
+
+svg.arrow-right {
+  transition: transform var(--transition-fast);
+}
+*:hover > svg.arrow-right {
+  transform: translateX(2px);
 }

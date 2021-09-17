@@ -299,12 +299,12 @@ export let editor = withInputSignals(
         preview(tale),
         h("footer.sidebar-footer", [
           h(
-            "a.icon.sidebar-icon",
+            "a.icon-button.sidebar-icon",
             { attrs: { href: "#", title: i18n("editor.back-to-home") } },
             home(),
           ),
           h(
-            "button.icon.sidebar-icon",
+            "button.icon-button.sidebar-icon",
             {
               attrs: { title: i18n("editor.show-settings") },
               on: { click: () => trigger("settings/show") },

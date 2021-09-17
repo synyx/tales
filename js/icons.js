@@ -74,3 +74,27 @@ export const gear = (data = {}) => {
     }),
   ]);
 };
+
+export const arrowRight = (data = {}) => {
+  return h("svg.arrow-right", { ...data, attrs: { viewBox: [0, 0, 11, 10] } }, [
+    h("path.arrow-shaft", {
+      attrs: {
+        d: "M 2 5 H 7",
+        stroke: "currentColor",
+        fill: "none",
+        "stroke-width": 2,
+        "stroke-linecap": "round",
+      },
+    }),
+    h("path.arrow-head", {
+      attrs: {
+        d: "M 6 2 L 9 5 L 6 8",
+        stroke: "currentColor",
+        fill: "none",
+        "stroke-width": 2,
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+      },
+    }),
+  ]);
+};
