@@ -1,6 +1,6 @@
 import { connect, trigger, withInputSignals } from "flyps";
 import { h } from "flyps-dom-snabbdom";
-import { intersectRects } from "../util/geometry";
+import { intersectRects, padRect } from "../util/geometry";
 import * as previewMove from "./preview-move";
 import i18n from "../i18n";
 
@@ -111,7 +111,7 @@ export const preview = withInputSignals(
       trigger(
         "slide/insert",
         {
-          rect: croppedRect,
+          rect: padRect(croppedRect, 0.1),
         },
         index,
       );
