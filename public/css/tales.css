@@ -34,6 +34,7 @@
   --text-inverse: var(--gray-1);
   --text: var(--gray-9);
   --text-medium: var(--gray-6);
+  --text-light: var(--gray-4);
   --text-primary: var(--primary-5);
   --shadow-light: #0002;
   --shadow-medium: #0003;
@@ -68,6 +69,9 @@
   --preview-overlay-fg: var(--white);
   --slide-bounds: var(--primary-5);
   --editor-dim: #fffb;
+  --poster-uploader-dropping-bg: var(--primary-2);
+  --poster-uploader-drop: var(--gray-3);
+  --poster-uploader-drop-active: var(--primary-3);
 
   --settings-bg: var(--white);
   --settings-backdrop: #3338;
@@ -76,7 +80,7 @@
   --font-size-base: 16px;
   --font-size-small: 0.9em;
   --font-size-medium: 1.1em;
-  --line-height: 24px;
+  --line-height: 1.5;
   --transition-fast: 200ms;
 
   --tale-preview-width: 200px;
@@ -86,6 +90,7 @@
   --text-inverse: var(--gray-9);
   --text: var(--gray-1);
   --text-medium: var(--gray-5);
+  --text-light: var(--gray-6);
   --text-primary: var(--primary-4);
   --shadow-strong: #0007;
   --highlight: var(--secondary-4);
@@ -111,6 +116,9 @@
   --preview-index-text: var(--text);
   --slide-bounds: var(--primary-4);
   --editor-dim: #000b;
+  --poster-uploader-dropping-bg: var(--gray-7);
+  --poster-uploader-drop: var(--gray-6);
+  --poster-uploader-drop-active: var(--gray-5);
 
   --settings-bg: var(--gray-8);
   --settings-backdrop: #3338;
@@ -578,13 +586,60 @@ input[type="checkbox"]:focus {
 }
 
 #editor .poster-uploader {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: absolute;
+  padding: 0 10vw;
+  text-align: center;
+}
+#editor .poster-uploader.dropping {
+  background-color: var(--poster-uploader-dropping-bg);
+}
+
+#editor .poster-uploader > * {
+  pointer-events: none;
+}
+
+#editor .poster-uploader h2 {
+  margin-top: 0;
+  font-weight: lighter;
+  font-size: 3rem;
+  line-height: 1.2;
+  color: var(--text-light);
+}
+#editor .poster-uploader h3 {
+  margin-bottom: 0;
+}
+
+#editor .poster-uploader .drop-target {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  height: 100%;
+  margin-top: 2rem;
+  padding: 2rem;
+  border: dashed 5px var(--poster-uploader-drop);
+  border-radius: 0.5rem;
+  color: var(--text-medium);
+  transition: all var(--transition-fast);
+}
+#editor .poster-uploader.dropping .drop-target {
+  border-color: var(--poster-uploader-drop-active);
+  transform: scale(1.025);
+}
+#editor .poster-uploader .drop-target > * {
+  margin: 0.5rem 0;
+}
+
+#editor .poster-uploader .select-image {
+  pointer-events: all;
+}
+
+#editor .poster-uploader input {
+  display: none;
 }
 
 #editor .poster {
