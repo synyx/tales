@@ -8,6 +8,7 @@
   "editor.show-settings": "Show settings",
   "editor.move-slide": "Move slide",
   "editor.insert-new-slide": "Insert new slide",
+  "editor.insert-new-slide-help": "Use the plus icon to insert new slides. You can also add new slides by drawing a rectangle onto your image while pressing the Ctrl key.",
 
   "settings.title": "Settings",
   "settings.done": "Done",

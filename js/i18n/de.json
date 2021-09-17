@@ -8,6 +8,7 @@
   "editor.show-settings": "Öffne die Einstellungen",
   "editor.move-slide": "Folie verschieben",
   "editor.insert-new-slide": "Neue Folie einfügen",
+  "editor.insert-new-slide-help": "Mit dem Plus-Icon kannst du neue Folien hinzufügen. Alternativ kannst du bei gedrückter Strg-Taste eine neue Folie direkt auf dein Bild zeichnen.",
 
   "settings.title": "Einstellungen",
   "settings.done": "Schließen",

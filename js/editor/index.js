@@ -280,23 +280,25 @@ export let editor = withInputSignals(
     if (!tale) {
       return notFound();
     }
+    const hasPoster = tale["file-path"];
 
     return h("div#editor", [
       h("div.sidebar", [
         h("header.sidebar-header", [
           h("h2.sidebar-title", tale.name),
-          h(
-            "a.button.sidebar-tell",
-            {
-              attrs: {
-                href: `#presenter/${tale.slug}/`,
-                title: i18n("editor.tell.hint"),
+          hasPoster &&
+            h(
+              "a.button.sidebar-tell",
+              {
+                attrs: {
+                  href: `#presenter/${tale.slug}/`,
+                  title: i18n("editor.tell.hint"),
+                },
               },
-            },
-            [i18n("editor.tell"), h("span.icon.--right", chevronRight())],
-          ),
+              [i18n("editor.tell"), h("span.icon.--right", chevronRight())],
+            ),
         ]),
-        preview(tale),
+        hasPoster ? preview(tale) : h("div.previews-empty"),
         h("footer.sidebar-footer", [
           h(
             "a.icon-button.sidebar-icon",

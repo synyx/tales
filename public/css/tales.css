@@ -397,7 +397,6 @@ input[type="checkbox"]:focus {
 #editor .sidebar {
   display: flex;
   flex-direction: column;
-  min-width: var(--tale-preview-width);
   height: 100%;
   z-index: 10;
   border-right: solid 2px transparent;
@@ -447,6 +446,12 @@ input[type="checkbox"]:focus {
   --icon-button-bg: var(--sidebar-button-hover);
 }
 
+#editor .previews-empty {
+  flex: 1;
+  width: var(--tale-preview-width);
+  margin: 0 2rem;
+}
+
 #editor .previews {
   flex: 1;
   display: flex;
@@ -456,6 +461,10 @@ input[type="checkbox"]:focus {
   overflow-y: auto;
   list-style: none;
   user-select: none;
+}
+
+#editor .previews > * {
+  width: var(--tale-preview-width);
 }
 
 #editor .preview-container {
@@ -525,6 +534,12 @@ input[type="checkbox"]:focus {
   opacity: 1;
   z-index: 5;
   pointer-events: none;
+}
+
+#editor .insert-slide-help {
+  padding: 2rem 0;
+  text-align: center;
+  opacity: 0.5;
 }
 
 #editor .slide-bounds {
