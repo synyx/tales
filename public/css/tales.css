@@ -39,7 +39,6 @@
   --shadow-light: #0002;
   --shadow-medium: #0003;
   --shadow-strong: #0005;
-  --highlight: var(--secondary-5);
   --input: var(--gray-1);
   --input-focus: var(--white);
   --input-outline: var(--primary-1);
@@ -68,6 +67,7 @@
   --preview-overlay-bg: rgba(0, 0, 0, 0.5);
   --preview-overlay-fg: var(--white);
   --slide-bounds: var(--primary-5);
+  --slide-bounds-active: var(--secondary-5);
   --editor-dim: #fffb;
   --poster-uploader-dropping-bg: var(--primary-2);
   --poster-uploader-drop: var(--gray-3);
@@ -93,7 +93,6 @@
   --text-light: var(--gray-6);
   --text-primary: var(--primary-4);
   --shadow-strong: #0007;
-  --highlight: var(--secondary-4);
 
   --input: var(--gray-8);
   --input-focus: var(--gray-9);
@@ -115,6 +114,7 @@
   --preview-index-bg: var(--gray-7);
   --preview-index-text: var(--text);
   --slide-bounds: var(--primary-4);
+  --slide-bounds-active: var(--secondary-4);
   --editor-dim: #000b;
   --poster-uploader-dropping-bg: var(--gray-7);
   --poster-uploader-drop: var(--gray-6);
@@ -548,6 +548,14 @@ input[type="checkbox"]:focus {
 #editor .slide-bounds.active {
   pointer-events: initial;
 }
+#editor .slide-bounds.active .slide-bound-click {
+  fill-opacity: 0;
+}
+#editor .slide-bounds.active .slide-bound-show {
+  fill: var(--slide-bounds-active);
+  stroke: var(--white);
+  pointer-events: none;
+}
 
 #editor .slide-gap {
   position: relative;
@@ -565,7 +573,7 @@ input[type="checkbox"]:focus {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: var(--primary-6)
+  background: var(--btn-secondary)
     url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' fill='none' d='M 6 10 h 8 M 10 6 V 14'/%3e%3c/svg%3e");
   box-shadow: 1px 1px 2px var(--shadow-medium);
   cursor: pointer;
@@ -593,11 +601,15 @@ input[type="checkbox"]:focus {
 #editor .slide-bounds > .frame {
   stroke: var(--slide-bounds);
   fill: var(--slide-bounds);
+  fill-opacity: 0.1;
 }
 
 #editor .slide-bounds.active > .frame {
-  stroke: var(--highlight);
-  fill: var(--highlight);
+  stroke: var(--slide-bounds-active);
+  fill: var(--slide-bounds-active);
+}
+#editor .slide-bounds.preview > .frame {
+  stroke-opacity: 0.5;
 }
 
 #editor .poster-uploader {

@@ -1,95 +1,81 @@
 import { dragging } from "../util/drag";
 import { h } from "flyps-dom-snabbdom";
 
-let slideMarkers = (slideRect, markerWidth, markerHeight) => [
+let slideMarkers = slideRect => [
   {
     position: "top-left",
     cursor: "nw-resize",
     bounds: {
-      x: slideRect.x - markerWidth,
-      y: slideRect.y - markerHeight,
-      width: 2 * markerWidth,
-      height: 2 * markerHeight,
+      x: slideRect.x,
+      y: slideRect.y,
     },
   },
   {
     position: "top",
     cursor: "n-resize",
     bounds: {
-      x: slideRect.x + markerWidth,
-      y: slideRect.y - markerHeight,
-      width: slideRect.width - 2 * markerWidth,
-      height: 2 * markerHeight,
+      x: slideRect.x + slideRect.width / 2,
+      y: slideRect.y,
     },
   },
   {
     position: "top-right",
     cursor: "ne-resize",
     bounds: {
-      x: slideRect.x + slideRect.width - markerWidth,
-      y: slideRect.y - markerHeight,
-      width: 2 * markerWidth,
-      height: 2 * markerHeight,
+      x: slideRect.x + slideRect.width,
+      y: slideRect.y,
     },
   },
   {
     position: "right",
     cursor: "e-resize",
     bounds: {
-      x: slideRect.x + slideRect.width - markerWidth,
-      y: slideRect.y + markerHeight,
-      width: 2 * markerWidth,
-      height: slideRect.height - 2 * markerHeight,
+      x: slideRect.x + slideRect.width,
+      y: slideRect.y + slideRect.height / 2,
     },
   },
   {
     position: "bottom-right",
     cursor: "se-resize",
     bounds: {
-      x: slideRect.x + slideRect.width - markerWidth,
-      y: slideRect.y + slideRect.height - markerHeight,
-      width: 2 * markerWidth,
-      height: 2 * markerHeight,
+      x: slideRect.x + slideRect.width,
+      y: slideRect.y + slideRect.height,
     },
   },
   {
     position: "bottom",
     cursor: "s-resize",
     bounds: {
-      x: slideRect.x + markerWidth,
-      y: slideRect.y + slideRect.height - markerHeight,
-      width: slideRect.width - 2 * markerWidth,
-      height: 2 * markerHeight,
+      x: slideRect.x + slideRect.width / 2,
+      y: slideRect.y + slideRect.height,
     },
   },
   {
     position: "bottom-left",
     cursor: "sw-resize",
     bounds: {
-      x: slideRect.x - markerWidth,
-      y: slideRect.y + slideRect.height - markerHeight,
-      width: 2 * markerWidth,
-      height: 2 * markerHeight,
+      x: slideRect.x,
+      y: slideRect.y + slideRect.height,
     },
   },
   {
     position: "left",
     cursor: "w-resize",
     bounds: {
-      x: slideRect.x - markerWidth,
-      y: slideRect.y + markerHeight,
-      width: 2 * markerWidth,
-      height: slideRect.height - 2 * markerHeight,
+      x: slideRect.x,
+      y: slideRect.y + slideRect.height / 2,
     },
   },
 ];
 
 export const slideBounds = (rect, scale, index, options = {}) => {
-  let { active, onMove, onMoveEnd, onResize, onResizeEnd, onClick } = options;
+  let { active, preview, onMove, onMoveEnd, onResize, onResizeEnd, onClick } =
+    options;
   let { x, y, width, height } = rect;
-  let markerWidth = Math.min(10 / scale, width / 3);
-  let markerHeight = Math.min(10 / scale, height / 3);
   let strokeWidth = 2 / scale;
+  let markerSize = 5 / scale;
+  let markerClickSize = 15 / scale;
+  let markerStrokeWidth = 1.5 / scale;
 
   let startMove = ev => {
     dragging(ev, {
@@ -99,22 +85,22 @@ export const slideBounds = (rect, scale, index, options = {}) => {
     });
     ev.stopPropagation();
   };
-  let startResize = (ev, position) => {
+  let startResize = (ev, position, cursor) => {
     dragging(ev, {
-      onDragChange: (ev, ...args) => onResize(ev, position, ...args),
+      onDragChange: (ev, ...args) => onResize(ev, position, cursor, ...args),
       onDragEnd: (ev, ...args) => onResizeEnd(ev, position, ...args),
     });
     ev.stopPropagation();
   };
-
-  let markers = active
+  let showMarkers = active && !preview;
+  let markers = showMarkers
     ? [
         h("rect", {
           attrs: {
-            x: x + markerWidth,
-            y: y + markerHeight,
-            width: width - 2 * markerWidth,
-            height: height - 2 * markerHeight,
+            x: x,
+            y: y,
+            width: width,
+            height: height,
             "fill-opacity": 0,
             cursor: "move",
           },
@@ -122,19 +108,30 @@ export const slideBounds = (rect, scale, index, options = {}) => {
             mousedown: ev => startMove(ev),
           },
         }),
-        ...slideMarkers(rect, markerWidth, markerHeight).map(
-          ({ position, cursor, bounds }) =>
-            h("rect", {
+        ...slideMarkers(rect).map(({ position, cursor, bounds }) =>
+          h("g", [
+            h("circle.slide-bound-click", {
               id: position,
               attrs: {
                 cursor,
-                ...bounds,
-                "fill-opacity": 0,
+                cx: bounds.x,
+                cy: bounds.y,
+                r: markerClickSize,
               },
               on: {
-                mousedown: ev => startResize(ev, position),
+                mousedown: ev => startResize(ev, position, cursor),
               },
             }),
+            h("circle.slide-bound-show", {
+              attrs: {
+                cursor,
+                cx: bounds.x,
+                cy: bounds.y,
+                r: markerSize,
+                "stroke-width": markerStrokeWidth,
+              },
+            }),
+          ]),
         ),
       ]
     : [];
@@ -142,7 +139,7 @@ export const slideBounds = (rect, scale, index, options = {}) => {
   return h(
     "g.slide-bounds",
     {
-      class: { active: active },
+      class: { active, preview },
     },
     [
       h("rect.frame", {
@@ -152,7 +149,6 @@ export const slideBounds = (rect, scale, index, options = {}) => {
           width: width,
           height: height,
           "stroke-width": strokeWidth,
-          "fill-opacity": 0.1,
         },
       }),
       ...markers,
