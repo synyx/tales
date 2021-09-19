@@ -271,7 +271,7 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
             ? [
                 slideBounds(drawRect.value(), scale, null, {
                   active: true,
-                  preview: true,
+                  ghost: true,
                 }),
               ]
             : []),

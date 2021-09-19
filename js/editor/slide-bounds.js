@@ -69,7 +69,7 @@ let slideMarkers = slideRect => [
 ];
 
 export const slideBounds = (rect, scale, index, options = {}) => {
-  let { active, preview, onMove, onMoveEnd, onResize, onResizeEnd, onClick } =
+  let { active, ghost, onMove, onMoveEnd, onResize, onResizeEnd, onClick } =
     options;
   let { x, y, width, height } = rect;
   let strokeWidth = 2 / scale;
@@ -94,7 +94,7 @@ export const slideBounds = (rect, scale, index, options = {}) => {
     });
     ev.stopPropagation();
   };
-  let showMarkers = active && !preview;
+  let showMarkers = active && !ghost;
   let markers = showMarkers
     ? [
         h("rect", {
@@ -141,7 +141,7 @@ export const slideBounds = (rect, scale, index, options = {}) => {
   return h(
     "g.slide-bounds",
     {
-      class: { active, preview },
+      class: { active, ghost },
     },
     [
       h("rect.frame", {
