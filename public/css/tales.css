@@ -747,6 +747,15 @@ input[type="checkbox"]:focus {
   padding: 1rem 2rem;
 }
 
+#drag-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
 .viewport {
   flex: 1;
 }

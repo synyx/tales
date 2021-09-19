@@ -82,6 +82,7 @@ export const slideBounds = (rect, scale, index, options = {}) => {
       onDragChange: onMove,
       onDragEnd: onMoveEnd,
       onClick: onClick,
+      cursor: "move",
     });
     ev.stopPropagation();
   };
@@ -89,6 +90,7 @@ export const slideBounds = (rect, scale, index, options = {}) => {
     dragging(ev, {
       onDragChange: (ev, ...args) => onResize(ev, position, cursor, ...args),
       onDragEnd: (ev, ...args) => onResizeEnd(ev, position, ...args),
+      cursor: cursor,
     });
     ev.stopPropagation();
   };

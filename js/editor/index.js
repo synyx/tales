@@ -10,7 +10,7 @@ import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
 import { chevronRight, gear, home } from "../icons";
-import { dragging } from "../util/drag";
+import { dragging, dragOverlay } from "../util/drag";
 import { viewport } from "../viewport";
 import { preview } from "./preview";
 import { uploader } from "./upload";
@@ -108,6 +108,7 @@ export function onMouseDown(ev, cameraPosition, projectFn) {
     },
     onClick: (ev, position) =>
       trigger("slide/activate-at-position", projectFn(position)),
+    cursor: "move",
   });
 }
 
@@ -164,6 +165,7 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
       dragging(ev, {
         onDragChange: onCreate,
         onDragEnd: onCreateEnd,
+        cursor: "crosshair",
       });
       ev.stopPropagation();
       preventNextClickEvent();
@@ -328,6 +330,7 @@ export let editor = withInputSignals(
         ? navigator(tale, transformMatrix, cameraPosition, activeSlide)
         : uploader(tale),
       settings(),
+      dragOverlay(),
     ]);
   },
 );
