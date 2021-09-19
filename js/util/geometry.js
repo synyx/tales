@@ -15,6 +15,23 @@ export const intersectRects = (a, b) => {
   return rect.width > 0 && rect.height > 0 && rect;
 };
 
+/**
+ * Adds a padding to the given rectangle, effectively
+ * shrinking (positive padding) or growing (negative padding) it.
+ *
+ * The padding is relative to the shorter side of the rect and will be the
+ * same absolute amount in both directions.
+ */
+export const padRect = (rect, padding) => {
+  const paddingSize = Math.min(rect.width, rect.height) * padding;
+  return {
+    x: rect.x + paddingSize,
+    y: rect.y + paddingSize,
+    width: rect.width - paddingSize * 2,
+    height: rect.height - paddingSize * 2,
+  };
+};
+
 export const normalizeRect = rect => {
   let x1 = rect.x,
     y1 = rect.y,

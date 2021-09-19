@@ -8,6 +8,7 @@
   "editor.show-settings": "Öffne die Einstellungen",
   "editor.move-slide": "Folie verschieben",
   "editor.insert-new-slide": "Neue Folie einfügen",
+  "editor.insert-new-slide-help": "Mit dem Plus-Icon kannst du neue Folien hinzufügen. Alternativ kannst du bei gedrückter Strg-Taste eine neue Folie direkt auf dein Bild zeichnen.",
 
   "settings.title": "Einstellungen",
   "settings.done": "Schließen",
@@ -17,6 +18,10 @@
   "settings.dim-poster.title": "Poster abdunkeln",
   "settings.dim-poster.description": "Das Poster im Hintergrund abdunkeln, damit du deine Folien besser im Blick behältst.",
 
-  "uploader.upload-poster.title": "Du hast noch kein Poster hochgeladen.",
-  "uploader.upload-poster.subtitle": "Wähle ein Bild, mit dem du deine Geschichte erzählen willst."
+  "uploader.upload-poster.title": "Eine neue Geschichte beginnt…",
+  "uploader.upload-poster.subtitle": "Als allererstes benötigt deine Geschichte ein Bild, mit dem du sie erzählen willst.",
+  "uploader.upload-poster.description": "Dieses Bild ist die Grundlage deiner Geschichte. Nachdem du ein Bild ausgewählt hast, kannst du es anschließend in einzelne Folien unterteilen, die den Verlauf deiner Geschichte widerspiegeln.",
+  "uploader.drag-and-drop": "Ziehe ein Bild in diesen Bereich",
+  "uploader.or": "oder",
+  "uploader.select-an-image": "Wähle ein Bild"
 }

@@ -8,6 +8,7 @@
   "editor.show-settings": "Show settings",
   "editor.move-slide": "Move slide",
   "editor.insert-new-slide": "Insert new slide",
+  "editor.insert-new-slide-help": "Use the plus icon to insert new slides. You can also add new slides by drawing a rectangle onto your image while pressing the Ctrl key.",
 
   "settings.title": "Settings",
   "settings.done": "Done",
@@ -17,6 +18,10 @@
   "settings.dim-poster.title": "Dim poster",
   "settings.dim-poster.description": "Dim the poster in the background so you can focus on your slides.",
 
-  "uploader.upload-poster.title": "You haven't uploaded a poster yet.",
-  "uploader.upload-poster.subtitle": "Select an image to tell your Tale with."
+  "uploader.upload-poster.title": "A new Tale begins…",
+  "uploader.upload-poster.subtitle": "First of all you need an image that helps you telling your Tale.",
+  "uploader.upload-poster.description": "This image is the foundation of your Tale. After selecting an image you can split it up into slides that reflect the course of your Tale.",
+  "uploader.drag-and-drop": "Drag and drop an image here",
+  "uploader.or": "or",
+  "uploader.select-an-image": "Select an image"
 }

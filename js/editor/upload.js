@@ -1,34 +1,72 @@
-import { trigger } from "flyps";
+import { signal, trigger } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import i18n from "../i18n";
 
+let dropTarget = signal();
+
 export let uploader = tale => {
-  return h("div.poster-uploader", [
-    h("h2", i18n("uploader.upload-poster.title")),
-    h("h3", i18n("uploader.upload-poster.subtitle")),
-    h("input", {
-      attrs: {
-        type: "file",
-        accept: "image/*",
-      },
+  return h(
+    "div.poster-uploader",
+    {
+      class: { dropping: dropTarget.value() },
       on: {
-        change: ev => {
-          determineImageDimensions(ev.target.files[0])
-            .then(({ file, width, height }) => {
-              trigger("projects/update", {
-                ...tale,
-                dimensions: { width, height },
-              });
-              trigger("camera/fit-rect", { x: 0, y: 0, width, height });
-              trigger("projects/update-image", tale, file);
-            })
-            .catch(err =>
-              console.error("error determining image dimensions", err),
-            );
+        dragenter: ev => {
+          ev.preventDefault();
+          dropTarget.reset(true);
+        },
+        dragover: ev => {
+          ev.preventDefault();
+        },
+        dragleave: () => {
+          dropTarget.reset(false);
+        },
+        drop: ev => {
+          ev.preventDefault();
+          dropTarget.reset(false);
+          handleFileInput(tale, ev.dataTransfer.files.item(0));
         },
       },
-    }),
-  ]);
+    },
+    [
+      h("h2", i18n("uploader.upload-poster.title")),
+      h("h3", i18n("uploader.upload-poster.subtitle")),
+      h("p", i18n("uploader.upload-poster.description")),
+      h("div.drop-target", { class: { active: dropTarget.value() } }, [
+        h("p", i18n("uploader.drag-and-drop")),
+        h("p", i18n("uploader.or")),
+        h("label.button.select-image", [
+          i18n("uploader.select-an-image"),
+          h("input", {
+            attrs: {
+              type: "file",
+              accept: "image/*",
+            },
+            on: {
+              change: ev => {
+                handleFileInput(tale, ev.target.files[0]);
+              },
+            },
+          }),
+        ]),
+      ]),
+    ],
+  );
+};
+
+const handleFileInput = (tale, file) => {
+  if (!file) {
+    return;
+  }
+  determineImageDimensions(file)
+    .then(({ file, width, height }) => {
+      trigger("projects/update", {
+        ...tale,
+        dimensions: { width, height },
+      });
+      trigger("camera/fit-rect", { x: 0, y: 0, width, height });
+      trigger("projects/update-image", tale, file);
+    })
+    .catch(err => console.error("error determining image dimensions", err));
 };
 
 export function determineImageDimensions(file) {

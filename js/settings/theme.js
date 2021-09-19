@@ -20,8 +20,8 @@ export const themeSetting = withInputSignals(
       h(
         "div.settings-options",
         [
-          { id: "light", label: i18n("settings.theme.light") },
-          { id: "dark", label: i18n("settings.theme.dark") },
+          { theme: "light", label: i18n("settings.theme.light") },
+          { theme: "dark", label: i18n("settings.theme.dark") },
         ].map(({ theme, label }) =>
           h("label.checkable", [
             h("input", {
