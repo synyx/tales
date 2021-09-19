@@ -164,6 +164,7 @@ export function deleteCurrent(db) {
   let slides = [...(tale.slides || [])];
   slides.splice(db.editor.activeSlide, 1);
   return {
+    db: { ...db, editor: { ...db.editor, activeSlide: undefined } },
     trigger: ["projects/update", { ...tale, slides }],
   };
 }
