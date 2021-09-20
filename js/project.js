@@ -1,11 +1,4 @@
-import {
-  db,
-  handler,
-  connect,
-  connector,
-  trigger,
-  withInputSignals,
-} from "flyps";
+import { db, handler, connect, connector, withInputSignals } from "flyps";
 
 export function findTale([tales, slug]) {
   return tales.find(tale => tale.slug === slug);
@@ -32,9 +25,6 @@ connector(
   withInputSignals(() => [connect("tales"), connect("tale-slug")], findTale),
 );
 
-// triggers an event whenever the tale slug changes
-connect("tale-slug").connect(() => trigger("project/loaded"));
-
 handler("projects/get-all", () => ({
   xhr: {
     url: "/api/tales/",
@@ -46,7 +36,7 @@ handler("projects/get-all", () => ({
 
 handler("projects/get-all-success", ({ db }, eventId, projects) => ({
   db: { ...db, tales: projects },
-  trigger: ["project/loaded"],
+  trigger: ["project/reset-view"],
 }));
 
 handler("projects/add", (causes, eventId, project) => ({
@@ -104,18 +94,21 @@ handler("projects/request-error", response => {
 });
 
 handler("projects/activate", ({ db }, eventId, slug) => ({
-  db: { ...db, activeTale: slug },
+  db: {
+    ...db,
+    activeTale: slug,
+    editor: { ...db.editor, activeSlide: undefined },
+  },
+  trigger: ["project/reset-view"],
 }));
 
-handler("project/loaded", ({ db }) => {
-  let effects = {
-    db: { ...db, editor: { ...db.editor, activeSlide: undefined } },
-  };
+export const resetView = db => {
   let tale = findTale([db.tales, db.activeTale]);
   if (tale && tale.dimensions) {
     let { width, height } = tale.dimensions;
-    let rect = { x: 0, y: 0, width: width, height: height };
-    effects.trigger = ["camera/fit-rect", rect];
+    let rect = { x: 0, y: 0, width, height };
+    return { trigger: ["camera/fit-rect", rect] };
   }
-  return effects;
-});
+};
+
+handler("project/reset-view", ({ db }) => resetView(db));
