@@ -241,6 +241,20 @@ describe("slide", () => {
       { slug: "test-1", slides: [{ id: 1 }, { id: 3 }] },
     ]);
   });
+  it("clears the active slide on deletion", () => {
+    let db = {
+      tales: [
+        { slug: "test-1", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] },
+        { slug: "test-2", slides: [] },
+      ],
+      activeTale: "test-1",
+      editor: {
+        activeSlide: 1,
+      },
+    };
+    let effects = deleteCurrent(db);
+    expect(effects.db.editor.activeSlide).toBeFalsy();
+  });
 });
 describe("insert", () => {
   it("inserts slide at the beginning", () => {

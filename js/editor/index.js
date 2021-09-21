@@ -10,7 +10,7 @@ import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
 import { chevronRight, gear, home } from "../icons";
-import { dragging } from "../util/drag";
+import { dragging, dragOverlay } from "../util/drag";
 import { viewport } from "../viewport";
 import { preview } from "./preview";
 import { uploader } from "./upload";
@@ -24,7 +24,7 @@ import i18n from "../i18n";
  */
 const ZOOM_SPEED = 0.5;
 
-let isMoving = signal(false);
+let viewportCursor = signal();
 let drawRect = signal(null);
 
 function preventNextClickEvent() {
@@ -94,20 +94,21 @@ export function onMouseDown(ev, cameraPosition, projectFn) {
   ev.preventDefault();
   ev.stopPropagation();
   dragging(ev, {
-    onDragStart: () => isMoving.reset(true),
+    onDragStart: () => viewportCursor.reset("move"),
     onDragChange: (_, start, end) => {
       let delta = vec3.sub(vec3.create(), projectFn(start), projectFn(end));
       let newPosition = vec3.add(vec3.create(), cameraPosition, delta);
       trigger("camera/move-to", newPosition);
     },
     onDragEnd: (_, start, end) => {
-      isMoving.reset(false);
+      viewportCursor.reset();
       if (!vec3.exactEquals(start, end)) {
         preventNextClickEvent();
       }
     },
     onClick: (ev, position) =>
       trigger("slide/activate-at-position", projectFn(position)),
+    cursor: "move",
   });
 }
 
@@ -164,6 +165,7 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
       dragging(ev, {
         onDragChange: onCreate,
         onDragEnd: onCreateEnd,
+        cursor: "crosshair",
       });
       ev.stopPropagation();
       preventNextClickEvent();
@@ -196,23 +198,27 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
   let onMove = (ev, slide, start, end) => {
     let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
     let rect = moveRect(slide.rect, delta);
+    viewportCursor.reset("move");
     drawRect.reset(rect);
   };
   let onMoveEnd = (ev, slide, start, end) => {
     let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
     let rect = moveRect(slide.rect, delta);
     drawRect.reset(null);
+    viewportCursor.reset();
     trigger("slide/update", { ...slide, rect });
   };
-  let onResize = (ev, slide, position, start, end) => {
+  let onResize = (ev, slide, position, cursor, start, end) => {
     let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
     let rect = resizeRect(slide.rect, position, delta);
+    viewportCursor.reset(cursor);
     drawRect.reset(rect);
   };
   let onResizeEnd = (ev, slide, position, start, end) => {
     let delta = vec3.sub(vec3.create(), projectFn(end), projectFn(start));
     let rect = resizeRect(slide.rect, position, delta);
     drawRect.reset(null);
+    viewportCursor.reset();
     trigger("slide/update", { ...slide, rect });
   };
 
@@ -221,7 +227,7 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
     tale.dimensions.height,
     {
       style: {
-        cursor: isMoving.value() ? "grabbing" : "grab",
+        cursor: viewportCursor.value() || "grab",
       },
       on: {
         wheel: ev => onWheel(ev, projectFn),
@@ -253,8 +259,8 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
               active: index === activeSlide,
               onMove: (ev, start, end) => onMove(ev, slide, start, end),
               onMoveEnd: (ev, start, end) => onMoveEnd(ev, slide, start, end),
-              onResize: (ev, position, start, end) =>
-                onResize(ev, slide, position, start, end),
+              onResize: (ev, position, cursor, start, end) =>
+                onResize(ev, slide, position, cursor, start, end),
               onResizeEnd: (ev, position, start, end) =>
                 onResizeEnd(ev, slide, position, start, end),
               onClick: (ev, position) =>
@@ -262,7 +268,12 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
             }),
           ),
           ...(drawRect.value()
-            ? [slideBounds(drawRect.value(), scale, null, { active: true })]
+            ? [
+                slideBounds(drawRect.value(), scale, null, {
+                  active: true,
+                  ghost: true,
+                }),
+              ]
             : []),
         ],
       ),
@@ -319,6 +330,7 @@ export let editor = withInputSignals(
         ? navigator(tale, transformMatrix, cameraPosition, activeSlide)
         : uploader(tale),
       settings(),
+      dragOverlay(),
     ]);
   },
 );
