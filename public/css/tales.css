@@ -669,8 +669,10 @@ input[type="checkbox"]:focus {
   display: none;
 }
 
-#editor .poster {
+#editor .poster,
+#presenter .poster {
   user-select: none;
+  pointer-events: none;
 }
 
 #editor .layer.dim {

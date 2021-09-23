@@ -41,7 +41,7 @@ export let presenter = tale => {
           },
         },
       },
-      h("object", {
+      h("object.poster", {
         attrs: {
           data: `/editor/${tale.slug}/${tale["file-path"]}`,
           type: tale.fileType,
