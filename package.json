@@ -40,7 +40,7 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-replace": "^3.0.0",
-    "electron": "^14.0.1",
+    "electron": "^15.1.1",
     "electron-builder": "^22.11.7",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
