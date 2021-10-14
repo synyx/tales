@@ -97,7 +97,7 @@ export const preview = withInputSignals(
   () => [connect("editor/active-slide"), connect("camera/rect")],
   ([activeSlide, cameraRect], tale) => {
     let tw = 200,
-      th = 150;
+      th = 112; // aspect ratio 16:9
 
     let onInsert = index => {
       let croppedRect = intersectRects(cameraRect, {
