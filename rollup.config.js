@@ -1,4 +1,4 @@
-import babel from "rollup-plugin-babel";
+import babel from "@rollup/plugin-babel";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
@@ -28,7 +28,7 @@ export default [
         /* workaround for missing env variable  */
         "process.env.NODE_ENV": JSON.stringify("production"),
       }),
-      babel({ exclude: "node_modules/**" }),
+      babel({ exclude: "node_modules/**", babelHelpers: "bundled" }),
     ],
   },
   {
@@ -42,6 +42,10 @@ export default [
       },
     ],
     external: ["child_process", "electron", "path"],
-    plugins: [resolve(), commonjs(), babel({ exclude: "node_modules/**" })],
+    plugins: [
+      resolve(),
+      commonjs(),
+      babel({ exclude: "node_modules/**", babelHelpers: "bundled" }),
+    ],
   },
 ];
