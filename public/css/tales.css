@@ -527,6 +527,7 @@ input[type="checkbox"]:focus {
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   background-color: var(--preview-overlay-bg);
   text-align: center;
   font-size: 1.5rem;
