@@ -146,19 +146,13 @@ const layer = withInputSignals(
 );
 
 let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
-  let elm,
-    projectFn = vec =>
+  let projectFn = vec =>
       vec3.transformMat4(
         vec3.create(),
         vec,
         mat4.invert(mat4.create(), transformMatrix),
       ),
     scale = mat4.getScaling(vec3.create(), transformMatrix)[0];
-
-  let onWindowResize = () => {
-    let { left, top, width, height } = elm.getBoundingClientRect();
-    trigger("viewport/set-rect", [left, top, width, height]);
-  };
 
   let startCreate = ev => {
     if (ev.ctrlKey || ev.metaKey) {
@@ -232,17 +226,6 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
       on: {
         wheel: ev => onWheel(ev, projectFn),
         mousedown: ev => onMouseDown(ev, cameraPosition, projectFn),
-      },
-      hook: {
-        insert: vnode => {
-          elm = vnode.elm;
-          window.addEventListener("resize", onWindowResize);
-          onWindowResize();
-        },
-        remove: () => {
-          elm = null;
-          window.removeEventListener("resize", onWindowResize);
-        },
       },
     },
     [

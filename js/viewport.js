@@ -5,6 +5,7 @@ import {
   effector,
   handler,
   withInputSignals,
+  trigger,
 } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { mat4 } from "gl-matrix";
@@ -86,6 +87,21 @@ handler("viewport/fullscreen", (_causes, _id, fullscreen) => ({
  * views
  */
 
+export const windowResizeListener = {
+  add(elm) {
+    this.listener = () => {
+      let { left, top, width, height } = elm.getBoundingClientRect();
+      trigger("viewport/set-rect", [left, top, width, height]);
+    };
+    window.addEventListener("resize", this.listener);
+    this.listener();
+  },
+  remove() {
+    window.removeEventListener("resize", this.listener);
+    this.listener = null;
+  },
+};
+
 export function viewport(worldWidth, worldHeight, data = {}, children = []) {
   let disconnect;
   return h(
@@ -97,6 +113,15 @@ export function viewport(worldWidth, worldHeight, data = {}, children = []) {
         height: "100%",
         overflow: "hidden",
         ...data.style,
+      },
+      hook: {
+        insert: vnode => {
+          windowResizeListener.add(vnode.elm);
+        },
+        destroy: () => {
+          windowResizeListener.remove();
+        },
+        ...data.hook,
       },
     },
     h(

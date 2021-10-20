@@ -1,4 +1,3 @@
-import { trigger } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 
 import { viewport } from "../viewport";
@@ -17,30 +16,11 @@ export let presenter = tale => {
     return notFound();
   }
 
-  let elm;
-
-  let onWindowResize = () => {
-    let { left, top, width, height } = elm.getBoundingClientRect();
-    trigger("viewport/set-rect", [left, top, width, height]);
-  };
-
   return h("div#presenter", [
     viewport(
       tale.dimensions.width,
       tale.dimensions.height,
-      {
-        hook: {
-          insert: vnode => {
-            elm = vnode.elm;
-            window.addEventListener("resize", onWindowResize);
-            onWindowResize();
-          },
-          remove: () => {
-            elm = null;
-            window.removeEventListener("resize", onWindowResize);
-          },
-        },
-      },
+      {},
       h("object.poster", {
         attrs: {
           data: `/editor/${tale.slug}/${tale["file-path"]}`,

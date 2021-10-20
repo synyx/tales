@@ -4,7 +4,12 @@ import {
   getViewportMatrix,
   setViewportRect,
   viewport,
+  windowResizeListener,
 } from "./viewport";
+import * as flyps from "flyps";
+
+// eslint-disable-next-line no-import-assign
+flyps.trigger = jest.fn();
 
 describe("viewport", () => {
   it("gets rect", () => {
@@ -67,5 +72,42 @@ describe("viewport", () => {
     expect(world.children.length).toBe(2);
     expect(world.children[0].text).toBe("foo");
     expect(world.children[1].text).toBe("bar");
+  });
+});
+
+describe("windowResizeListener", () => {
+  beforeEach(() => {
+    flyps.trigger.mockClear();
+  });
+  const elm = {
+    getBoundingClientRect: () => ({
+      left: 1,
+      top: 2,
+      width: 3,
+      height: 4,
+    }),
+  };
+
+  it("adds the listener and calls it once", () => {
+    jest.spyOn(window, "addEventListener");
+    jest.spyOn(window, "removeEventListener");
+    windowResizeListener.add(elm);
+
+    expect(window.addEventListener).toBeCalledWith("resize", expect.anything());
+    expect(window.removeEventListener).not.toHaveBeenCalled();
+    expect(flyps.trigger).toHaveBeenCalledWith(
+      "viewport/set-rect",
+      [1, 2, 3, 4],
+    );
+  });
+  it("removes the listener", () => {
+    jest.spyOn(window, "removeEventListener");
+    windowResizeListener.add(elm);
+    windowResizeListener.remove();
+
+    expect(window.removeEventListener).toBeCalledWith(
+      "resize",
+      expect.anything(),
+    );
   });
 });
