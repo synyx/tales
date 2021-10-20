@@ -82,11 +82,11 @@ Some examples of already existing Tales:
 
 # Contributing
 
-- Install `git`
-- Install `make`
-- Install `go`
-- Install `nodejs`
+- Install `git`, `make`, `go` and `nodejs`
 - Build with `make all`
+- Start with `make run`
+- Visit http://127.0.0.1:3000 in your browser
+- Start hacking! 🙂
 
 
 # Licencse
