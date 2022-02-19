@@ -1,6 +1,7 @@
 import { handler } from "flyps";
 
 import { findTale } from "./project";
+import { DEFAULT_SLIDE_TRANSITION_DURATION } from "./config";
 
 function prevSlide(slides, index) {
   index = Number.isInteger(index) ? index : 0;
@@ -126,7 +127,11 @@ export function flyToCurrent(db) {
   let slides = tale.slides || [];
   let slide = slides[db.editor.activeSlide];
   return {
-    trigger: ["camera/fly-to-rect", slide.rect],
+    trigger: [
+      "camera/fly-to-rect",
+      slide.rect,
+      tale.settings.transitionDuration || DEFAULT_SLIDE_TRANSITION_DURATION,
+    ],
   };
 }
 
