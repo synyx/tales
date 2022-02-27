@@ -10,8 +10,9 @@ import {
 } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import "../util/effects";
-import { themeSetting } from "./theme";
 import { posterDimSetting } from "./poster";
+import { themeSetting } from "./theme";
+import { transitionSettings } from "./transition";
 import i18n from "../i18n";
 
 const DEFAULT_SETTINGS = {
@@ -37,7 +38,7 @@ export let settings = withInputSignals(
       [
         h("div", { on: { click: e => e.stopPropagation() } }, [
           h("div.settings-body", [
-            h("div", [h("h2", i18n("settings.tale"))]),
+            h("div", [h("h2", i18n("settings.tale")), transitionSettings()]),
             h("div.vr"),
             h("div", [
               h("h2", i18n("settings.global")),

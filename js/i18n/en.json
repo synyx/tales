@@ -18,6 +18,12 @@
   "settings.theme.dark": "dark",
   "settings.dim-poster.title": "Dim poster while editing",
   "settings.dim-poster.description": "Dim the poster in the background so you can focus on your slides.",
+  "settings.transition.title": "Transition between slides",
+  "settings.transition.current-value": "%{duration} sec",
+  "settings.transition.slower": "slower",
+  "settings.transition.faster": "faster",
+  "settings.transition.instantly": "instantly",
+  "settings.transition.preview": "preview",
 
   "uploader.upload-poster.title": "A new Tale begins…",
   "uploader.upload-poster.subtitle": "First of all you need an image that helps you telling your Tale.",
