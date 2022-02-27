@@ -701,7 +701,7 @@ input[type="checkbox"]:focus {
 #settings > * {
   display: flex;
   flex-direction: column;
-  width: 30rem;
+  width: 60rem;
   max-width: 90%;
   max-height: 90%;
   overflow-y: auto;
@@ -710,19 +710,36 @@ input[type="checkbox"]:focus {
   border-radius: 0.5rem;
 }
 
-#settings header {
-  padding: 1rem 2rem 0;
-}
-
 #settings h2 {
-  margin: 1rem 0 0;
+  margin: 1.5rem 0 0;
   color: var(--text-medium);
   text-align: center;
 }
 
 #settings .settings-body {
-  flex: 1;
   padding: 1rem 2rem;
+}
+@media (min-width: 768px) {
+  #settings .settings-body {
+    display: flex;
+    flex: 1;
+  }
+}
+
+#settings .settings-body > * {
+  flex: 1;
+}
+
+#settings .vr {
+  display: none;
+}
+@media (min-width: 768px) {
+  #settings .vr {
+    display: initial;
+    flex: 0 0 1px;
+    margin: 0 3rem;
+    background-color: var(--settings-footer);
+  }
 }
 
 #settings h3 {

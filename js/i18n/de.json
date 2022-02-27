@@ -10,12 +10,13 @@
   "editor.insert-new-slide": "Neue Folie einfügen",
   "editor.insert-new-slide-help": "Mit dem Plus-Icon kannst du neue Folien hinzufügen. Alternativ kannst du bei gedrückter Strg-Taste eine neue Folie direkt auf dein Bild zeichnen.",
 
-  "settings.title": "Einstellungen",
+  "settings.global": "Globale Einstellungen",
+  "settings.tale": "Tale-Einstellungen",
   "settings.done": "Schließen",
   "settings.theme.title": "Benutzeroberfläche",
   "settings.theme.light": "hell",
   "settings.theme.dark": "dunkel",
-  "settings.dim-poster.title": "Poster abdunkeln",
+  "settings.dim-poster.title": "Poster beim Bearbeiten abdunkeln",
   "settings.dim-poster.description": "Das Poster im Hintergrund abdunkeln, damit du deine Folien besser im Blick behältst.",
 
   "uploader.upload-poster.title": "Eine neue Geschichte beginnt…",

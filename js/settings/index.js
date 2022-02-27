@@ -36,8 +36,15 @@ export let settings = withInputSignals(
       { on: { click: () => trigger("settings/hide") } },
       [
         h("div", { on: { click: e => e.stopPropagation() } }, [
-          h("header", h("h2", i18n("settings.title"))),
-          h("div.settings-body", [themeSetting(), posterDimSetting()]),
+          h("div.settings-body", [
+            h("div", [h("h2", i18n("settings.tale"))]),
+            h("div.vr"),
+            h("div", [
+              h("h2", i18n("settings.global")),
+              themeSetting(),
+              posterDimSetting(),
+            ]),
+          ]),
           h("footer", [
             h(
               "button.button.settings-done",
