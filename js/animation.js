@@ -47,18 +47,25 @@ export function animate(animationId, animationFn) {
   animationQueue.enqueue(animationId, animationFn);
 }
 
-export function animator(fn, duration) {
+export function easingAnimator(fn, duration) {
   let start;
   return t => {
     if (!start) start = t;
     let progress = (t - start) / duration;
-    fn(progress);
+    fn(easeInOutBezier(progress));
     return progress < 1;
   };
 }
 
+function easeInOutBezier(x) {
+  return x * x * (3 - 2 * x);
+}
+
 export function dbAnimator(fn, duration) {
-  return animator(progress => db.reset(fn(db.value(), progress)), duration);
+  return easingAnimator(
+    progress => db.reset(fn(db.value(), progress)),
+    duration,
+  );
 }
 
 effector("animation", ([animationId, animationFn]) =>

@@ -1,6 +1,11 @@
 import { db, effect } from "flyps";
 
-import { animationQueue, animate, animator, dbAnimator } from "./animation";
+import {
+  animationQueue,
+  animate,
+  dbAnimator,
+  easingAnimator,
+} from "./animation";
 
 /* global global */
 
@@ -49,9 +54,9 @@ describe("animate", () => {
   });
 });
 
-describe("animator", () => {
+describe("easingAnimator", () => {
   it("returns true until duration of time has elapsed", () => {
-    let fn = animator(() => {}, 1000);
+    let fn = easingAnimator(() => {}, 1000);
     expect(fn(1000)).toBeTruthy();
     expect(fn(1500)).toBeTruthy();
     expect(fn(1999)).toBeTruthy();
@@ -59,7 +64,7 @@ describe("animator", () => {
   });
   it("passes current progress to animationFn", () => {
     let lastProgress = -1;
-    let fn = animator(p => (lastProgress = p), 1000);
+    let fn = easingAnimator(p => (lastProgress = p), 1000);
     fn(1000);
     expect(lastProgress).toBe(0);
     fn(1500);

@@ -1,6 +1,6 @@
 import { h } from "flyps-dom-snabbdom";
 import { connect, handler, signal, trigger, withInputSignals } from "flyps";
-import { animator } from "../animation";
+import { easingAnimator } from "../animation";
 import { vec3 } from "gl-matrix";
 import { DEFAULT_SLIDE_TRANSITION_DURATION } from "../config";
 import i18n from "../i18n";
@@ -144,7 +144,7 @@ export const time2slider = ms => {
 };
 
 handler("settings/transition-duration-changed", (_, __, value) => ({
-  animation: ["transition-preview", animator(transitionAnimation, value)],
+  animation: ["transition-preview", easingAnimator(transitionAnimation, value)],
 }));
 
 const transitionAnimation = progress => {
