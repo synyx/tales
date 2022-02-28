@@ -19,6 +19,11 @@ type Slide struct {
 	Rect Rect `json:"rect"`
 }
 
+// Settings specific to a project
+type Settings struct {
+	TransitionDuration int `json:"transitionDuration"`
+}
+
 // A Project is the set of attributes used to describe a project.
 type Project struct {
 	Slug       string     `json:"slug"`
@@ -27,6 +32,7 @@ type Project struct {
 	FileType   string     `json:"fileType" edn:"fileType"`
 	Dimensions Dimensions `json:"dimensions"`
 	Slides     []Slide    `json:"slides"`
+	Settings   Settings   `json:"settings"`
 }
 
 // A Repository manages projects.

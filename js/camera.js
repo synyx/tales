@@ -197,11 +197,11 @@ export function cameraAnimator(source, target) {
   };
 }
 
-export function flyToRect(db, rect, viewport) {
+export function flyToRect(db, rect, viewport, duration) {
   let target = fitRect(db, rect, viewport);
   let fn = cameraAnimator(db.camera, target.camera);
   return {
-    animation: ["camera", dbAnimator(fn, 500)],
+    animation: ["camera", dbAnimator(fn, duration)],
   };
 }
 
@@ -224,6 +224,6 @@ dbHandler("camera/move-by", (db, id, delta) => moveBy(db, delta));
 dbHandler("camera/fit-rect", (db, id, rect) =>
   fitRect(db, rect, db.viewport.rect),
 );
-handler("camera/fly-to-rect", ({ db }, id, rect) =>
-  flyToRect(db, rect, db.viewport.rect),
+handler("camera/fly-to-rect", ({ db }, id, rect, duration) =>
+  flyToRect(db, rect, db.viewport.rect, duration),
 );

@@ -124,45 +124,45 @@ describe("slide", () => {
       { slug: "foo", slides: [{ id: 1 }, { id: 3 }, { id: 2 }] },
     ]);
   });
-  it("flys to prev slide", () => {
+  it("flies to prev slide", () => {
     let rect = { x: 10, y: 20, width: 100, height: 200 };
     let { db, trigger } = flyToPrev({
-      tales: [{ slug: "foo", slides: [{ rect }, {}, {}] }],
+      tales: [{ slug: "foo", slides: [{ rect }, {}, {}], settings: {} }],
       activeTale: "foo",
       editor: { activeSlide: 1 },
     });
     expect(db.editor.activeSlide).toBe(0);
-    expect(trigger).toEqual(["camera/fly-to-rect", rect]);
+    expect(trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
-  it("flys to last after first slide", () => {
+  it("flies to last after first slide", () => {
     let rect = { x: 10, y: 20, width: 100, height: 200 };
     let { db, trigger } = flyToPrev({
-      tales: [{ slug: "foo", slides: [{}, {}, { rect }] }],
+      tales: [{ slug: "foo", slides: [{}, {}, { rect }], settings: {} }],
       activeTale: "foo",
       editor: { activeSlide: 0 },
     });
     expect(db.editor.activeSlide).toBe(2);
-    expect(trigger).toEqual(["camera/fly-to-rect", rect]);
+    expect(trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
-  it("flys to next slide", () => {
+  it("flies to next slide", () => {
     let rect = { x: 10, y: 20, width: 100, height: 200 };
     let { db, trigger } = flyToNext({
-      tales: [{ slug: "foo", slides: [{}, {}, { rect }] }],
+      tales: [{ slug: "foo", slides: [{}, {}, { rect }], settings: {} }],
       activeTale: "foo",
       editor: { activeSlide: 1 },
     });
     expect(db.editor.activeSlide).toBe(2);
-    expect(trigger).toEqual(["camera/fly-to-rect", rect]);
+    expect(trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
-  it("flys to first after last slide", () => {
+  it("flies to first after last slide", () => {
     let rect = { x: 10, y: 20, width: 100, height: 200 };
     let { db, trigger } = flyToNext({
-      tales: [{ slug: "foo", slides: [{ rect }, {}, {}] }],
+      tales: [{ slug: "foo", slides: [{ rect }, {}, {}], settings: {} }],
       activeTale: "foo",
       editor: { activeSlide: 2 },
     });
     expect(db.editor.activeSlide).toBe(0);
-    expect(trigger).toEqual(["camera/fly-to-rect", rect]);
+    expect(trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
   it("focuses on current slide", () => {
     let rect = { x: 10, y: 20, width: 100, height: 200 };
@@ -178,19 +178,35 @@ describe("slide", () => {
     });
     expect(effects.trigger).toEqual(["camera/fit-rect", rect]);
   });
-  it("fly to current slide", () => {
+  it("flies to current slide", () => {
     let rect = { x: 10, y: 20, width: 100, height: 200 };
     let effects = flyToCurrent({
       tales: [
         {
           slug: "foo",
           slides: [{ rect }],
+          settings: {},
         },
       ],
       activeTale: "foo",
       editor: { activeSlide: 0 },
     });
-    expect(effects.trigger).toEqual(["camera/fly-to-rect", rect]);
+    expect(effects.trigger).toEqual(["camera/fly-to-rect", rect, 500]);
+  });
+  it("respects tale setting for transition duration", () => {
+    let rect = { x: 10, y: 20, width: 100, height: 200 };
+    let effects = flyToCurrent({
+      tales: [
+        {
+          slug: "foo",
+          slides: [{ rect }],
+          settings: { transitionDuration: 123 },
+        },
+      ],
+      activeTale: "foo",
+      editor: { activeSlide: 0 },
+    });
+    expect(effects.trigger).toEqual(["camera/fly-to-rect", rect, 123]);
   });
   it("adds slide", () => {
     let db = {

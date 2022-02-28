@@ -172,7 +172,7 @@ describe("camera", () => {
     expect(db.camera.position).toEqualVec3([125, 100, 0]);
     expect(db.camera.scale).toBe(50);
   });
-  it("fits portait rect", () => {
+  it("fits portrait rect", () => {
     let db = fitRect(
       { camera: {} },
       { width: 100, height: 200, x: 25, y: 50 },
@@ -186,14 +186,15 @@ describe("camera", () => {
       { camera: { position: [0, 0, 0], scale: 1 } },
       { width: 100, height: 100, x: -50, y: 100 },
       [0, 0, 100, 100],
+      567,
     );
     let [animationId, animationFn] = effects.animation;
     expect(animationId).toBe("camera");
     expect(animationFn).toEqual(expect.any(Function));
     expect(animationFn(1000)).toBeTruthy();
     expect(animationFn(1250)).toBeTruthy();
-    expect(animationFn(1499)).toBeTruthy();
-    expect(animationFn(1500)).toBeFalsy();
+    expect(animationFn(1566)).toBeTruthy();
+    expect(animationFn(1567)).toBeFalsy();
   });
 });
 

@@ -262,6 +262,72 @@ input[type="checkbox"]:focus {
   box-shadow: 0 0 0 0.25rem var(--input-outline);
 }
 
+/**
+ * custom slider style
+ */
+input[type="range"] {
+  display: block;
+  width: 100%;
+  padding: 1rem 0;
+  background-color: transparent;
+  -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: var(--primary-5);
+  height: 0.2rem;
+}
+input[type="range"]::-moz-range-track {
+  background: var(--primary-5);
+  height: 0.2rem;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 1.2rem;
+  width: 1.2rem;
+  background: var(--primary-5);
+  margin-top: -0.5rem;
+  border-radius: 50%;
+}
+input[type="range"]::-moz-range-thumb {
+  -webkit-appearance: none;
+  height: 1.2rem;
+  width: 1.2rem;
+  background: var(--primary-5);
+  margin-top: -0.5rem;
+  border-radius: 50%;
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  outline: solid 0.25rem var(--input-outline);
+}
+input[type="range"]:focus::-moz-range-thumb {
+  outline: solid 0.25rem var(--input-outline);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  background-color: var(--primary-7);
+}
+input[type="range"]:active::-moz-range-thumb {
+  background-color: var(--primary-7);
+}
+
+label.range {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+  font-size: var(--font-size-small);
+}
+label.range input {
+  flex-basis: 100%;
+  margin-top: -0.5rem;
+}
+
+/**
+ * General app styles
+ */
 #app,
 #presenter {
   height: 100%;
@@ -701,7 +767,7 @@ input[type="checkbox"]:focus {
 #settings > * {
   display: flex;
   flex-direction: column;
-  width: 30rem;
+  width: 60rem;
   max-width: 90%;
   max-height: 90%;
   overflow-y: auto;
@@ -710,19 +776,36 @@ input[type="checkbox"]:focus {
   border-radius: 0.5rem;
 }
 
-#settings header {
-  padding: 1rem 2rem 0;
-}
-
 #settings h2 {
-  margin: 1rem 0 0;
+  margin: 1.5rem 0 0;
   color: var(--text-medium);
   text-align: center;
 }
 
 #settings .settings-body {
-  flex: 1;
   padding: 1rem 2rem;
+}
+@media (min-width: 768px) {
+  #settings .settings-body {
+    display: flex;
+    flex: 1;
+  }
+}
+
+#settings .settings-body > * {
+  flex: 1;
+}
+
+#settings .vr {
+  display: none;
+}
+@media (min-width: 768px) {
+  #settings .vr {
+    display: initial;
+    flex: 0 0 1px;
+    margin: 0 3rem;
+    background-color: var(--settings-footer);
+  }
 }
 
 #settings h3 {
@@ -730,6 +813,11 @@ input[type="checkbox"]:focus {
   font-size: 1rem;
   font-weight: bold;
   color: var(--text-primary);
+}
+#settings h3 .small {
+  font-size: 1rem;
+  font-weight: normal;
+  color: var(--text-medium);
 }
 
 #settings .settings-options {
@@ -741,6 +829,9 @@ input[type="checkbox"]:focus {
   font-weight: normal;
   color: var(--text);
 }
+#settings .settings-options label.range {
+  color: var(--text-medium);
+}
 
 #settings footer {
   display: flex;
@@ -748,6 +839,23 @@ input[type="checkbox"]:focus {
   flex: 0;
   background-color: var(--settings-footer);
   padding: 1rem 2rem;
+}
+
+#settings .transition-preview pattern rect {
+  fill: var(--slide-bounds-active);
+  fill-opacity: 0.05;
+  stroke: var(--slide-bounds-active);
+  stroke-width: 1px;
+  stroke-opacity: 0.6;
+}
+#settings .transition-preview text {
+  fill: var(--slide-bounds-active);
+  opacity: 0.2;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 8px;
+  text-anchor: middle;
+  dominant-baseline: central;
 }
 
 #drag-overlay {
