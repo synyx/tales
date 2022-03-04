@@ -7,7 +7,7 @@ import pkg from "./package.json";
 
 export default [
   {
-    input: "js/index.js",
+    input: "src/js/index.js",
     output: [
       {
         file: pkg.browser,

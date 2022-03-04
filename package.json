@@ -9,8 +9,8 @@
   "scripts": {
     "build": "rollup -c",
     "dist": "electron-builder --publish=never",
-    "format": "prettier --write 'js/**/*.js' 'public/css/**/*.css'",
-    "lint": "eslint js",
+    "format": "prettier --write 'src/js/**/*.js' 'public/css/**/*.css'",
+    "lint": "eslint src/js",
     "pack": "electron-builder --dir",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
@@ -62,7 +62,7 @@
     ],
     "coverageDirectory": "<rootDir>/coverage",
     "roots": [
-      "<rootDir>/js"
+      "<rootDir>/src/js"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.js"
