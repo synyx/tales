@@ -7,16 +7,18 @@
   "browser": "public/js/tales.js",
   "postinstall": "electron-builder install-app-deps",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c && npm run build:css",
+    "build:css": "postcss src/css/*.css --dir public/css/",
     "dist": "electron-builder --publish=never",
-    "format": "prettier --write 'src/js/**/*.js' 'public/css/**/*.css'",
+    "format": "prettier --write 'src/js/**/*.js' 'src/css/**/*.css'",
     "lint": "eslint src/js",
     "pack": "electron-builder --dir",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm test && npm run lint",
     "test": "jest",
-    "watch": "rollup -c -w"
+    "watch": "rollup -c -w",
+    "watch:css": "postcss src/css/*.css --dir public/css/ -w"
   },
   "repository": {
     "type": "git",
@@ -52,6 +54,7 @@
     "gl-matrix": "^3.4.3",
     "jest": "^27.5.1",
     "node-polyglot": "^2.4.2",
+    "postcss-cli": "^9.1.0",
     "prettier": "^2.6.2",
     "rollup": "^2.70.1"
   },
