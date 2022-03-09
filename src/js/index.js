@@ -13,6 +13,7 @@ import { mount, h } from "flyps-dom-snabbdom";
 
 import "./animation";
 import "./camera";
+import "./export";
 import "./keyboard";
 import "./project";
 import "./slide";

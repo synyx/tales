@@ -32,6 +32,31 @@ export default [
     ],
   },
   {
+    input: "src/js/viewer/index.js",
+    output: [
+      {
+        file: "public/js/viewer.js",
+        format: "umd",
+        name: "viewer",
+        sourcemap: false,
+      },
+    ],
+    plugins: [
+      resolve({
+        browser: true,
+        dedupe: ["flyps"],
+      }),
+      commonjs(),
+      json(),
+      replace({
+        preventAssignment: true,
+        /* workaround for missing env variable  */
+        "process.env.NODE_ENV": JSON.stringify("production"),
+      }),
+      babel({ exclude: "node_modules/**", babelHelpers: "bundled" }),
+    ],
+  },
+  {
     input: "app/main.js",
     output: [
       {
