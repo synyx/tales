@@ -1,1 +1,26 @@
-@import "tales.css";
+@import "vendor/normalize.css";
+
+html,
+body,
+#presenter {
+  height: 100%;
+}
+
+#presenter .poster {
+  user-select: none;
+  pointer-events: none;
+}
+
+.viewport {
+  flex: 1;
+}
+.viewport > .scene {
+}
+.viewport > .scene > .world {
+  position: relative;
+}
+.viewport > .scene > .world > * {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
