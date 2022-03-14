@@ -821,6 +821,9 @@ label.range input {
   font-weight: normal;
   color: var(--text-medium);
 }
+#settings h3 + p {
+  margin-top: 0;
+}
 
 #settings .settings-options {
   display: flex;

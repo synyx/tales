@@ -291,12 +291,6 @@ export let editor = withInputSignals(
               },
               [i18n("editor.tell"), h("span.icon.--right", chevronRight())],
             ),
-          hasPoster &&
-            h(
-              "button.button",
-              { on: { click: () => trigger("export/download", tale) } },
-              "Export",
-            ),
         ]),
         hasPoster ? preview(tale) : h("div.previews-empty"),
         h("footer.sidebar-footer", [

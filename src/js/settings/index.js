@@ -14,6 +14,7 @@ import { posterDimSetting } from "./poster";
 import { themeSetting } from "./theme";
 import { transitionSettings } from "./transition";
 import i18n from "../i18n";
+import { exportSettings } from "./export";
 
 const DEFAULT_SETTINGS = {
   theme: "light",
@@ -38,7 +39,11 @@ export let settings = withInputSignals(
       [
         h("div", { on: { click: e => e.stopPropagation() } }, [
           h("div.settings-body", [
-            h("div", [h("h2", i18n("settings.tale")), transitionSettings()]),
+            h("div", [
+              h("h2", i18n("settings.tale")),
+              transitionSettings(),
+              exportSettings(),
+            ]),
             h("div.vr"),
             h("div", [
               h("h2", i18n("settings.global")),
