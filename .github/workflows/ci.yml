@@ -26,8 +26,11 @@ jobs:
 
     - run: npm install
 
-    - run: go get -u golang.org/x/lint/golint
-    - run: make lint
+    # NOTE: Disabled `lint-go` for now as it broke unexpectedly ("golint: Command not found")
+    #- run: go get -u golang.org/x/lint/golint
+    #- run: make lint
+
+    - run: make lint-js
 
   test:
     needs: lint
