@@ -1,7 +1,19 @@
-import { handler } from "flyps";
+import { connector, db, handler, withInputSignals } from "flyps";
 
 import { findTale } from "./project";
 import { DEFAULT_SLIDE_TRANSITION_DURATION } from "./config";
+
+/**
+ * connectors
+ */
+
+connector(
+  "slide/active",
+  withInputSignals(
+    () => db,
+    db => db.activeSlide,
+  ),
+);
 
 function prevSlide(slides, index) {
   index = Number.isInteger(index) ? index : 0;
@@ -18,18 +30,18 @@ function nextSlide(slides, index) {
  */
 
 export function activate(db, index) {
-  return { ...db, editor: { ...db.editor, activeSlide: index } };
+  return { ...db, activeSlide: index };
 }
 
 export function activatePrev(db) {
   let tale = findTale([db.tales, db.activeTale]);
-  let index = prevSlide(tale.slides, db.editor.activeSlide);
+  let index = prevSlide(tale.slides, db.activeSlide);
   return activate(db, index);
 }
 
 export function activateNext(db) {
   let tale = findTale([db.tales, db.activeTale]);
-  let index = nextSlide(tale.slides, db.editor.activeSlide);
+  let index = nextSlide(tale.slides, db.activeSlide);
   return activate(db, index);
 }
 
@@ -50,7 +62,7 @@ export function isPointInRect(point, rect) {
  */
 export function activateAtPosition(db, position) {
   let tale = findTale([db.tales, db.activeTale]);
-  let activeSlideIndex = db.editor.activeSlide || 0;
+  let activeSlideIndex = db.activeSlide || 0;
   let i = activeSlideIndex;
   do {
     i = i > 0 ? i - 1 : tale.slides.length - 1;
@@ -63,7 +75,7 @@ export function activateAtPosition(db, position) {
 }
 
 export function deactivate(db) {
-  return { ...db, editor: { ...db.editor, activeSlide: undefined } };
+  return { ...db, activeSlide: undefined };
 }
 
 function arraySwap(array, idx1, idx2) {
@@ -78,7 +90,7 @@ export function swap(db, idx1, idx2) {
   let count = slides.length - 1;
   if (0 <= idx1 && idx1 <= count && 0 <= idx2 && idx2 <= count) {
     return {
-      db: { ...db, editor: { ...db.editor, activeSlide: idx2 } },
+      db: { ...db, activeSlide: idx2 },
       trigger: [
         "projects/update",
         { ...tale, slides: arraySwap(tale.slides, idx1, idx2) },
@@ -88,12 +100,12 @@ export function swap(db, idx1, idx2) {
 }
 
 export function swapPrev(db) {
-  let idx = db.editor.activeSlide;
+  let idx = db.activeSlide;
   return swap(db, idx, idx - 1);
 }
 
 export function swapNext(db) {
-  let idx = db.editor.activeSlide;
+  let idx = db.activeSlide;
   return swap(db, idx, idx + 1);
 }
 
@@ -116,7 +128,7 @@ export function flyToNext(db) {
 export function focusCurrent(db) {
   let tale = findTale([db.tales, db.activeTale]);
   let slides = tale.slides || [];
-  let slide = slides[db.editor.activeSlide];
+  let slide = slides[db.activeSlide];
   return {
     trigger: ["camera/fit-rect", slide.rect],
   };
@@ -125,7 +137,7 @@ export function focusCurrent(db) {
 export function flyToCurrent(db) {
   let tale = findTale([db.tales, db.activeTale]);
   let slides = tale.slides || [];
-  let slide = slides[db.editor.activeSlide];
+  let slide = slides[db.activeSlide];
   return {
     trigger: [
       "camera/fly-to-rect",
@@ -158,7 +170,7 @@ export function insert(db, slide, index) {
 export function update(db, slide) {
   let tale = findTale([db.tales, db.activeTale]);
   let slides = [...(tale.slides || [])];
-  slides[db.editor.activeSlide] = slide;
+  slides[db.activeSlide] = slide;
   return {
     trigger: ["projects/update", { ...tale, slides }],
   };
@@ -167,9 +179,9 @@ export function update(db, slide) {
 export function deleteCurrent(db) {
   let tale = findTale([db.tales, db.activeTale]);
   let slides = [...(tale.slides || [])];
-  slides.splice(db.editor.activeSlide, 1);
+  slides.splice(db.activeSlide, 1);
   return {
-    db: { ...db, editor: { ...db.editor, activeSlide: undefined } },
+    db: { ...db, activeSlide: undefined },
     trigger: ["projects/update", { ...tale, slides }],
   };
 }

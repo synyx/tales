@@ -97,7 +97,7 @@ handler("projects/activate", ({ db }, eventId, slug) => ({
   db: {
     ...db,
     activeTale: slug,
-    editor: { ...db.editor, activeSlide: undefined },
+    activeSlide: undefined,
   },
   trigger: ["project/reset-view"],
 }));
