@@ -1,11 +1,9 @@
 import { h } from "flyps-dom-snabbdom";
-
 import { viewport } from "../viewport";
-import i18n from "../i18n";
 import { chevronLeft, chevronRight } from "../icons";
 import { trigger } from "flyps";
 
-const notFound = () => h("div", i18n("editor.unwritten-tale"));
+const notFound = () => h("div", "An unwritten tale…");
 
 export const viewer = (tale, imgData, activeSlide) => {
   if (!tale) {
