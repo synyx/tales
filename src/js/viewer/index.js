@@ -40,8 +40,8 @@ export const init = (tale, imgData) => {
   mount(
     document.querySelector("#app"),
     withInputSignals(
-      () => connect("tale"),
-      tale => viewer(tale, imgData),
+      () => [connect("tale"), connect("slide/active")],
+      ([tale, activeSlide]) => viewer(tale, imgData, activeSlide),
     ),
   );
 };
