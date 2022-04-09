@@ -94,7 +94,7 @@ function previewItem([tw, th], tale, slide, index, active) {
 }
 
 export const preview = withInputSignals(
-  () => [connect("editor/active-slide"), connect("camera/rect")],
+  () => [connect("slide/active"), connect("camera/rect")],
   ([activeSlide, cameraRect], tale) => {
     let tw = 200,
       th = 112; // aspect ratio 16:9

@@ -1,11 +1,4 @@
-import {
-  db,
-  connect,
-  signal,
-  trigger,
-  withInputSignals,
-  connector,
-} from "flyps";
+import { connect, signal, trigger, withInputSignals } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { mat4, vec3 } from "gl-matrix";
 
@@ -111,18 +104,6 @@ export function onMouseDown(ev, cameraPosition, projectFn) {
     cursor: "move",
   });
 }
-
-/**
- * connectors
- */
-
-connector(
-  "editor/active-slide",
-  withInputSignals(
-    () => db,
-    db => db.editor.activeSlide,
-  ),
-);
 
 /**
  * views
@@ -268,7 +249,7 @@ export let editor = withInputSignals(
   () => [
     connect("matrix/client-transform"),
     connect("camera/position"),
-    connect("editor/active-slide"),
+    connect("slide/active"),
   ],
   ([transformMatrix, cameraPosition, activeSlide], tale) => {
     if (!tale) {

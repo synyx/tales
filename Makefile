@@ -103,4 +103,4 @@ clean-go:
 	rm -rf coverage.out coverage.html ${BINARIES}
 
 clean-js:
-	rm -rf dist/main.{js,js.map} public/js/tales.{js,js.map}
+	rm -rf dist/main.{js,js.map} public/js/tales.{js,js.map} public/js/viewer.{js,js.map}

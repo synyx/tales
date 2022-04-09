@@ -24,6 +24,9 @@
   "settings.transition.faster": "schneller",
   "settings.transition.instantly": "sofort",
   "settings.transition.preview": "Vorschau",
+  "settings.export.title": "Tale exportieren",
+  "settings.export.export-action": "Exportieren",
+  "settings.export.description": "Du kannst dein Tale als HTML-Datei exportieren. Damit können andere Menschen deine Geschichte betrachten, sie aber nicht bearbeiten.",
 
   "uploader.upload-poster.title": "Eine neue Geschichte beginnt…",
   "uploader.upload-poster.subtitle": "Als allererstes benötigt deine Geschichte ein Bild, mit dem du sie erzählen willst.",

@@ -22,15 +22,15 @@ import {
 describe("slide", () => {
   it("activates slide", () => {
     let db = activate({}, 42);
-    expect(db.editor.activeSlide).toBe(42);
+    expect(db.activeSlide).toBe(42);
   });
   it("activates prev slide", () => {
     let db = activatePrev({
       tales: [{ slug: "foo", slides: [{}, {}, {}] }],
       activeTale: "foo",
-      editor: { activeSlide: 1 },
+      activeSlide: 1,
     });
-    expect(db.editor.activeSlide).toBe(0);
+    expect(db.activeSlide).toBe(0);
   });
   it("activates last slide on prev with no activated slide", () => {
     let db = activatePrev({
@@ -38,23 +38,23 @@ describe("slide", () => {
       activeTale: "foo",
       editor: {},
     });
-    expect(db.editor.activeSlide).toBe(2);
+    expect(db.activeSlide).toBe(2);
   });
   it("activates last after first slide", () => {
     let db = activatePrev({
       tales: [{ slug: "foo", slides: [{}, {}, {}] }],
       activeTale: "foo",
-      editor: { activeSlide: 0 },
+      activeSlide: 0,
     });
-    expect(db.editor.activeSlide).toBe(2);
+    expect(db.activeSlide).toBe(2);
   });
   it("activates next slide", () => {
     let db = activateNext({
       tales: [{ slug: "foo", slides: [{}, {}, {}] }],
       activeTale: "foo",
-      editor: { activeSlide: 1 },
+      activeSlide: 1,
     });
-    expect(db.editor.activeSlide).toBe(2);
+    expect(db.activeSlide).toBe(2);
   });
   it("activates first slide on next with no activated slide", () => {
     let db = activateNext({
@@ -62,19 +62,19 @@ describe("slide", () => {
       activeTale: "foo",
       editor: {},
     });
-    expect(db.editor.activeSlide).toBe(0);
+    expect(db.activeSlide).toBe(0);
   });
   it("activates first after last slide", () => {
     let db = activateNext({
       tales: [{ slug: "foo", slides: [{}, {}, {}] }],
       activeTale: "foo",
-      editor: { activeSlide: 2 },
+      activeSlide: 2,
     });
-    expect(db.editor.activeSlide).toBe(0);
+    expect(db.activeSlide).toBe(0);
   });
   it("deactivates slide", () => {
-    let db = deactivate({ editor: { activeSlide: 1 } });
-    expect(db.editor.activeSlide).toBeUndefined();
+    let db = deactivate({ activeSlide: 1 });
+    expect(db.activeSlide).toBeUndefined();
   });
   it("swaps slides", () => {
     let initialDb = {
@@ -82,7 +82,7 @@ describe("slide", () => {
       activeTale: "foo",
     };
     let { db, trigger } = swap(initialDb, 0, 2);
-    expect(db.editor.activeSlide).toBe(2);
+    expect(db.activeSlide).toBe(2);
     expect(trigger).toEqual([
       "projects/update",
       { slug: "foo", slides: [{ id: 3 }, { id: 2 }, { id: 1 }] },
@@ -102,10 +102,10 @@ describe("slide", () => {
     let initialDb = {
       tales: [{ slug: "foo", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] }],
       activeTale: "foo",
-      editor: { activeSlide: 1 },
+      activeSlide: 1,
     };
     let { db, trigger } = swapPrev(initialDb);
-    expect(db.editor.activeSlide).toBe(0);
+    expect(db.activeSlide).toBe(0);
     expect(trigger).toEqual([
       "projects/update",
       { slug: "foo", slides: [{ id: 2 }, { id: 1 }, { id: 3 }] },
@@ -115,10 +115,10 @@ describe("slide", () => {
     let initialDb = {
       tales: [{ slug: "foo", slides: [{ id: 1 }, { id: 2 }, { id: 3 }] }],
       activeTale: "foo",
-      editor: { activeSlide: 1 },
+      activeSlide: 1,
     };
     let { db, trigger } = swapNext(initialDb);
-    expect(db.editor.activeSlide).toBe(2);
+    expect(db.activeSlide).toBe(2);
     expect(trigger).toEqual([
       "projects/update",
       { slug: "foo", slides: [{ id: 1 }, { id: 3 }, { id: 2 }] },
@@ -129,9 +129,9 @@ describe("slide", () => {
     let { db, trigger } = flyToPrev({
       tales: [{ slug: "foo", slides: [{ rect }, {}, {}], settings: {} }],
       activeTale: "foo",
-      editor: { activeSlide: 1 },
+      activeSlide: 1,
     });
-    expect(db.editor.activeSlide).toBe(0);
+    expect(db.activeSlide).toBe(0);
     expect(trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
   it("flies to last after first slide", () => {
@@ -139,9 +139,9 @@ describe("slide", () => {
     let { db, trigger } = flyToPrev({
       tales: [{ slug: "foo", slides: [{}, {}, { rect }], settings: {} }],
       activeTale: "foo",
-      editor: { activeSlide: 0 },
+      activeSlide: 0,
     });
-    expect(db.editor.activeSlide).toBe(2);
+    expect(db.activeSlide).toBe(2);
     expect(trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
   it("flies to next slide", () => {
@@ -149,9 +149,9 @@ describe("slide", () => {
     let { db, trigger } = flyToNext({
       tales: [{ slug: "foo", slides: [{}, {}, { rect }], settings: {} }],
       activeTale: "foo",
-      editor: { activeSlide: 1 },
+      activeSlide: 1,
     });
-    expect(db.editor.activeSlide).toBe(2);
+    expect(db.activeSlide).toBe(2);
     expect(trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
   it("flies to first after last slide", () => {
@@ -159,9 +159,9 @@ describe("slide", () => {
     let { db, trigger } = flyToNext({
       tales: [{ slug: "foo", slides: [{ rect }, {}, {}], settings: {} }],
       activeTale: "foo",
-      editor: { activeSlide: 2 },
+      activeSlide: 2,
     });
-    expect(db.editor.activeSlide).toBe(0);
+    expect(db.activeSlide).toBe(0);
     expect(trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
   it("focuses on current slide", () => {
@@ -174,7 +174,7 @@ describe("slide", () => {
         },
       ],
       activeTale: "foo",
-      editor: { activeSlide: 0 },
+      activeSlide: 0,
     });
     expect(effects.trigger).toEqual(["camera/fit-rect", rect]);
   });
@@ -189,7 +189,7 @@ describe("slide", () => {
         },
       ],
       activeTale: "foo",
-      editor: { activeSlide: 0 },
+      activeSlide: 0,
     });
     expect(effects.trigger).toEqual(["camera/fly-to-rect", rect, 500]);
   });
@@ -204,7 +204,7 @@ describe("slide", () => {
         },
       ],
       activeTale: "foo",
-      editor: { activeSlide: 0 },
+      activeSlide: 0,
     });
     expect(effects.trigger).toEqual(["camera/fly-to-rect", rect, 123]);
   });
@@ -221,7 +221,7 @@ describe("slide", () => {
       "projects/update",
       { slug: "test-1", slides: [{ id: 1 }, { id: 2 }] },
     ]);
-    expect(effects.db).toEqual({ ...db, editor: { activeSlide: 1 } });
+    expect(effects.db).toEqual({ ...db, activeSlide: 1 });
   });
   it("updates slide", () => {
     let db = {
@@ -230,9 +230,7 @@ describe("slide", () => {
         { slug: "test-2", slides: [] },
       ],
       activeTale: "test-1",
-      editor: {
-        activeSlide: 1,
-      },
+      activeSlide: 1,
     };
     let effects = update(db, { id: 2, value: 42 });
     expect(effects.trigger).toEqual([
@@ -247,9 +245,7 @@ describe("slide", () => {
         { slug: "test-2", slides: [] },
       ],
       activeTale: "test-1",
-      editor: {
-        activeSlide: 1,
-      },
+      activeSlide: 1,
     };
     let effects = deleteCurrent(db);
     expect(effects.trigger).toEqual([
@@ -264,12 +260,10 @@ describe("slide", () => {
         { slug: "test-2", slides: [] },
       ],
       activeTale: "test-1",
-      editor: {
-        activeSlide: 1,
-      },
+      activeSlide: 1,
     };
     let effects = deleteCurrent(db);
-    expect(effects.db.editor.activeSlide).toBeFalsy();
+    expect(effects.db.activeSlide).toBeFalsy();
   });
 });
 describe("insert", () => {
@@ -301,7 +295,7 @@ describe("insert", () => {
       activeTale: "test-1",
     };
     let effects = insert(db, { id: 3 }, 2);
-    expect(effects.db).toEqual({ ...db, editor: { activeSlide: 2 } });
+    expect(effects.db).toEqual({ ...db, activeSlide: 2 });
   });
 });
 describe("move", () => {
@@ -352,11 +346,11 @@ describe("activateAtPosition", () => {
           },
         ],
         activeTale: "foo",
-        editor: { activeSlide: 0 },
+        activeSlide: 0,
       },
       [5, 5],
     );
-    expect(db.editor.activeSlide).toBeUndefined();
+    expect(db.activeSlide).toBeUndefined();
   });
   it("activates the slide at the given position", () => {
     let db = activateAtPosition(
@@ -371,11 +365,11 @@ describe("activateAtPosition", () => {
           },
         ],
         activeTale: "foo",
-        editor: { activeSlide: 1 },
+        activeSlide: 1,
       },
       [15, 15],
     );
-    expect(db.editor.activeSlide).toBe(0);
+    expect(db.activeSlide).toBe(0);
   });
   it("activates the slide below the currently active slide", () => {
     let db = activateAtPosition(
@@ -391,11 +385,11 @@ describe("activateAtPosition", () => {
           },
         ],
         activeTale: "foo",
-        editor: { activeSlide: 1 },
+        activeSlide: 1,
       },
       [15, 15],
     );
-    expect(db.editor.activeSlide).toBe(0);
+    expect(db.activeSlide).toBe(0);
   });
   it(
     "activates the top-most slide again if the bottom-most slide " +
@@ -414,11 +408,11 @@ describe("activateAtPosition", () => {
             },
           ],
           activeTale: "foo",
-          editor: { activeSlide: 0 },
+          activeSlide: 0,
         },
         [15, 15],
       );
-      expect(db.editor.activeSlide).toBe(2);
+      expect(db.activeSlide).toBe(2);
     },
   );
 });

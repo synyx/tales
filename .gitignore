@@ -4,5 +4,5 @@ coverage.html
 coverage.out
 dist/
 node_modules/
-public/js/tales.js
-public/js/tales.js.map
+public/js/
+public/css/
