@@ -1,7 +1,7 @@
 import { h } from "flyps-dom-snabbdom";
 
 import { viewport } from "../viewport";
-import i18n from "../i18n";
+import { i18n } from "../i18n";
 
 const notFound = () => h("div", i18n("editor.unwritten-tale"));
 

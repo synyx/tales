@@ -3,7 +3,7 @@ import { connect, handler, signal, trigger, withInputSignals } from "flyps";
 import { easingAnimator } from "../animation";
 import { vec3 } from "gl-matrix";
 import { DEFAULT_SLIDE_TRANSITION_DURATION } from "../config";
-import i18n from "../i18n";
+import { i18n } from "../i18n";
 
 /**
  * Possible values (in ms) for transition duration setting.

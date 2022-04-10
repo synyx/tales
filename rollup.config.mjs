@@ -28,6 +28,8 @@ export default [
         preventAssignment: true,
         /* workaround for missing env variable  */
         "process.env.NODE_ENV": JSON.stringify("production"),
+        "process.env.APP_VERSION": JSON.stringify(pkg.version),
+        "process.env.BUILD_DATE": JSON.stringify(new Date().toISOString()),
       }),
       babel({ exclude: "node_modules/**", babelHelpers: "bundled" }),
     ],

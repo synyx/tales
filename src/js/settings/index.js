@@ -13,7 +13,7 @@ import "../util/effects";
 import { posterDimSetting } from "./poster";
 import { themeSetting } from "./theme";
 import { transitionSettings } from "./transition";
-import i18n from "../i18n";
+import { i18n } from "../i18n";
 import { exportSettings } from "./export";
 
 const DEFAULT_SETTINGS = {

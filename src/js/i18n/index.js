@@ -19,4 +19,9 @@ const polyglot = new Polyglot({
 });
 
 export const i18n = (...args) => polyglot.t(...args);
-export default i18n;
+
+export const dateFormatter = new Intl.DateTimeFormat(language, {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});

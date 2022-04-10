@@ -10,7 +10,7 @@ import { uploader } from "./upload";
 import { slideBounds } from "./slide-bounds";
 import { settings } from "../settings";
 import { normalizeRect } from "../util/geometry";
-import i18n from "../i18n";
+import { i18n } from "../i18n";
 
 /**
  * The speed in which the editor zoom level changes when the user zooms in/out.

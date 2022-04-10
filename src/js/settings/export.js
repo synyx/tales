@@ -1,6 +1,6 @@
 import { h } from "flyps-dom-snabbdom";
 import { connect, trigger, withInputSignals } from "flyps";
-import i18n from "../i18n";
+import { i18n } from "../i18n";
 
 /**
  * Export of a Tale as self-contained HTML file.
