@@ -30,7 +30,7 @@ or tissues.
 ## Hard facts:
 
 - No need to register for a user account
-- Tales runs with Java - no complicated installation process is needed
+- Just download Tales and start working on your story - no complicated installation process is needed
 - Tales is free and Open Source - no hidden costs, no costly license model
 - Tell your Tale on your website - easily export the Tale to HTML
 
@@ -64,10 +64,9 @@ Set up your first Tale.
 - Enter the name of your Tale and press enter.
 - Choose the Tale you want to tell, that is the path to your image on your computer.
 - Now press `Ctrl` (or `cmd` on a Mac) and use your mouse to create your Sections.
-- Check your Tale in the Storyline, and use the left and right arrows on your keyboard while pressing `Shift`to
-  rearrange the order of your sections, or press `Delete` to remove a slide.
+- Check your Tale in the Storyline. Drag and drop to rearrange slides or press `Delete` to remove a slide.
 - Press `Tell!` and tell your Tale by using the left and right arrows of your keyboard to navigate between the sections.
-- Use the `Back` Button of your browser to return to the editor.
+- Press `Escape` to return to the editor.
 
 A video tutorial is coming soon!
 
