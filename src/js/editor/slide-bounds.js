@@ -76,6 +76,9 @@ export const slideBounds = (rect, scale, index, options = {}) => {
   let markerSize = 5 / scale;
   let markerClickSize = 15 / scale;
   let markerStrokeWidth = 1.5 / scale;
+  let indexLabelHeight = 14 / scale;
+  let indexLabelWidth = 20 / scale;
+  let indexLabelFontSize = 10 / scale;
 
   let startMove = ev => {
     dragging(ev, {
@@ -138,6 +141,9 @@ export const slideBounds = (rect, scale, index, options = {}) => {
       ]
     : [];
 
+  let showIndexLabel =
+    !ghost && indexLabelWidth < width && indexLabelHeight < height;
+
   return h(
     "g.slide-bounds",
     {
@@ -153,7 +159,29 @@ export const slideBounds = (rect, scale, index, options = {}) => {
           "stroke-width": strokeWidth,
         },
       }),
-      ...markers,
-    ],
+      showIndexLabel &&
+        h("g.index-label", [
+          h("rect", {
+            attrs: {
+              x: x,
+              y: y,
+              width: indexLabelWidth,
+              height: indexLabelHeight,
+            },
+          }),
+          h(
+            "text",
+            {
+              attrs: {
+                x: x + indexLabelWidth / 2,
+                y: y + indexLabelHeight / 2,
+                "font-size": indexLabelFontSize,
+              },
+            },
+            index + 1,
+          ),
+        ]),
+      h("g.markers", markers),
+    ].filter(n => !!n),
   );
 };

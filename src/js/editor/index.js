@@ -218,18 +218,21 @@ let navigator = (tale, transformMatrix, cameraPosition, activeSlide) => {
           },
         },
         [
-          ...(tale.slides || []).map((slide, index) =>
-            slideBounds(slide.rect, scale, index, {
-              active: index === activeSlide,
-              onMove: (ev, start, end) => onMove(ev, slide, start, end),
-              onMoveEnd: (ev, start, end) => onMoveEnd(ev, slide, start, end),
-              onResize: (ev, position, cursor, start, end) =>
-                onResize(ev, slide, position, cursor, start, end),
-              onResizeEnd: (ev, position, start, end) =>
-                onResizeEnd(ev, slide, position, start, end),
-              onClick: (ev, position) =>
-                trigger("slide/activate-at-position", projectFn(position)),
-            }),
+          h(
+            "g",
+            (tale.slides || []).map((slide, index) =>
+              slideBounds(slide.rect, scale, index, {
+                active: index === activeSlide,
+                onMove: (ev, start, end) => onMove(ev, slide, start, end),
+                onMoveEnd: (ev, start, end) => onMoveEnd(ev, slide, start, end),
+                onResize: (ev, position, cursor, start, end) =>
+                  onResize(ev, slide, position, cursor, start, end),
+                onResizeEnd: (ev, position, start, end) =>
+                  onResizeEnd(ev, slide, position, start, end),
+                onClick: (ev, position) =>
+                  trigger("slide/activate-at-position", projectFn(position)),
+              }),
+            ),
           ),
           ...(drawRect.value()
             ? [
