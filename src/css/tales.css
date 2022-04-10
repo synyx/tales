@@ -667,18 +667,28 @@ label.range input {
   background-color: var(--preview-move-indicator);
 }
 
-#editor .slide-bounds > .frame {
-  stroke: var(--slide-bounds);
-  fill: var(--slide-bounds);
-  fill-opacity: 0.1;
+#editor .slide-bounds {
+  --color: var(--slide-bounds);
 }
-
-#editor .slide-bounds.active > .frame {
-  stroke: var(--slide-bounds-active);
-  fill: var(--slide-bounds-active);
+#editor .slide-bounds.active {
+  --color: var(--slide-bounds-active);
+}
+#editor .slide-bounds > .frame {
+  stroke: var(--color);
+  fill: var(--color);
+  fill-opacity: 0.1;
 }
 #editor .slide-bounds.preview > .frame {
   stroke-opacity: 0.5;
+}
+
+#editor .slide-bounds .index-label rect {
+  fill: var(--color);
+}
+#editor .slide-bounds .index-label text {
+  fill: var(--text-inverse);
+  text-anchor: middle;
+  dominant-baseline: central;
 }
 
 #editor .poster-uploader {
