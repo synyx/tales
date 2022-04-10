@@ -686,9 +686,11 @@ label.range input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  max-height: 100%;
+  margin: auto 0;
   padding: 0 10vw;
   text-align: center;
+  overflow-y: auto;
 }
 #editor .poster-uploader.dropping {
   background-color: var(--poster-uploader-dropping-bg);
@@ -699,7 +701,7 @@ label.range input {
 }
 
 #editor .poster-uploader h2 {
-  margin-top: 0;
+  margin-top: 1rem;
   font-weight: lighter;
   font-size: 3rem;
   line-height: 1.2;
@@ -715,7 +717,7 @@ label.range input {
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: 2rem;
+  margin: 2rem 0 1rem;
   padding: 2rem;
   border: dashed 5px var(--poster-uploader-drop);
   border-radius: 0.5rem;
