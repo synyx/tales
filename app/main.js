@@ -2,7 +2,7 @@ import electron from "electron";
 import * as childProcess from "child_process";
 import * as path from "path";
 
-let { app, BrowserWindow, Menu, shell } = electron;
+let { app, BrowserWindow } = electron;
 
 const isDevelopment = false;
 
@@ -38,27 +38,7 @@ function createWindow() {
     setTimeout(() => win.focus(), 0);
   });
 
-  var menu = Menu.buildFromTemplate([
-    {
-      label: "&Tales",
-      submenu: [
-        {
-          label: "Tales on &GitHub",
-          click() {
-            shell.openExternal("https://github.com/synyx/tales");
-          },
-        },
-        {
-          label: "&Quit",
-          click() {
-            app.quit();
-          },
-          accelerator: "CmdOrCtrl+Q",
-        },
-      ],
-    },
-  ]);
-  Menu.setApplicationMenu(menu);
+  win.removeMenu();
 }
 
 function start() {
