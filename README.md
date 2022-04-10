@@ -4,6 +4,8 @@
 
 Professional storytelling risen to the next level - achievable for everyone!
 
+![Screenshot of the Tales editor](screenshots/editor-v0.11.png?raw=true "Screenshot of the Tales editor")
+
 
 ## What is Tales?
 
