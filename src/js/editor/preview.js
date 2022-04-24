@@ -55,13 +55,6 @@ function previewItem([tw, th], tale, slide, index, active) {
           class: {
             active: active,
           },
-          hook: {
-            postpatch: vnode => {
-              if (active) {
-                vnode.elm.scrollIntoView();
-              }
-            },
-          },
           on: {
             click: () => trigger("slide/activate", index),
             dblclick: () => trigger("camera/fit-rect", slide.rect),

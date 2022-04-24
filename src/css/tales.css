@@ -64,7 +64,7 @@
   --preview-index-bg: var(--gray-8);
   --preview-index-text: var(--text-inverse);
   --preview-outline: var(--gray-4);
-  --preview-outline-active: var(--secondary-6);
+  --preview-outline-active: var(--secondary-4);
   --preview-move-indicator: var(--primary-2);
   --preview-overlay-bg: rgba(0, 0, 0, 0.5);
   --preview-overlay-fg: var(--white);
@@ -109,15 +109,15 @@
   --home-button-fg: var(--primary-4);
   --home-button-active-fg: var(--primary-3);
 
-  --editor-bg: var(--gray-8);
-  --sidebar-bg: var(--gray-9);
-  --sidebar-footer: var(--black);
+  --editor-bg: var(--gray-9);
+  --sidebar-bg: var(--gray-7);
+  --sidebar-footer: var(--gray-8);
   --sidebar-text: var(--text);
   --preview-index-bg: var(--gray-7);
   --preview-index-text: var(--text);
   --slide-bounds: var(--primary-4);
   --slide-bounds-active: var(--secondary-4);
-  --editor-dim: #000b;
+  --editor-dim: #0009;
   --poster-uploader-dropping-bg: var(--gray-7);
   --poster-uploader-drop: var(--gray-6);
   --poster-uploader-drop-active: var(--gray-5);
@@ -696,9 +696,11 @@ label.range input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  max-height: 100%;
+  margin: auto 0;
   padding: 0 10vw;
   text-align: center;
+  overflow-y: auto;
 }
 #editor .poster-uploader.dropping {
   background-color: var(--poster-uploader-dropping-bg);
@@ -709,7 +711,7 @@ label.range input {
 }
 
 #editor .poster-uploader h2 {
-  margin-top: 0;
+  margin-top: 1rem;
   font-weight: lighter;
   font-size: 3rem;
   line-height: 1.2;
@@ -725,7 +727,7 @@ label.range input {
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: 2rem;
+  margin: 2rem 0 1rem;
   padding: 2rem;
   border: dashed 5px var(--poster-uploader-drop);
   border-radius: 0.5rem;
