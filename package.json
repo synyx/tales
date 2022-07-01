@@ -53,7 +53,7 @@
     "flyps": "^0.6.7",
     "flyps-dom-snabbdom": "^0.2.0",
     "gl-matrix": "^3.4.3",
-    "jest": "^28.0.3",
+    "jest": "^28.1.2",
     "jest-environment-jsdom": "^28.1.1",
     "node-polyglot": "^2.4.2",
     "postcss-cli": "^9.1.0",
