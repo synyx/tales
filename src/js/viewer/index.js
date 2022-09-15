@@ -37,11 +37,17 @@ export const init = (tale, imgData) => {
 
   trigger("project/reset-view");
 
-  mount(
-    document.querySelector("#app"),
-    withInputSignals(
-      () => [connect("tale"), connect("slide/active")],
-      ([tale, activeSlide]) => viewer(tale, imgData, activeSlide),
-    ),
-  );
+  fetch(imgData)
+    .then(res => res.blob())
+    .then(blob => {
+      const objectURL = window.URL.createObjectURL(blob);
+
+      mount(
+        document.querySelector("#app"),
+        withInputSignals(
+          () => [connect("tale"), connect("slide/active")],
+          ([tale, activeSlide]) => viewer(tale, objectURL, activeSlide),
+        ),
+      );
+    });
 };
