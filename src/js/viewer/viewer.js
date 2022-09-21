@@ -5,7 +5,7 @@ import { trigger } from "flyps";
 
 const notFound = () => h("div", "An unwritten tale…");
 
-export const viewer = (tale, imgData, activeSlide) => {
+export const viewer = (tale, posterUrl, activeSlide) => {
   if (!tale) {
     return notFound();
   }
@@ -18,17 +18,17 @@ export const viewer = (tale, imgData, activeSlide) => {
         tale.dimensions.width,
         tale.dimensions.height,
         {},
-        poster(imgData, tale.fileType),
+        poster(posterUrl, tale.fileType),
       ),
       controls(tale, activeSlide),
     ],
   );
 };
 
-const poster = (imgData, fileType) => {
+const poster = (posterUrl, fileType) => {
   return h("object.poster", {
     attrs: {
-      data: imgData,
+      data: posterUrl,
       type: fileType,
     },
   });
