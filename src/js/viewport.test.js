@@ -93,8 +93,11 @@ describe("windowResizeListener", () => {
     jest.spyOn(window, "removeEventListener");
     windowResizeListener.add(elm);
 
-    expect(window.addEventListener).toBeCalledWith("resize", expect.anything());
-    expect(window.removeEventListener).not.toHaveBeenCalled();
+    expect(window.addEventListener).toHaveBeenCalledWith(
+      "resize",
+      expect.anything(),
+    );
+    expect(window.removeEventListener).not.toHaveBeenCalledWith();
     expect(flyps.trigger).toHaveBeenCalledWith(
       "viewport/set-rect",
       [1, 2, 3, 4],
@@ -105,7 +108,7 @@ describe("windowResizeListener", () => {
     windowResizeListener.add(elm);
     windowResizeListener.remove();
 
-    expect(window.removeEventListener).toBeCalledWith(
+    expect(window.removeEventListener).toHaveBeenCalledWith(
       "resize",
       expect.anything(),
     );
