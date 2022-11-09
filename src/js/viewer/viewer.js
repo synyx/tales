@@ -36,17 +36,24 @@ const poster = (posterUrl, fileType) => {
 
 const controls = (tale, activeSlide) => {
   const currentSlide = activeSlide === undefined ? 0 : activeSlide + 1;
-  return h("div.controls", { on: { click: ev => ev.stopPropagation() } }, [
-    h(
-      "button",
-      { on: { click: () => trigger("slide/fly-to-prev") } },
-      chevronLeft(),
-    ),
-    h("div.progress", `${currentSlide} / ${tale.slides.length}`),
-    h(
-      "button",
-      { on: { click: () => trigger("slide/fly-to-next") } },
-      chevronRight(),
-    ),
-  ]);
+  return h(
+    "div.controls",
+    {
+      class: { show: !currentSlide },
+      on: { click: ev => ev.stopPropagation() },
+    },
+    [
+      h(
+        "button",
+        { on: { click: () => trigger("slide/fly-to-prev") } },
+        chevronLeft(),
+      ),
+      h("div.progress", `${currentSlide} / ${tale.slides.length}`),
+      h(
+        "button",
+        { on: { click: () => trigger("slide/fly-to-next") } },
+        chevronRight(),
+      ),
+    ],
+  );
 };
