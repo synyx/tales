@@ -3,11 +3,12 @@ import { handler } from "flyps";
 handler("export/download", (_, __, tale) => downloadAll(tale));
 
 const downloadAll = tale => {
+  const cacheBust = "?t=" + new Date().valueOf();
   Promise.all([
-    fetch("/viewer.html").then(response => response.text()),
-    fetch("/js/viewer.js").then(response => response.text()),
-    fetch("/css/viewer.css").then(response => response.text()),
-    fetchAsDataURL(`/editor/${tale.slug}/${tale["file-path"]}`),
+    fetch(`/viewer.html${cacheBust}`).then(response => response.text()),
+    fetch(`/js/viewer.js${cacheBust}`).then(response => response.text()),
+    fetch(`/css/viewer.css${cacheBust}`).then(response => response.text()),
+    fetchAsDataURL(`/editor/${tale.slug}/${tale["file-path"]}${cacheBust}`),
   ]).then(([template, script, style, posterBase64]) => {
     const doc = template
       .replace("{{title}}", () => tale.name)
