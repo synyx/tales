@@ -3,8 +3,8 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import replace from "@rollup/plugin-replace";
-import { terser } from "rollup-plugin-terser";
-import pkg from "./package.json";
+import terser from "@rollup/plugin-terser";
+import pkg from "./package.json" assert { type: "json" };
 
 export default [
   {
