@@ -54,7 +54,7 @@
     "flyps-dom-snabbdom": "^0.3.1",
     "gl-matrix": "^3.4.3",
     "jest": "^29.1.2",
-    "jest-environment-jsdom": "^29.1.2",
+    "jest-environment-jsdom": "^29.3.1",
     "node-polyglot": "^2.4.2",
     "postcss-cli": "^10.0.0",
     "postcss-import": "^15.0.0",
