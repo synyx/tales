@@ -59,7 +59,7 @@
     "node-polyglot": "^2.4.2",
     "postcss-cli": "^10.0.0",
     "postcss-import": "^15.0.0",
-    "prettier": "^2.7.1",
+    "prettier": "^2.8.0",
     "rollup": "^3.3.0"
   },
   "jest": {
