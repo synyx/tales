@@ -47,7 +47,7 @@
     "cssnano": "^6.0.0",
     "electron": "^23.2.1",
     "electron-builder": "^24.1.2",
-    "eslint": "^8.37.0",
+    "eslint": "^8.41.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-jest": "^27.2.1",
     "eslint-plugin-prettier": "^4.2.1",
