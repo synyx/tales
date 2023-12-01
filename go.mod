@@ -3,7 +3,7 @@ module synyx.de/tales
 go 1.14
 
 require (
-	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/mux v1.8.1
 	github.com/mozillazg/go-slugify v0.2.0
 	github.com/mozillazg/go-unidecode v0.1.1 // indirect
 	github.com/stretchr/testify v1.8.2
