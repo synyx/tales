@@ -2,7 +2,7 @@ import { connect, trigger, withInputSignals } from "flyps";
 import { h } from "flyps-dom-snabbdom";
 import { intersectRects, padRect } from "../util/geometry";
 import * as previewMove from "./preview-move";
-import i18n from "../i18n";
+import { i18n } from "../i18n";
 
 export function previewRect(
   rect,

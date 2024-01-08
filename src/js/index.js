@@ -21,7 +21,7 @@ import "./slide";
 import { editor } from "./editor/index";
 import { presenter } from "./presenter/index";
 import * as router from "./router";
-import i18n from "./i18n/index";
+import { i18n, dateFormatter } from "./i18n/index";
 import { arrowRight } from "./icons";
 
 handler(
@@ -97,6 +97,17 @@ let taleList = withInputSignals(
   tales => h("ul.tale-list", tales.map(taleItem)),
 );
 
+connector("app/version", () => process.env.APP_VERSION || "dev");
+connector("app/build-date", () =>
+  dateFormatter.format(new Date(process.env.BUILD_DATE)),
+);
+
+let footer = () => {
+  const version = connect("app/version").value();
+  const buildDate = connect("app/build-date").value();
+  return h("footer", i18n("home.build-info", { version, buildDate }));
+};
+
 let home = () => {
   let onKeydown = e => {
     switch (e.which) {
@@ -139,8 +150,8 @@ let home = () => {
         arrowRight(),
       ),
     ]),
-
     taleList(),
+    footer(),
   ]);
 };
 

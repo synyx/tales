@@ -1,6 +1,6 @@
 import { signal, trigger } from "flyps";
 import { h } from "flyps-dom-snabbdom";
-import i18n from "../i18n";
+import { i18n } from "../i18n";
 
 let dropTarget = signal();
 

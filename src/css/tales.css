@@ -341,6 +341,7 @@ label.range input {
   flex-direction: column;
   width: 40rem;
   max-width: 90%;
+  min-height: 100vh;
   margin: 0 auto;
 }
 
@@ -454,6 +455,14 @@ label.range input {
 #home .tale-list > li .poster > img {
   min-height: 100%;
   flex: 1 1 auto;
+}
+
+#home footer {
+  margin-top: auto;
+  padding: 1rem 0;
+  text-align: center;
+  font-size: var(--font-size-small);
+  font-style: italic;
 }
 
 #editor {

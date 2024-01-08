@@ -1,5 +1,6 @@
 {
   "home.tale-name-prompt": "Gib einen Namen für deine Geschichte ein",
+  "home.build-info": "Version %{version} (%{buildDate})",
 
   "editor.unwritten-tale": "Eine ungeschriebene Geschichte…",
   "editor.tell": "Erzählen",

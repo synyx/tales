@@ -7,7 +7,7 @@ import {
   trigger,
   withInputSignals,
 } from "flyps";
-import i18n from "../i18n";
+import { i18n } from "../i18n";
 
 /**
  * The application UI theme (light/dark).
