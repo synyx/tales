@@ -72,7 +72,7 @@ jobs:
     - run: make dist
 
     - name: Upload server binaries to release
-      uses: svenstaro/upload-release-action@2.7.0
+      uses: svenstaro/upload-release-action@2.9.0
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ${{ matrix.server_artifact_name }}
@@ -80,7 +80,7 @@ jobs:
         tag: ${{ github.ref }}
 
     - name: Upload desktop binaries to release
-      uses: svenstaro/upload-release-action@2.7.0
+      uses: svenstaro/upload-release-action@2.9.0
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ${{ matrix.desktop_artifact_name }}
