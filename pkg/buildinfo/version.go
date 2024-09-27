@@ -5,7 +5,7 @@ import "fmt"
 var (
 	// Version holds the latest git tag.
 	Version string
-	// GitSHA holde the latest git commit SHA.
+	// GitSHA holds the latest git commit SHA.
 	GitSHA string
 	// GitTreeState holds the git tree state during build.
 	GitTreeState string

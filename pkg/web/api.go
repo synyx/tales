@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/mozillazg/go-slugify"
+
 	"synyx.de/tales/pkg/project"
 )
 
