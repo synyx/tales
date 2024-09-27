@@ -166,8 +166,8 @@ func jsonResponse(w http.ResponseWriter, data interface{}, code int) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
-	if _, err := w.Write(result); err != nil {
-		// intentionally ignore the error, there is no way to signal the client,
-		// logging this is also not valuable.
-	}
+
+	// intentionally ignore the error, there is no way to signal the client,
+	// logging this is also not valuable.
+	_, _ = w.Write(result)
 }

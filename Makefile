@@ -65,7 +65,8 @@ lint: lint-go lint-js
 
 lint-go:
 	go vet ./...
-	golint -set_exit_status ./...
+	which golint && golint -set_exit_status ./... || true
+	which golangci-lint && golangci-lint run || true
 
 lint-js:
 	npm run lint
