@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"testing"
 
@@ -197,7 +196,7 @@ func TestAPI_deleteProject(t *testing.T) {
 
 		assert.Equal(t, 202, resp.StatusCode)
 
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		assert.Empty(t, string(body))
 	})
 	t.Run("unknown project", func(t *testing.T) {
@@ -260,7 +259,7 @@ func AssertProjectResponse(t *testing.T, resp *http.Response, expected project.P
 	assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))
 
 	var received project.Project
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	assert.NoError(t, json.Unmarshal(body, &received))
 	assert.Equal(t, expected, received)
 }
