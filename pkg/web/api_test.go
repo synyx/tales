@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -22,7 +23,7 @@ func TestAPI_listProjects(t *testing.T) {
 		assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))
 
 		var projects []project.Project
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		assert.Nil(t, json.Unmarshal(body, &projects))
 		assert.Empty(t, projects)
 	})
@@ -40,7 +41,7 @@ func TestAPI_listProjects(t *testing.T) {
 		assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))
 
 		var projects []project.Project
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		assert.Nil(t, json.Unmarshal(body, &projects))
 		assert.Len(t, projects, 3)
 	})
@@ -266,7 +267,7 @@ func AssertProjectResponse(t *testing.T, resp *http.Response, expected project.P
 
 func AssertError(t *testing.T, resp *http.Response, errorMsg string, statusCode int) {
 	AssertHTTPError(t, resp, statusCode)
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	assert.Equal(t, errorMsg, string(body))
 }
 

@@ -3,7 +3,6 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -22,7 +21,7 @@ type TestClient struct {
 }
 
 func NewTestClient(t *testing.T) *TestClient {
-	dir, err := ioutil.TempDir("", "tales-test")
+	dir, err := os.MkdirTemp("", "tales-test")
 	assert.NoError(t, err)
 	handler := NewServer(dir, "")
 	repo := &project.FilesystemRepository{

@@ -1,7 +1,6 @@
 package project
 
 import (
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -66,7 +65,7 @@ func TestFilesystemRepository_LoadProjects(t *testing.T) {
 			filename := path.Join(repo.ProjectDir, "project", "config.json")
 			err := os.MkdirAll(filepath.Dir(filename), os.ModePerm)
 			assert.Nil(t, err)
-			err = ioutil.WriteFile(filename, []byte{'{', '}'}, 0644)
+			err = os.WriteFile(filename, []byte{'{', '}'}, 0644)
 			assert.Nil(t, err)
 		}
 
@@ -75,7 +74,7 @@ func TestFilesystemRepository_LoadProjects(t *testing.T) {
 			filename := path.Join(repo.ProjectDir, "foo", "config.json")
 			err := os.MkdirAll(filepath.Dir(filename), os.ModePerm)
 			assert.Nil(t, err)
-			err = ioutil.WriteFile(filename, []byte{}, 0644)
+			err = os.WriteFile(filename, []byte{}, 0644)
 			assert.Nil(t, err)
 		}
 
@@ -84,14 +83,14 @@ func TestFilesystemRepository_LoadProjects(t *testing.T) {
 			filename := path.Join(repo.ProjectDir, "bar", "config.json")
 			err := os.MkdirAll(filepath.Dir(filename), os.ModePerm)
 			assert.Nil(t, err)
-			err = ioutil.WriteFile(filename, []byte{}, 0222)
+			err = os.WriteFile(filename, []byte{}, 0222)
 			assert.Nil(t, err)
 		}
 
 		{
 			// file instead of directory
 			filename := path.Join(repo.ProjectDir, "baz")
-			err := ioutil.WriteFile(filename, []byte{}, 0644)
+			err := os.WriteFile(filename, []byte{}, 0644)
 			assert.Nil(t, err)
 		}
 
@@ -195,7 +194,7 @@ func TestFilesystemRepository_SaveImage(t *testing.T) {
 }
 
 func testRepo(t *testing.T) FilesystemRepository {
-	dir, err := ioutil.TempDir("", "tales-test")
+	dir, err := os.MkdirTemp("", "tales-test")
 	assert.Nil(t, err)
 	return FilesystemRepository{dir}
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -28,7 +27,7 @@ func main() {
 	total := 0
 	success := 0
 
-	files, err := ioutil.ReadDir(projectDir)
+	files, err := os.ReadDir(projectDir)
 	if err != nil {
 		log.Fatalf("Failed to open project directory: %v", err)
 	}
@@ -63,7 +62,7 @@ func migrate(slug, ednFile, jsonFile string) error {
 	var err error
 	var data []byte
 
-	data, err = ioutil.ReadFile(ednFile)
+	data, err = os.ReadFile(ednFile)
 	if err != nil {
 		return err
 	}
@@ -79,7 +78,7 @@ func migrate(slug, ednFile, jsonFile string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(jsonFile, data, 0644)
+	return os.WriteFile(jsonFile, data, 0644)
 
 }
 

@@ -18,7 +18,7 @@ func listProjects(repository project.Repository) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		jsonResponse(w, []project.Project(projects), http.StatusOK)
+		jsonResponse(w, projects, http.StatusOK)
 	}
 }
 
