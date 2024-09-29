@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+
 	"synyx.de/tales/pkg/project"
 )
 

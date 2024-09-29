@@ -2,11 +2,12 @@ package web
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"synyx.de/tales/pkg/project"
 )
 
@@ -21,7 +22,7 @@ func TestAPI_listProjects(t *testing.T) {
 		assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))
 
 		var projects []project.Project
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		assert.Nil(t, json.Unmarshal(body, &projects))
 		assert.Empty(t, projects)
 	})
@@ -39,7 +40,7 @@ func TestAPI_listProjects(t *testing.T) {
 		assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))
 
 		var projects []project.Project
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		assert.Nil(t, json.Unmarshal(body, &projects))
 		assert.Len(t, projects, 3)
 	})
@@ -195,7 +196,7 @@ func TestAPI_deleteProject(t *testing.T) {
 
 		assert.Equal(t, 202, resp.StatusCode)
 
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		assert.Empty(t, string(body))
 	})
 	t.Run("unknown project", func(t *testing.T) {
@@ -258,14 +259,14 @@ func AssertProjectResponse(t *testing.T, resp *http.Response, expected project.P
 	assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))
 
 	var received project.Project
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	assert.NoError(t, json.Unmarshal(body, &received))
 	assert.Equal(t, expected, received)
 }
 
 func AssertError(t *testing.T, resp *http.Response, errorMsg string, statusCode int) {
 	AssertHTTPError(t, resp, statusCode)
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	assert.Equal(t, errorMsg, string(body))
 }
 

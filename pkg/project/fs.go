@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -37,7 +36,7 @@ func (fr *FilesystemRepository) Exists(slug string) bool {
 // LoadProjects implements the Repository.LoadProjects method.
 func (fr *FilesystemRepository) LoadProjects() ([]Project, error) {
 	projects := make([]Project, 0)
-	files, err := ioutil.ReadDir(fr.ProjectDir)
+	files, err := os.ReadDir(fr.ProjectDir)
 	if err != nil {
 		return projects, err
 	}
@@ -64,7 +63,7 @@ func (fr *FilesystemRepository) LoadProject(slug string) (Project, error) {
 		return Project{}, ErrNotExist
 	}
 	jsonFile := fr.configFile(slug)
-	data, err := ioutil.ReadFile(jsonFile)
+	data, err := os.ReadFile(jsonFile)
 	if err != nil {
 		return Project{}, err
 	}
@@ -95,7 +94,7 @@ func (fr *FilesystemRepository) SaveProject(slug string, project Project) (Proje
 		return Project{}, err
 	}
 
-	return project, ioutil.WriteFile(jsonFile, data, 0644)
+	return project, os.WriteFile(jsonFile, data, 0644)
 }
 
 // DeleteProject implements the Repository.DeleteProject method.
@@ -122,7 +121,7 @@ func (fr *FilesystemRepository) SaveImage(slug, contentType string, data []byte)
 	if err != nil {
 		return Project{}, err
 	}
-	err = ioutil.WriteFile(imageFile, data, 0644)
+	err = os.WriteFile(imageFile, data, 0644)
 	if err != nil {
 		return Project{}, err
 	}

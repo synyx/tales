@@ -2,11 +2,12 @@ package web
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/mozillazg/go-slugify"
+
 	"synyx.de/tales/pkg/project"
 )
 
@@ -17,7 +18,7 @@ func listProjects(repository project.Repository) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		jsonResponse(w, []project.Project(projects), http.StatusOK)
+		jsonResponse(w, projects, http.StatusOK)
 	}
 }
 
@@ -29,39 +30,39 @@ func loadProject(repository project.Repository) http.HandlerFunc {
 			notFound(w)
 			return
 		}
-		project, err := repository.LoadProject(slug)
+		proj, err := repository.LoadProject(slug)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		jsonResponse(w, project, http.StatusOK)
+		jsonResponse(w, proj, http.StatusOK)
 	}
 }
 
 func createProject(repository project.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		project, err := extractProject(r)
+		proj, err := extractProject(r)
 		if err != nil {
 			badRequest(w)
 			return
 		}
-		if project.Slug == "" {
-			project.Slug = slugify.Slugify(project.Name)
+		if proj.Slug == "" {
+			proj.Slug = slugify.Slugify(proj.Name)
 		}
-		if project.Slug == "" {
+		if proj.Slug == "" {
 			badRequest(w)
 			return
 		}
-		if repository.Exists(project.Slug) {
+		if repository.Exists(proj.Slug) {
 			conflict(w)
 			return
 		}
-		project, err = repository.SaveProject(project.Slug, project)
+		proj, err = repository.SaveProject(proj.Slug, proj)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		jsonResponse(w, project, http.StatusCreated)
+		jsonResponse(w, proj, http.StatusCreated)
 	}
 }
 
@@ -69,7 +70,7 @@ func updateProject(repository project.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		slug := vars["slug"]
-		project, err := extractProject(r)
+		proj, err := extractProject(r)
 		if err != nil {
 			badRequest(w)
 			return
@@ -78,12 +79,12 @@ func updateProject(repository project.Repository) http.HandlerFunc {
 			notFound(w)
 			return
 		}
-		project, err = repository.SaveProject(slug, project)
+		proj, err = repository.SaveProject(slug, proj)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		jsonResponse(w, project, http.StatusAccepted)
+		jsonResponse(w, proj, http.StatusAccepted)
 	}
 }
 
@@ -112,32 +113,32 @@ func saveProjectImage(repository project.Repository) http.HandlerFunc {
 			notFound(w)
 			return
 		}
-		data, err := ioutil.ReadAll(r.Body)
+		data, err := io.ReadAll(r.Body)
 		if err != nil {
 			badRequest(w)
 			return
 		}
 		contentType := r.Header.Get("Content-Type")
-		project, err := repository.SaveImage(slug, contentType, data)
+		proj, err := repository.SaveImage(slug, contentType, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		jsonResponse(w, project, http.StatusAccepted)
+		jsonResponse(w, proj, http.StatusAccepted)
 	}
 }
 
 func extractProject(req *http.Request) (project.Project, error) {
-	var project project.Project
-	body, err := ioutil.ReadAll(req.Body)
+	var proj project.Project
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
-		return project, err
+		return proj, err
 	}
-	err = json.Unmarshal(body, &project)
+	err = json.Unmarshal(body, &proj)
 	if err != nil {
-		return project, err
+		return proj, err
 	}
-	return project, nil
+	return proj, nil
 }
 
 func badRequest(w http.ResponseWriter) {
@@ -165,5 +166,8 @@ func jsonResponse(w http.ResponseWriter, data interface{}, code int) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
-	w.Write(result)
+
+	// intentionally ignore the error, there is no way to signal the client,
+	// logging this is also not valuable.
+	_, _ = w.Write(result)
 }
