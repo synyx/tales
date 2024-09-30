@@ -13,7 +13,7 @@ import (
 func (s *server) listProjects(w http.ResponseWriter, r *http.Request) {
 	projects, err := s.repository.LoadProjects()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		internalServerError(w, err)
 		return
 	}
 
@@ -29,7 +29,7 @@ func (s *server) loadProject(w http.ResponseWriter, r *http.Request) {
 
 	proj, err := s.repository.LoadProject(slug)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		internalServerError(w, err)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (s *server) createProject(w http.ResponseWriter, r *http.Request) {
 
 	proj, err = s.repository.SaveProject(proj.Slug, proj)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		internalServerError(w, err)
 		return
 	}
 
@@ -78,7 +78,7 @@ func (s *server) updateProject(w http.ResponseWriter, r *http.Request) {
 
 	proj, err = s.repository.SaveProject(slug, proj)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		internalServerError(w, err)
 		return
 	}
 
@@ -93,7 +93,7 @@ func (s *server) deleteProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.repository.DeleteProject(slug); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		internalServerError(w, err)
 		return
 	}
 
@@ -115,7 +115,7 @@ func (s *server) saveProjectImage(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
 	proj, err := s.repository.SaveImage(slug, contentType, data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		internalServerError(w, err)
 		return
 	}
 
@@ -137,6 +137,10 @@ func extractProject(req *http.Request) (project.Project, error) {
 	return proj, nil
 }
 
+func internalServerError(w http.ResponseWriter, err error) {
+	http.Error(w, err.Error(), http.StatusInternalServerError)
+}
+
 func badRequest(w http.ResponseWriter) {
 	http.Error(w, "invalid project", http.StatusBadRequest)
 }
@@ -156,7 +160,7 @@ func emptyResponse(w http.ResponseWriter, code int) {
 func jsonResponse(w http.ResponseWriter, data interface{}, code int) {
 	result, err := json.Marshal(data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		internalServerError(w, err)
 		return
 	}
 
