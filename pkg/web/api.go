@@ -10,117 +10,110 @@ import (
 	"synyx.de/tales/pkg/project"
 )
 
-func listProjects(repository project.Repository) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		projects, err := repository.LoadProjects()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		jsonResponse(w, projects, http.StatusOK)
+func (s *server) listProjects(w http.ResponseWriter, r *http.Request) {
+	projects, err := s.repository.LoadProjects()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+	jsonResponse(w, projects, http.StatusOK)
+
 }
 
-func loadProject(repository project.Repository) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		slug := r.PathValue("slug")
-		if !repository.Exists(slug) {
-			notFound(w)
-			return
-		}
-		proj, err := repository.LoadProject(slug)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		jsonResponse(w, proj, http.StatusOK)
+func (s *server) loadProject(w http.ResponseWriter, r *http.Request) {
+	slug := r.PathValue("slug")
+	if !s.repository.Exists(slug) {
+		notFound(w)
+		return
 	}
+	proj, err := s.repository.LoadProject(slug)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonResponse(w, proj, http.StatusOK)
+
 }
 
-func createProject(repository project.Repository) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		proj, err := extractProject(r)
-		if err != nil {
-			badRequest(w)
-			return
-		}
-		if proj.Slug == "" {
-			proj.Slug = slugify.Slugify(proj.Name)
-		}
-		if proj.Slug == "" {
-			badRequest(w)
-			return
-		}
-		if repository.Exists(proj.Slug) {
-			conflict(w)
-			return
-		}
-		proj, err = repository.SaveProject(proj.Slug, proj)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		jsonResponse(w, proj, http.StatusCreated)
+func (s *server) createProject(w http.ResponseWriter, r *http.Request) {
+	proj, err := extractProject(r)
+	if err != nil {
+		badRequest(w)
+		return
 	}
+	if proj.Slug == "" {
+		proj.Slug = slugify.Slugify(proj.Name)
+	}
+	if proj.Slug == "" {
+		badRequest(w)
+		return
+	}
+	if s.repository.Exists(proj.Slug) {
+		conflict(w)
+		return
+	}
+	proj, err = s.repository.SaveProject(proj.Slug, proj)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonResponse(w, proj, http.StatusCreated)
+
 }
 
-func updateProject(repository project.Repository) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		slug := r.PathValue("slug")
-		proj, err := extractProject(r)
-		if err != nil {
-			badRequest(w)
-			return
-		}
-		if !repository.Exists(slug) {
-			notFound(w)
-			return
-		}
-		proj, err = repository.SaveProject(slug, proj)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		jsonResponse(w, proj, http.StatusAccepted)
+func (s *server) updateProject(w http.ResponseWriter, r *http.Request) {
+	slug := r.PathValue("slug")
+	proj, err := extractProject(r)
+	if err != nil {
+		badRequest(w)
+		return
 	}
+	if !s.repository.Exists(slug) {
+		notFound(w)
+		return
+	}
+	proj, err = s.repository.SaveProject(slug, proj)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonResponse(w, proj, http.StatusAccepted)
+
 }
 
-func deleteProject(repository project.Repository) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		slug := r.PathValue("slug")
-		if !repository.Exists(slug) {
-			notFound(w)
-			return
-		}
-		err := repository.DeleteProject(slug)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		emptyResponse(w, http.StatusAccepted)
+func (s *server) deleteProject(w http.ResponseWriter, r *http.Request) {
+	slug := r.PathValue("slug")
+	if !s.repository.Exists(slug) {
+		notFound(w)
+		return
 	}
+	err := s.repository.DeleteProject(slug)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	emptyResponse(w, http.StatusAccepted)
 }
 
-func saveProjectImage(repository project.Repository) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		slug := r.PathValue("slug")
-		if !repository.Exists(slug) {
-			notFound(w)
-			return
-		}
-		data, err := io.ReadAll(r.Body)
-		if err != nil {
-			badRequest(w)
-			return
-		}
-		contentType := r.Header.Get("Content-Type")
-		proj, err := repository.SaveImage(slug, contentType, data)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		jsonResponse(w, proj, http.StatusAccepted)
+func (s *server) saveProjectImage(w http.ResponseWriter, r *http.Request) {
+	slug := r.PathValue("slug")
+	if !s.repository.Exists(slug) {
+		notFound(w)
+		return
 	}
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		badRequest(w)
+		return
+	}
+	contentType := r.Header.Get("Content-Type")
+	proj, err := s.repository.SaveImage(slug, contentType, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonResponse(w, proj, http.StatusAccepted)
+	
 }
 
 func extractProject(req *http.Request) (project.Project, error) {
