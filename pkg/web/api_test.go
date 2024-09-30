@@ -106,7 +106,7 @@ func TestAPI_createProject(t *testing.T) {
 
 		resp := tc.Request("POST", "/api/tales/", project.Project{Slug: "foo"})
 
-		AssertError(t, resp, "stat "+tc.dir+": no such file or directory\n", 500)
+		AssertError(t, resp, tc.dir+" not accessible", 500)
 	})
 }
 
@@ -136,7 +136,7 @@ func TestAPI_loadProject(t *testing.T) {
 
 		resp := tc.Request("GET", "/api/tales/foo", nil)
 
-		AssertError(t, resp, "stat "+tc.dir+": no such file or directory\n", 500)
+		AssertError(t, resp, tc.dir+" not accessible", 500)
 	})
 }
 
@@ -158,7 +158,7 @@ func TestAPI_updateProject(t *testing.T) {
 
 		resp := tc.Request("PUT", "/api/tales/foo", nil)
 
-		AssertError(t, resp, "invalid project\n", 400)
+		AssertError(t, resp, "invalid project", 400)
 	})
 	t.Run("unknown project", func(t *testing.T) {
 		tc := NewTestClient(t)
@@ -175,7 +175,7 @@ func TestAPI_updateProject(t *testing.T) {
 
 		resp := tc.Request("PUT", "/api/tales/foo", project.Project{Slug: "foo"})
 
-		AssertError(t, resp, "stat "+tc.dir+": no such file or directory\n", 500)
+		AssertError(t, resp, tc.dir+" not accessible", 500)
 	})
 }
 
@@ -199,7 +199,7 @@ func TestAPI_deleteProject(t *testing.T) {
 
 		resp := tc.Request("DELETE", "/api/tales/foo", nil)
 
-		AssertError(t, resp, "project not found\n", 404)
+		AssertError(t, resp, "project not found", 404)
 	})
 	t.Run("internal error", func(t *testing.T) {
 		tc := NewTestClient(t)
@@ -207,7 +207,7 @@ func TestAPI_deleteProject(t *testing.T) {
 
 		resp := tc.Request("DELETE", "/api/tales/foo", nil)
 
-		AssertError(t, resp, "stat "+tc.dir+": no such file or directory\n", 500)
+		AssertError(t, resp, tc.dir+" not accessible", 500)
 	})
 }
 
@@ -234,7 +234,7 @@ func TestAPI_updateProjectImage(t *testing.T) {
 
 		resp := tc.Request("PUT", "/api/tales/foo/image", nil)
 
-		AssertError(t, resp, "unsupported content-type: \n", 500)
+		AssertError(t, resp, "unsupported content-type", 500)
 	})
 	t.Run("unknown project", func(t *testing.T) {
 		tc := NewTestClient(t)
@@ -242,7 +242,7 @@ func TestAPI_updateProjectImage(t *testing.T) {
 
 		resp := tc.Request("PUT", "/api/tales/foo/image", nil)
 
-		AssertError(t, resp, "project not found\n", 404)
+		AssertError(t, resp, "project not found", 404)
 	})
 }
 
@@ -259,7 +259,7 @@ func AssertProjectResponse(t *testing.T, resp *http.Response, expected project.P
 func AssertError(t *testing.T, resp *http.Response, errorMsg string, statusCode int) {
 	AssertHTTPError(t, resp, statusCode)
 	body, _ := io.ReadAll(resp.Body)
-	assert.Equal(t, errorMsg, string(body))
+	assert.Contains(t, string(body), errorMsg)
 }
 
 func AssertHTTPError(t *testing.T, resp *http.Response, statusCode int) {

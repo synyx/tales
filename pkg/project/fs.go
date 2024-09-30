@@ -27,7 +27,7 @@ func (fr *FilesystemRepository) imageFile(slug, filename string) string {
 func (fr *FilesystemRepository) Exists(slug string) (bool, error) {
 	dir, err := os.Stat(fr.ProjectDir)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("project directory %s not accessible: %w", fr.ProjectDir, err)
 	}
 	if !dir.IsDir() {
 		return false, fmt.Errorf("project directory %s is not a directory", fr.ProjectDir)
