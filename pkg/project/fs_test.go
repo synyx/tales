@@ -196,5 +196,6 @@ func TestFilesystemRepository_SaveImage(t *testing.T) {
 func testRepo(t *testing.T) FilesystemRepository {
 	dir, err := os.MkdirTemp("", "tales-test")
 	assert.Nil(t, err)
+
 	return FilesystemRepository{dir}
 }

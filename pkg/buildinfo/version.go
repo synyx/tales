@@ -16,5 +16,6 @@ func FormattedGitSHA() string {
 	if GitTreeState != "clean" {
 		return fmt.Sprintf("%s-%s", GitSHA, GitTreeState)
 	}
+
 	return GitSHA
 }
