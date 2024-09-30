@@ -31,11 +31,11 @@ func TestFilesystemRepository_LoadProjects(t *testing.T) {
 		defer os.RemoveAll(repo.ProjectDir)
 
 		project1 := Project{Name: "Project 1"}
-		repo.SaveProject("project-1", project1)
+		_, _ = repo.SaveProject("project-1", project1)
 		project2 := Project{Name: "Project 2"}
-		repo.SaveProject("project-2", project2)
+		_, _ = repo.SaveProject("project-2", project2)
 		project3 := Project{Name: "Project 3"}
-		repo.SaveProject("project-3", project3)
+		_, _ = repo.SaveProject("project-3", project3)
 
 		projects, err := repo.LoadProjects()
 		assert.Nil(t, err)
@@ -46,7 +46,9 @@ func TestFilesystemRepository_LoadProjects(t *testing.T) {
 	})
 	t.Run("non-existing repo directory", func(t *testing.T) {
 		repo := testRepo(t)
-		os.RemoveAll(repo.ProjectDir)
+		if err := os.RemoveAll(repo.ProjectDir); err != nil {
+			t.Fatal("could not delete project dir for testing", err)
+		}
 
 		projects, err := repo.LoadProjects()
 		assert.NotNil(t, err)
@@ -118,7 +120,7 @@ func TestFilesystemRepository_LoadProject(t *testing.T) {
 	})
 	t.Run("load existing project", func(t *testing.T) {
 		project1 := Project{Name: "Project 1"}
-		repo.SaveProject("project-1", project1)
+		_, _ = repo.SaveProject("project-1", project1)
 		project, err := repo.LoadProject("project-1")
 		assert.Nil(t, err)
 		assert.Equal(t, project1, project)
@@ -153,7 +155,7 @@ func TestFilesystemRepository_DeleteProject(t *testing.T) {
 	})
 	t.Run("delete valid project", func(t *testing.T) {
 		project := Project{Name: "Foo"}
-		repo.SaveProject("foo", project)
+		_, _ = repo.SaveProject("foo", project)
 		_, err := repo.LoadProject("foo")
 		assert.Nil(t, err)
 		err = repo.DeleteProject("foo")
@@ -177,13 +179,13 @@ func TestFilesystemRepository_SaveImage(t *testing.T) {
 	})
 	t.Run("save image with invalid content-type", func(t *testing.T) {
 		project := Project{}
-		repo.SaveProject("project", project)
+		_, _ = repo.SaveProject("project", project)
 		_, err := repo.SaveImage("project", "foo/bar", []byte{})
 		assert.EqualError(t, err, "unsupported content-type: foo/bar")
 	})
 	t.Run("save image for valid project", func(t *testing.T) {
 		project := Project{}
-		repo.SaveProject("project", project)
+		_, _ = repo.SaveProject("project", project)
 		savedProject, err := repo.SaveImage("project", "image/jpeg", []byte{'f', 'o', 'o'})
 		assert.NoError(t, err)
 		assert.Equal(t, "project.jpg", savedProject.FilePath)
