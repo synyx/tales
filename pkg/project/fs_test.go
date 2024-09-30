@@ -14,9 +14,13 @@ func TestFilesystemRepository_Exists(t *testing.T) {
 	defer os.RemoveAll(repo.ProjectDir)
 
 	t.Run("checks existence", func(t *testing.T) {
-		assert.False(t, repo.Exists("project-1"))
-		repo.SaveProject("project-1", Project{Name: "Project 1"})
-		assert.True(t, repo.Exists("project-1"))
+		exists, _ := repo.Exists("project-1")
+		assert.False(t, exists)
+
+		_, _ = repo.SaveProject("project-1", Project{Name: "Project 1"})
+
+		exists, _ = repo.Exists("project-1")
+		assert.True(t, exists)
 	})
 }
 

@@ -37,7 +37,7 @@ type Project struct {
 
 // A Repository manages projects.
 type Repository interface {
-	Exists(string) bool
+	Exists(string) (bool, error)
 	LoadProjects() ([]Project, error)
 	LoadProject(string) (Project, error)
 	SaveProject(string, Project) (Project, error)

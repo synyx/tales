@@ -24,14 +24,25 @@ func (fr *FilesystemRepository) imageFile(slug, filename string) string {
 }
 
 // Exists implements the Repository.Exists method.
-func (fr *FilesystemRepository) Exists(slug string) bool {
+func (fr *FilesystemRepository) Exists(slug string) (bool, error) {
+	dir, err := os.Stat(fr.ProjectDir)
+	if err != nil {
+		return false, err
+	}
+	if !dir.IsDir() {
+		return false, fmt.Errorf("project directory %s is not a directory", fr.ProjectDir)
+	}
+
 	filename := fr.configFile(slug)
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
-		return false
+		return false, nil
+	}
+	if info.IsDir() {
+		return false, fmt.Errorf("%s is a directory", slug)
 	}
 
-	return !info.IsDir()
+	return true, nil
 }
 
 // LoadProjects implements the Repository.LoadProjects method.
@@ -62,7 +73,9 @@ func (fr *FilesystemRepository) LoadProjects() ([]Project, error) {
 
 // LoadProject implements the Repository.LoadProject method.
 func (fr *FilesystemRepository) LoadProject(slug string) (Project, error) {
-	if !fr.Exists(slug) {
+	if exists, err := fr.Exists(slug); err != nil {
+		return Project{}, err
+	} else if !exists {
 		return Project{}, ErrNotExist
 	}
 
@@ -102,7 +115,9 @@ func (fr *FilesystemRepository) SaveProject(slug string, project Project) (Proje
 
 // DeleteProject implements the Repository.DeleteProject method.
 func (fr *FilesystemRepository) DeleteProject(slug string) error {
-	if !fr.Exists(slug) {
+	if exists, err := fr.Exists(slug); err != nil {
+		return err
+	} else if !exists {
 		return ErrNotExist
 	}
 
@@ -113,7 +128,9 @@ func (fr *FilesystemRepository) DeleteProject(slug string) error {
 
 // SaveImage implements the Repository.SaveImage method.
 func (fr *FilesystemRepository) SaveImage(slug, contentType string, data []byte) (Project, error) {
-	if !fr.Exists(slug) {
+	if exists, err := fr.Exists(slug); err != nil {
+		return Project{}, err
+	} else if !exists {
 		return Project{}, ErrNotExist
 	}
 

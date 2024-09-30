@@ -22,7 +22,10 @@ func (s *server) listProjects(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) loadProject(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
-	if !s.repository.Exists(slug) {
+	if exists, err := s.repository.Exists(slug); err != nil {
+		internalServerError(w, err)
+		return
+	} else if !exists {
 		notFound(w)
 		return
 	}
@@ -50,7 +53,10 @@ func (s *server) createProject(w http.ResponseWriter, r *http.Request) {
 		badRequest(w)
 		return
 	}
-	if s.repository.Exists(proj.Slug) {
+	if exists, err := s.repository.Exists(proj.Slug); err != nil {
+		internalServerError(w, err)
+		return
+	} else if exists {
 		conflict(w)
 		return
 	}
@@ -71,7 +77,10 @@ func (s *server) updateProject(w http.ResponseWriter, r *http.Request) {
 		badRequest(w)
 		return
 	}
-	if !s.repository.Exists(slug) {
+	if exists, err := s.repository.Exists(slug); err != nil {
+		internalServerError(w, err)
+		return
+	} else if !exists {
 		notFound(w)
 		return
 	}
@@ -87,7 +96,10 @@ func (s *server) updateProject(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) deleteProject(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
-	if !s.repository.Exists(slug) {
+	if exists, err := s.repository.Exists(slug); err != nil {
+		internalServerError(w, err)
+		return
+	} else if !exists {
 		notFound(w)
 		return
 	}
@@ -102,10 +114,14 @@ func (s *server) deleteProject(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) saveProjectImage(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
-	if !s.repository.Exists(slug) {
+	if exists, err := s.repository.Exists(slug); err != nil {
+		internalServerError(w, err)
+		return
+	} else if !exists {
 		notFound(w)
 		return
 	}
+
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		badRequest(w)
