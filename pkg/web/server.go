@@ -3,8 +3,6 @@ package web
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
-
 	"synyx.de/tales/pkg/project"
 )
 
@@ -17,28 +15,26 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
-// NewServer creates an http.Handler ready to handle tales requests.
+// NewServer creates a http.Handler ready to handle tales requests.
 func NewServer(projectsDir, resourcesDir string) http.Handler {
 	repository := &project.FilesystemRepository{
 		ProjectDir: projectsDir,
 	}
 
-	r := mux.NewRouter()
-	r.StrictSlash(true)
+	r := http.NewServeMux()
 
 	fs := http.FileServer(http.Dir(projectsDir))
-	r.PathPrefix("/editor").Handler(http.StripPrefix("/editor", fs))
-	r.PathPrefix("/presenter").Handler(http.StripPrefix("/presenter", fs))
+	r.Handle("GET /editor/", http.StripPrefix("/editor", fs))
+	r.Handle("GET /presenter/", http.StripPrefix("/presenter", fs))
 
-	api := r.PathPrefix("/api/tales").Subrouter()
-	api.HandleFunc("/", listProjects(repository)).Methods("GET")
-	api.HandleFunc("/", createProject(repository)).Methods("POST")
-	api.HandleFunc("/{slug}", loadProject(repository)).Methods("GET")
-	api.HandleFunc("/{slug}", updateProject(repository)).Methods("PUT")
-	api.HandleFunc("/{slug}", deleteProject(repository)).Methods("DELETE")
-	api.HandleFunc("/{slug}/image", saveProjectImage(repository)).Methods("PUT")
+	r.HandleFunc("GET /api/tales/", listProjects(repository))
+	r.HandleFunc("POST /api/tales/", createProject(repository))
+	r.HandleFunc("GET /api/tales/{slug}", loadProject(repository))
+	r.HandleFunc("PUT /api/tales/{slug}", updateProject(repository))
+	r.HandleFunc("DELETE /api/tales/{slug}", deleteProject(repository))
+	r.HandleFunc("PUT /api/tales/{slug}/image", saveProjectImage(repository))
 
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(resourcesDir)))
+	r.Handle("GET /", http.FileServer(http.Dir(resourcesDir)))
 
 	return &server{
 		router: r,

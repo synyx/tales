@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/mozillazg/go-slugify"
 
 	"synyx.de/tales/pkg/project"
@@ -24,8 +23,7 @@ func listProjects(repository project.Repository) http.HandlerFunc {
 
 func loadProject(repository project.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		slug := vars["slug"]
+		slug := r.PathValue("slug")
 		if !repository.Exists(slug) {
 			notFound(w)
 			return
@@ -68,8 +66,7 @@ func createProject(repository project.Repository) http.HandlerFunc {
 
 func updateProject(repository project.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		slug := vars["slug"]
+		slug := r.PathValue("slug")
 		proj, err := extractProject(r)
 		if err != nil {
 			badRequest(w)
@@ -90,8 +87,7 @@ func updateProject(repository project.Repository) http.HandlerFunc {
 
 func deleteProject(repository project.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		slug := vars["slug"]
+		slug := r.PathValue("slug")
 		if !repository.Exists(slug) {
 			notFound(w)
 			return
@@ -107,8 +103,7 @@ func deleteProject(repository project.Repository) http.HandlerFunc {
 
 func saveProjectImage(repository project.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		slug := vars["slug"]
+		slug := r.PathValue("slug")
 		if !repository.Exists(slug) {
 			notFound(w)
 			return
