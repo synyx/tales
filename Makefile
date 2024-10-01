@@ -28,7 +28,7 @@ BINARIES=${SERVER_BINARY} ${MIGRATE_BINARY}
 	coverage coverage-go coverage-js \
 	lint lint-go lint-js \
 	test test-go test-js \
-	run dist
+	run dist docker
 
 all: build
 
@@ -97,6 +97,11 @@ tales-server.zip: bin/* pkg/web/public/*
 
 dist-js:
 	npm run dist
+
+CONTAINER_BUILDER := $(shell which docker 2>/dev/null || which podman 2>/dev/null)
+docker:
+	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS) -extldflags=-static" -o bin/tales-server $(PKG)/cmd/tales-server
+	${CONTAINER_BUILDER} build -t tales .
 
 clean: clean-go clean-js
 
