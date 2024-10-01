@@ -6,5 +6,7 @@ COPY bin/tales-server /
 
 VOLUME /work
 
+USER 1000
+
 ENTRYPOINT ["/tales-server"]
 CMD ["-projects", "/work"]
