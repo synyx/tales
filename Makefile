@@ -80,13 +80,13 @@ test-js:
 	npm run test
 
 run:
-	${SERVER_BINARY} -resources public/
+	${SERVER_BINARY} -resources pkg/web/public
 
 dist: dist-go dist-js
 
 dist-go: tales-server.zip
 
-tales-server.zip: bin/* public/*
+tales-server.zip: bin/* pkg/web/public/*
 	mkdir -p dist/tales-server
 	cp -r bin public dist/tales-server/
 	if which zip; then \
@@ -104,4 +104,4 @@ clean-go:
 	rm -rf coverage.out coverage.html ${BINARIES}
 
 clean-js:
-	rm -rf dist/main.{js,js.map} public/js/tales.{js,js.map} public/js/viewer.{js,js.map}
+	rm -rf dist/main.{js,js.map} pkg/web/public/js/tales.{js,js.map} pkg/web/public/js/viewer.{js,js.map}

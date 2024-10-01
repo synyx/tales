@@ -1,6 +1,7 @@
 package web
 
 import (
+	"io/fs"
 	"net/http"
 
 	"synyx.de/tales/pkg/project"
@@ -17,7 +18,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewServer creates a http.Handler ready to handle tales requests.
-func NewServer(projectsDir, resourcesDir string) http.Handler {
+func NewServer(projectsDir string, resourcesDir fs.FS) http.Handler {
 	r := http.NewServeMux()
 	repository := &project.FilesystemRepository{
 		ProjectDir: projectsDir,
@@ -27,9 +28,9 @@ func NewServer(projectsDir, resourcesDir string) http.Handler {
 		repository: repository,
 	}
 
-	fs := http.FileServer(http.Dir(projectsDir))
-	r.Handle("GET /editor/", http.StripPrefix("/editor", fs))
-	r.Handle("GET /presenter/", http.StripPrefix("/presenter", fs))
+	projectFileServer := http.FileServer(http.Dir(projectsDir))
+	r.Handle("GET /editor/", http.StripPrefix("/editor", projectFileServer))
+	r.Handle("GET /presenter/", http.StripPrefix("/presenter", projectFileServer))
 
 	r.HandleFunc("GET /api/tales/", s.listProjects)
 	r.HandleFunc("POST /api/tales/", s.createProject)
@@ -38,7 +39,7 @@ func NewServer(projectsDir, resourcesDir string) http.Handler {
 	r.HandleFunc("DELETE /api/tales/{slug}", s.deleteProject)
 	r.HandleFunc("PUT /api/tales/{slug}/image", s.saveProjectImage)
 
-	r.Handle("GET /", http.FileServer(http.Dir(resourcesDir)))
+	r.Handle("GET /", http.FileServer(http.FS(resourcesDir)))
 
 	return s
 }
