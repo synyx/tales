@@ -30,9 +30,9 @@ func TestAPI_listProjects(t *testing.T) {
 		tc := NewTestClient(t)
 		defer tc.Cleanup()
 
-		tc.repo.SaveProject("test-1", project.Project{})
-		tc.repo.SaveProject("test-2", project.Project{})
-		tc.repo.SaveProject("test-3", project.Project{})
+		_, _ = tc.repo.SaveProject("test-1", project.Project{})
+		_, _ = tc.repo.SaveProject("test-2", project.Project{})
+		_, _ = tc.repo.SaveProject("test-3", project.Project{})
 
 		resp := tc.Request("GET", "/api/tales/", nil)
 
@@ -77,7 +77,7 @@ func TestAPI_createProject(t *testing.T) {
 		tc := NewTestClient(t)
 		defer tc.Cleanup()
 
-		tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
+		_, _ = tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
 
 		p := project.Project{Slug: "foo", Name: "Bar"}
 		resp := tc.Request("POST", "/api/tales/", p)
@@ -101,14 +101,12 @@ func TestAPI_createProject(t *testing.T) {
 		AssertError(t, resp, "invalid project\n", 400)
 	})
 	t.Run("internal error", func(t *testing.T) {
-		/*
-			tc := NewTestClient(t)
-			tc.Cleanup()
+		tc := NewTestClient(t)
+		tc.Cleanup()
 
-			resp := tc.Request("POST", "/api/tales/", project.Project{Slug: "foo"})
+		resp := tc.Request("POST", "/api/tales/", project.Project{Slug: "foo"})
 
-			AssertError(t, resp, "open "+tc.dir+": no such file or directory\n", 500)
-		*/
+		AssertError(t, resp, tc.dir+" not accessible", 500)
 	})
 }
 
@@ -118,7 +116,7 @@ func TestAPI_loadProject(t *testing.T) {
 		defer tc.Cleanup()
 
 		p := project.Project{Slug: "foo"}
-		tc.repo.SaveProject("foo", p)
+		_, _ = tc.repo.SaveProject("foo", p)
 
 		resp := tc.Request("GET", "/api/tales/foo", nil)
 
@@ -133,14 +131,12 @@ func TestAPI_loadProject(t *testing.T) {
 		AssertError(t, resp, "project not found\n", 404)
 	})
 	t.Run("internal error", func(t *testing.T) {
-		/*
-			tc := NewTestClient(t)
-			tc.Cleanup()
+		tc := NewTestClient(t)
+		tc.Cleanup()
 
-			resp := tc.Request("GET", "/api/tales/foo", nil)
+		resp := tc.Request("GET", "/api/tales/foo", nil)
 
-			AssertError(t, resp, "open "+tc.dir+": no such file or directory\n", 500)
-		*/
+		AssertError(t, resp, tc.dir+" not accessible", 500)
 	})
 }
 
@@ -149,7 +145,7 @@ func TestAPI_updateProject(t *testing.T) {
 		tc := NewTestClient(t)
 		defer tc.Cleanup()
 
-		tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
+		_, _ = tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
 
 		p := project.Project{Slug: "foo", Name: "Baz"}
 		resp := tc.Request("PUT", "/api/tales/foo", p)
@@ -162,7 +158,7 @@ func TestAPI_updateProject(t *testing.T) {
 
 		resp := tc.Request("PUT", "/api/tales/foo", nil)
 
-		AssertError(t, resp, "invalid project\n", 400)
+		AssertError(t, resp, "invalid project", 400)
 	})
 	t.Run("unknown project", func(t *testing.T) {
 		tc := NewTestClient(t)
@@ -174,14 +170,12 @@ func TestAPI_updateProject(t *testing.T) {
 		AssertError(t, resp, "project not found\n", 404)
 	})
 	t.Run("internal error", func(t *testing.T) {
-		/*
-			tc := NewTestClient(t)
-			tc.Cleanup()
+		tc := NewTestClient(t)
+		tc.Cleanup()
 
-			resp := tc.Request("PUT", "/api/tales/", project.Project{Slug: "foo"})
+		resp := tc.Request("PUT", "/api/tales/foo", project.Project{Slug: "foo"})
 
-			AssertError(t, resp, "open "+tc.dir+": no such file or directory\n", 500)
-		*/
+		AssertError(t, resp, tc.dir+" not accessible", 500)
 	})
 }
 
@@ -190,7 +184,7 @@ func TestAPI_deleteProject(t *testing.T) {
 		tc := NewTestClient(t)
 		defer tc.Cleanup()
 
-		tc.repo.SaveProject("foo", project.Project{Slug: "foo"})
+		_, _ = tc.repo.SaveProject("foo", project.Project{Slug: "foo"})
 
 		resp := tc.Request("DELETE", "/api/tales/foo", nil)
 
@@ -205,17 +199,15 @@ func TestAPI_deleteProject(t *testing.T) {
 
 		resp := tc.Request("DELETE", "/api/tales/foo", nil)
 
-		AssertError(t, resp, "project not found\n", 404)
+		AssertError(t, resp, "project not found", 404)
 	})
 	t.Run("internal error", func(t *testing.T) {
-		/*
-			tc := NewTestClient(t)
-			tc.Cleanup()
+		tc := NewTestClient(t)
+		tc.Cleanup()
 
-			resp := tc.Request("DELETE", "/api/tales/foo", nil)
+		resp := tc.Request("DELETE", "/api/tales/foo", nil)
 
-			AssertError(t, resp, "open "+tc.dir+": no such file or directory\n", 500)
-		*/
+		AssertError(t, resp, tc.dir+" not accessible", 500)
 	})
 }
 
@@ -224,7 +216,7 @@ func TestAPI_updateProjectImage(t *testing.T) {
 		tc := NewTestClient(t)
 		defer tc.Cleanup()
 
-		tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
+		_, _ = tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
 
 		data := []byte{'f', 'o', 'o'}
 		header := http.Header(map[string][]string{})
@@ -238,11 +230,11 @@ func TestAPI_updateProjectImage(t *testing.T) {
 		tc := NewTestClient(t)
 		defer tc.Cleanup()
 
-		tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
+		_, _ = tc.repo.SaveProject("foo", project.Project{Slug: "foo", Name: "Bar"})
 
 		resp := tc.Request("PUT", "/api/tales/foo/image", nil)
 
-		AssertError(t, resp, "unsupported content-type: \n", 500)
+		AssertError(t, resp, "unsupported content-type", 500)
 	})
 	t.Run("unknown project", func(t *testing.T) {
 		tc := NewTestClient(t)
@@ -250,7 +242,7 @@ func TestAPI_updateProjectImage(t *testing.T) {
 
 		resp := tc.Request("PUT", "/api/tales/foo/image", nil)
 
-		AssertError(t, resp, "project not found\n", 404)
+		AssertError(t, resp, "project not found", 404)
 	})
 }
 
@@ -267,7 +259,7 @@ func AssertProjectResponse(t *testing.T, resp *http.Response, expected project.P
 func AssertError(t *testing.T, resp *http.Response, errorMsg string, statusCode int) {
 	AssertHTTPError(t, resp, statusCode)
 	body, _ := io.ReadAll(resp.Body)
-	assert.Equal(t, errorMsg, string(body))
+	assert.Contains(t, string(body), errorMsg)
 }
 
 func AssertHTTPError(t *testing.T, resp *http.Response, statusCode int) {

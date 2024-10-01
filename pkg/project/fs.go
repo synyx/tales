@@ -24,18 +24,31 @@ func (fr *FilesystemRepository) imageFile(slug, filename string) string {
 }
 
 // Exists implements the Repository.Exists method.
-func (fr *FilesystemRepository) Exists(slug string) bool {
+func (fr *FilesystemRepository) Exists(slug string) (bool, error) {
+	dir, err := os.Stat(fr.ProjectDir)
+	if err != nil {
+		return false, fmt.Errorf("project directory %s not accessible: %w", fr.ProjectDir, err)
+	}
+	if !dir.IsDir() {
+		return false, fmt.Errorf("project directory %s is not a directory", fr.ProjectDir)
+	}
+
 	filename := fr.configFile(slug)
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
-		return false
+		return false, nil
 	}
-	return !info.IsDir()
+	if info.IsDir() {
+		return false, fmt.Errorf("%s is a directory", slug)
+	}
+
+	return true, nil
 }
 
 // LoadProjects implements the Repository.LoadProjects method.
 func (fr *FilesystemRepository) LoadProjects() ([]Project, error) {
 	projects := make([]Project, 0)
+
 	files, err := os.ReadDir(fr.ProjectDir)
 	if err != nil {
 		return projects, err
@@ -45,6 +58,7 @@ func (fr *FilesystemRepository) LoadProjects() ([]Project, error) {
 		if !f.IsDir() {
 			continue
 		}
+
 		slug := f.Name()
 		project, err := fr.LoadProject(slug)
 		if err != nil {
@@ -59,9 +73,12 @@ func (fr *FilesystemRepository) LoadProjects() ([]Project, error) {
 
 // LoadProject implements the Repository.LoadProject method.
 func (fr *FilesystemRepository) LoadProject(slug string) (Project, error) {
-	if !fr.Exists(slug) {
+	if exists, err := fr.Exists(slug); err != nil {
+		return Project{}, err
+	} else if !exists {
 		return Project{}, ErrNotExist
 	}
+
 	jsonFile := fr.configFile(slug)
 	data, err := os.ReadFile(jsonFile)
 	if err != nil {
@@ -69,8 +86,7 @@ func (fr *FilesystemRepository) LoadProject(slug string) (Project, error) {
 	}
 
 	var project Project
-	err = json.Unmarshal(data, &project)
-	if err != nil {
+	if err := json.Unmarshal(data, &project); err != nil {
 		return Project{}, err
 	}
 
@@ -99,42 +115,52 @@ func (fr *FilesystemRepository) SaveProject(slug string, project Project) (Proje
 
 // DeleteProject implements the Repository.DeleteProject method.
 func (fr *FilesystemRepository) DeleteProject(slug string) error {
-	if !fr.Exists(slug) {
+	if exists, err := fr.Exists(slug); err != nil {
+		return err
+	} else if !exists {
 		return ErrNotExist
 	}
+
 	jsonFile := fr.configFile(slug)
+
 	return os.RemoveAll(filepath.Dir(jsonFile))
 }
 
 // SaveImage implements the Repository.SaveImage method.
 func (fr *FilesystemRepository) SaveImage(slug, contentType string, data []byte) (Project, error) {
-	if !fr.Exists(slug) {
+	if exists, err := fr.Exists(slug); err != nil {
+		return Project{}, err
+	} else if !exists {
 		return Project{}, ErrNotExist
 	}
+
 	extension := imageType(contentType)
-	filename := slug + "." + extension
 	if extension == "" {
 		return Project{}, fmt.Errorf("unsupported content-type: %v", contentType)
 	}
+
+	filename := slug + "." + extension
 	imageFile := fr.imageFile(slug, filename)
-	err := os.MkdirAll(filepath.Dir(imageFile), os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(filepath.Dir(imageFile), os.ModePerm); err != nil {
 		return Project{}, err
 	}
-	err = os.WriteFile(imageFile, data, 0644)
-	if err != nil {
+
+	if err := os.WriteFile(imageFile, data, 0644); err != nil {
 		return Project{}, err
 	}
+
 	project, err := fr.LoadProject(slug)
 	if err != nil {
 		return Project{}, err
 	}
+
 	project.FilePath = filename
 	project.FileType = contentType
 	project, err = fr.SaveProject(slug, project)
 	if err != nil {
 		return Project{}, err
 	}
+
 	return project, nil
 }
 

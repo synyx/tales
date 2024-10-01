@@ -3,13 +3,12 @@ package web
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
-
 	"synyx.de/tales/pkg/project"
 )
 
 type server struct {
-	router http.Handler
+	router     http.Handler
+	repository *project.FilesystemRepository
 }
 
 // Implements the http.Handler interface
@@ -17,30 +16,29 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
-// NewServer creates an http.Handler ready to handle tales requests.
+// NewServer creates a http.Handler ready to handle tales requests.
 func NewServer(projectsDir, resourcesDir string) http.Handler {
+	r := http.NewServeMux()
 	repository := &project.FilesystemRepository{
 		ProjectDir: projectsDir,
 	}
-
-	r := mux.NewRouter()
-	r.StrictSlash(true)
+	s := &server{
+		router:     r,
+		repository: repository,
+	}
 
 	fs := http.FileServer(http.Dir(projectsDir))
-	r.PathPrefix("/editor").Handler(http.StripPrefix("/editor", fs))
-	r.PathPrefix("/presenter").Handler(http.StripPrefix("/presenter", fs))
+	r.Handle("GET /editor/", http.StripPrefix("/editor", fs))
+	r.Handle("GET /presenter/", http.StripPrefix("/presenter", fs))
 
-	api := r.PathPrefix("/api/tales").Subrouter()
-	api.HandleFunc("/", listProjects(repository)).Methods("GET")
-	api.HandleFunc("/", createProject(repository)).Methods("POST")
-	api.HandleFunc("/{slug}", loadProject(repository)).Methods("GET")
-	api.HandleFunc("/{slug}", updateProject(repository)).Methods("PUT")
-	api.HandleFunc("/{slug}", deleteProject(repository)).Methods("DELETE")
-	api.HandleFunc("/{slug}/image", saveProjectImage(repository)).Methods("PUT")
+	r.HandleFunc("GET /api/tales/", s.listProjects)
+	r.HandleFunc("POST /api/tales/", s.createProject)
+	r.HandleFunc("GET /api/tales/{slug}", s.loadProject)
+	r.HandleFunc("PUT /api/tales/{slug}", s.updateProject)
+	r.HandleFunc("DELETE /api/tales/{slug}", s.deleteProject)
+	r.HandleFunc("PUT /api/tales/{slug}/image", s.saveProjectImage)
 
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(resourcesDir)))
+	r.Handle("GET /", http.FileServer(http.Dir(resourcesDir)))
 
-	return &server{
-		router: r,
-	}
+	return s
 }
