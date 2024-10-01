@@ -20,6 +20,7 @@ import (
 var (
 	resourcesDir string
 	projectsDir  string
+	bindAddr     string
 )
 
 func init() {
@@ -29,6 +30,7 @@ func init() {
 func main() {
 	flag.StringVar(&resourcesDir, "resources", "", "path to public resources")
 	flag.StringVar(&projectsDir, "projects", defaultProjectsDir(), "path to projects")
+	flag.StringVar(&bindAddr, "bind", "127.0.0.1:3000", "HTTP server address")
 	flag.Parse()
 
 	log.Printf("Starting tales-server %s (%s)",
@@ -58,7 +60,7 @@ func main() {
 
 	server := http.Server{
 		Handler:      web.NewServer(projectsDir, resourceFS),
-		Addr:         "127.0.0.1:3000",
+		Addr:         bindAddr,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 	}
