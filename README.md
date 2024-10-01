@@ -74,12 +74,8 @@ A video tutorial is coming soon!
 ## Examples
 
 Some examples of already existing Tales:
-- What is Tales: A Tale about Tales
-- Unternehmen im Wandel
-- Umgekehrte Architekturanalyse im Datastore Umfeld
-- Ihr redet über Resilience und wisst nicht was CAP und Co ist?
-- Eine kleine Reise durch NoSQL
 
+- [What is Tales: A Tale about Tales](examples/A_Tale_about_Tales.html)
 
 # Contributing
 
