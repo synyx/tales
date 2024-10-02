@@ -1,3 +1,4 @@
 *
 !pkg/web/public/
 !bin/
+!examples/

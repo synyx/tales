@@ -3,10 +3,11 @@ FROM gcr.io/distroless/static-debian12
 EXPOSE 3000
 
 COPY bin/tales-server /
+COPY examples/ /Tales
 
-VOLUME /work
+VOLUME /Tales
 
 USER 1000
 
 ENTRYPOINT ["/tales-server"]
-CMD ["-projects", "/work"]
+CMD ["-bind", "127.0.0.1:3000", "-projects", "/Tales"]
