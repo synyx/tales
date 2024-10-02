@@ -76,6 +76,7 @@ A video tutorial is coming soon!
 Some examples of already existing Tales:
 
 - [What is Tales: A Tale about Tales](examples/A_Tale_about_Tales.html)
+  See [Demo Instance](https://tales-demo.synyx.codes) on how it is built.
 
 # Contributing
 
