@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/synyx/tales/workflows/Tales%20CI/badge.svg)](https://github.com/synyx/tales/actions?query=workflow%3A%22Tales+CI%22)
+[![Build Status](https://github.com/synyx/tales/workflows/Tales%20CI/badge.svg)](https://github.com/synyx/tales/actions?query=workflow%3A%22Tales+CI%22) [![Demo](https://img.shields.io/badge/demo-instance-blue)](https://tales-demo.synyx.codes/)
 
 # Tales
 
@@ -44,7 +44,7 @@ Storyline of your Tale. **Chapters** can further structure your Sections, making
 
 ## Prerequisites
 
-All you need is a computer running Windows, Linux or MacOS – and the image with your Tale! :) 
+All you need is a computer running Windows, Linux or macOS – and the image with your Tale! :)
 Tales supports all kinds of image formats, from simple JPEGs to sophisticated vector graphics like SVGs.
 
 
@@ -76,6 +76,7 @@ A video tutorial is coming soon!
 Some examples of already existing Tales:
 
 - [What is Tales: A Tale about Tales](examples/A_Tale_about_Tales.html)
+  See [Demo Instance](https://tales-demo.synyx.codes) on how it is built.
 
 # Contributing
 

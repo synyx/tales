@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +20,7 @@ import (
 var (
 	resourcesDir string
 	projectsDir  string
+	bindAddr     string
 )
 
 func init() {
@@ -28,36 +30,37 @@ func init() {
 func main() {
 	flag.StringVar(&resourcesDir, "resources", "", "path to public resources")
 	flag.StringVar(&projectsDir, "projects", defaultProjectsDir(), "path to projects")
+	flag.StringVar(&bindAddr, "bind", "127.0.0.1:3000", "HTTP server address")
 	flag.Parse()
-
-	if resourcesDir == "" {
-		flag.Usage()
-		os.Exit(1)
-	}
 
 	log.Printf("Starting tales-server %s (%s)",
 		buildinfo.Version,
 		buildinfo.FormattedGitSHA())
 
-	var err error
-	resourcesDir, err = filepath.Abs(resourcesDir)
+	projectsDir, err := filepath.Abs(projectsDir)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	projectsDir, err = filepath.Abs(projectsDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	shutdownTimeout := 5 * time.Second
 
 	log.Printf("Projects directory is at \"%s\"", projectsDir)
-	log.Printf("Resources directory is at \"%s\"", resourcesDir)
+
+	var resourceFS fs.FS
+	if resourcesDir != "" {
+		resourcesDir, err := filepath.Abs(resourcesDir)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Resources directory is at \"%s\"", resourcesDir)
+		resourceFS = os.DirFS(resourcesDir)
+	} else {
+		resourceFS, _ = fs.Sub(web.EmbeddedResources, "public")
+		log.Println("Using embedded resources")
+	}
 
 	server := http.Server{
-		Handler:      web.NewServer(projectsDir, resourcesDir),
-		Addr:         "127.0.0.1:3000",
+		Handler:      web.NewServer(projectsDir, resourceFS),
+		Addr:         bindAddr,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 	}
@@ -72,6 +75,7 @@ func main() {
 
 	waitForInterrupt()
 
+	shutdownTimeout := 5 * time.Second
 	log.Printf("Shutting down... (will timeout in %v)", shutdownTimeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)

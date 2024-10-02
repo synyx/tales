@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"encoding/json"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -23,7 +24,7 @@ type TestClient struct {
 func NewTestClient(t *testing.T) *TestClient {
 	dir, err := os.MkdirTemp("", "tales-test")
 	assert.NoError(t, err)
-	handler := NewServer(dir, "")
+	handler := NewServer(dir, emptyFS{})
 	repo := &project.FilesystemRepository{
 		ProjectDir: dir,
 	}
@@ -59,6 +60,13 @@ func (tc *TestClient) Cleanup() {
 
 func TestServer_ServeHTTP(t *testing.T) {
 	t.Run("http handler", func(t *testing.T) {
-		assert.Implements(t, new(http.Handler), NewServer("", ""))
+		assert.Implements(t, new(http.Handler), NewServer("", emptyFS{}))
 	})
+}
+
+type emptyFS struct {
+}
+
+func (f emptyFS) Open(_ string) (fs.File, error) {
+	return nil, fs.ErrNotExist
 }

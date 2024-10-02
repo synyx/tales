@@ -8,7 +8,7 @@
   "postinstall": "electron-builder install-app-deps",
   "scripts": {
     "build": "rollup -c && npm run build:css",
-    "build:css": "postcss src/css/*.css --dir public/css/",
+    "build:css": "postcss src/css/*.css --dir pkg/web/public/css/",
     "dist": "electron-builder --publish=never",
     "format": "prettier --write 'src/js/**/*.js' 'src/css/**/*.css'",
     "lint": "eslint src/js",
@@ -18,7 +18,7 @@
     "preversion": "npm test && npm run lint",
     "test": "jest",
     "watch": "rollup -c -w",
-    "watch:css": "postcss src/css/*.css --dir public/css/ -w"
+    "watch:css": "postcss src/css/*.css --dir pkg/web/public/css/ -w"
   },
   "repository": {
     "type": "git",
