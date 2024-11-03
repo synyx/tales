@@ -28,7 +28,7 @@ BINARIES=${SERVER_BINARY} ${MIGRATE_BINARY}
 	coverage coverage-go coverage-js \
 	lint lint-go lint-js \
 	test test-go test-js \
-	run dist
+	run dist docker
 
 all: build
 
@@ -80,13 +80,13 @@ test-js:
 	npm run test
 
 run:
-	${SERVER_BINARY} -resources public/
+	${SERVER_BINARY} -resources pkg/web/public
 
 dist: dist-go dist-js
 
 dist-go: tales-server.zip
 
-tales-server.zip: bin/* public/*
+tales-server.zip: bin/* pkg/web/public/*
 	mkdir -p dist/tales-server
 	cp -r bin public dist/tales-server/
 	if which zip; then \
@@ -98,10 +98,15 @@ tales-server.zip: bin/* public/*
 dist-js:
 	npm run dist
 
+CONTAINER_BUILDER := $(shell which docker 2>/dev/null || which podman 2>/dev/null)
+docker:
+	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS) -extldflags=-static" -o bin/tales-server $(PKG)/cmd/tales-server
+	${CONTAINER_BUILDER} build -t tales .
+
 clean: clean-go clean-js
 
 clean-go:
 	rm -rf coverage.out coverage.html ${BINARIES}
 
 clean-js:
-	rm -rf dist/main.{js,js.map} public/js/tales.{js,js.map} public/js/viewer.{js,js.map}
+	rm -rf dist/main.{js,js.map} pkg/web/public/js/tales.{js,js.map} pkg/web/public/js/viewer.{js,js.map}
