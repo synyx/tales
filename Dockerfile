@@ -1,9 +1,11 @@
 FROM gcr.io/distroless/static-debian12
 
-USER 1000
+ARG UID=1000
+
+USER $UID
 
 COPY bin/tales-server /
-COPY examples/ /Tales
+COPY --chown=$UID examples/ /Tales
 
 VOLUME /Tales
 
