@@ -8,7 +8,7 @@ const isDevelopment = false;
 
 /* global process */
 
-let server, migrate;
+let server;
 
 let binDir = path.join(app.getAppPath(), "bin");
 let resourcesDir = path
@@ -42,23 +42,12 @@ function createWindow() {
 }
 
 function start() {
-  migrateProjects();
   runServer();
   createWindow();
 }
 
 function stop() {
   killServer();
-}
-
-function migrateProjects() {
-  migrate = childProcess.execFile(path.join(binDir, "tales-migrate"));
-  migrate.on("error", err => {
-    console.error("failed to start process", err);
-  });
-  migrate.on("exit", (code, signal) => {
-    console.log("migrate exited", code, signal);
-  });
 }
 
 function runServer() {
