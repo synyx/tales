@@ -88,7 +88,7 @@ dist-go: tales-server.zip
 
 tales-server.zip: bin/* pkg/web/public/*
 	mkdir -p dist/tales-server
-	cp -r bin public dist/tales-server/
+	cp -r bin pkg/web/public dist/tales-server/
 	if which zip; then \
 		cd dist && zip -r tales-server.zip tales-server; \
 	else \
