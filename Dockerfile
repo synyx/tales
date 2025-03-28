@@ -10,4 +10,4 @@ VOLUME /Tales
 EXPOSE 3000
 
 ENTRYPOINT ["/tales-server"]
-CMD ["-bind", "127.0.0.1:3000", "-projects", "/Tales"]
+CMD ["-bind", "0.0.0.0:3000", "-projects", "/Tales"]
