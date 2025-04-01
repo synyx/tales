@@ -7,6 +7,7 @@
   "browser": "public/js/tales.js",
   "postinstall": "electron-builder install-app-deps",
   "scripts": {
+    "start": "electron .",
     "build": "rollup -c && npm run build:css",
     "build:css": "postcss src/css/*.css --dir pkg/web/public/css/",
     "dist": "electron-builder --publish=never",
