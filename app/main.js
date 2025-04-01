@@ -52,6 +52,8 @@ function stop() {
 
 function runServer() {
   server = childProcess.execFile(path.join(binDir, "tales-server"), [
+    "-bind",
+    "127.0.0.1:3000",
     "-resources",
     resourcesDir,
   ]);
