@@ -59,7 +59,7 @@ function runServer() {
   ]);
   server.on("error", err => {
     console.error("failed to start process", err);
-    server = null;
+    app.quit();
   });
   server.on("exit", (code, signal) => {
     console.log("server exited", code, signal);
