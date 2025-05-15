@@ -59,7 +59,7 @@ func main() {
 	}
 
 	server := http.Server{
-		Handler:      web.NewServer(projectsDir, resourceFS),
+		Handler:      csp(web.NewServer(projectsDir, resourceFS)),
 		Addr:         bindAddr,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
@@ -100,4 +100,16 @@ func waitForInterrupt() {
 	trap := make(chan os.Signal, 1)
 	signal.Notify(trap, os.Interrupt)
 	<-trap
+}
+
+func csp(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Security-Policy", "default-src 'self'")
+		w.Header().Add("X-XSS-Protection", "1; mode=block")
+		w.Header().Add("X-Frame-Options", "DENY")
+		w.Header().Add("Referrer-Policy", "strict-origin-when-cross-origin")
+		w.Header().Add("X-Content-Type-Options", "nosniff")
+
+		h.ServeHTTP(w, r)
+	})
 }

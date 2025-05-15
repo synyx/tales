@@ -43,8 +43,10 @@ build-go: ${BINARIES}
 bin/%: cmd/**/*.go pkg/**/*.go
 	go build $(GOFLAGS) -o $@ $(PKG)/cmd/$(subst $(SUFFIX),,$(@:bin/%=%))
 
-build-js:
+dist/main.js: app/main.js
 	npm run build
+
+build-js: dist/main.js
 
 coverage: coverage-go coverage-js
 
@@ -86,16 +88,16 @@ dist: dist-go dist-js
 
 dist-go: tales-server.zip
 
-tales-server.zip: bin/* pkg/web/public/*
+tales-server.zip: bin/tales-server bin/tales-migrate pkg/web/public/*
 	mkdir -p dist/tales-server
-	cp -r bin public dist/tales-server/
+	cp -r bin pkg/web/public dist/tales-server/
 	if which zip; then \
 		cd dist && zip -r tales-server.zip tales-server; \
 	else \
 		cd dist && 7z a tales-server.zip tales-server; \
 	fi
 
-dist-js:
+dist-js: build-js
 	npm run dist
 
 CONTAINER_BUILDER := $(shell which docker 2>/dev/null || which podman 2>/dev/null)
