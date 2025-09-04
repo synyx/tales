@@ -48,7 +48,7 @@
     "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-terser": "^0.4.4",
     "cssnano": "^7.0.6",
-    "electron": "^35.1.2",
+    "electron": "^35.7.5",
     "electron-builder": "^26.0.12",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
