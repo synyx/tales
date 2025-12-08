@@ -48,7 +48,7 @@
     "@rollup/plugin-replace": "^6.0.3",
     "@rollup/plugin-terser": "^0.4.4",
     "cssnano": "^7.1.2",
-    "electron": "^39.2.4",
+    "electron": "^39.2.6",
     "electron-builder": "^26.0.12",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
@@ -63,7 +63,7 @@
     "node-polyglot": "^2.6.0",
     "postcss-cli": "^11.0.1",
     "postcss-import": "^16.1.1",
-    "prettier": "^3.7.3",
+    "prettier": "^3.7.4",
     "rollup": "^4.53.3"
   },
   "jest": {
