@@ -29,13 +29,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
       with:
         go-version-file: 'go.mod'
 
     - name: Cache node modules
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       env:
         cache-name: cache-node-modules
       with:
@@ -72,7 +72,7 @@ jobs:
     - run: make dist
 
     - name: Upload server binaries to release
-      uses: svenstaro/upload-release-action@2.11.2
+      uses: svenstaro/upload-release-action@2.11.3
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ${{ matrix.server_artifact_name }}
@@ -80,7 +80,7 @@ jobs:
         tag: ${{ github.ref }}
 
     - name: Upload desktop binaries to release
-      uses: svenstaro/upload-release-action@2.11.2
+      uses: svenstaro/upload-release-action@2.11.3
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ${{ matrix.desktop_artifact_name }}
